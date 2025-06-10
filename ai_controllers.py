@@ -77,6 +77,8 @@ class LearningAgent:
     def __init__(self):
         # Simple experience buffer for demonstration purposes
         self.buffer = []
+        self.total_reward = 0.0
+        self.avg_reward = 0.0
 
     def update_on_experience(self, experience_batch):
         """
@@ -86,3 +88,9 @@ class LearningAgent:
         # A real agent would perform gradient updates here.  We simply
         # accumulate the experiences so they can be inspected later.
         self.buffer.extend(experience_batch)
+
+        # Track running reward statistics for basic learning diagnostics
+        batch_reward = sum(exp[2] for exp in experience_batch)
+        self.total_reward += batch_reward
+        if self.buffer:
+            self.avg_reward = self.total_reward / len(self.buffer)

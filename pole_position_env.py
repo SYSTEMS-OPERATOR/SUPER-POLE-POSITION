@@ -191,6 +191,15 @@ class PolePositionEnv(gym.Env):
             sample_rate=sample_rate
         )
 
+    def close(self):
+        """Clean up resources like audio streams."""
+        if self.audio_stream is not None:
+            try:
+                self.audio_stream.stop()
+            except Exception:
+                pass
+            self.audio_stream = None
+
     def _get_obs(self):
         """
         Observation: [car0_x, car0_y, car0_speed, car1_x, car1_y, car1_speed]

@@ -68,12 +68,13 @@ _A Reinforcement Learning Lab for Next-Gen AI Racers_
 - 🖥️ Python 3.8+  
 - 🏎️ Gymnasium (Reinforcement Learning framework)  
 - 🧠 PyTorch / TensorFlow (for AI models)  
-- 🎵 SimpleAudio (for binaural effects)  
-- 📡 ZeroMQ / WebSockets (for live AI telemetry)  
+- 🎵 SimpleAudio (for binaural effects)
+- 🎮 Pygame (for optional graphics)
+- 📡 ZeroMQ / WebSockets (for live AI telemetry)
 
 🔽 **Install Dependencies**
 ```bash
-pip install gymnasium numpy torch transformers simpleaudio zmq
+pip install gymnasium numpy torch transformers simpleaudio pygame zmq
 ```
 
 🚀 **Run a Test Race**

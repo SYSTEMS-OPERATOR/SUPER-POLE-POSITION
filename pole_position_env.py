@@ -8,7 +8,10 @@ Implements a Gym environment for multi-car racing:
 
 import numpy as np
 import gym
-import simpleaudio as sa
+try:
+    import simpleaudio as sa
+except Exception:  # pragma: no cover - optional dependency
+    sa = None
 
 from car import Car
 from track import Track
@@ -77,6 +80,7 @@ class PolePositionEnv(gym.Env):
         Car 1 is AI-driven using GPT plan + LowLevelController
         """
         self.current_step += 1
+        prev_obs = self._get_obs()
 
         # ---- Car 0 (Player / Random) ----
         throttle, brake, steer = False, False, 0.0
@@ -104,9 +108,13 @@ class PolePositionEnv(gym.Env):
         except ValueError:
             target_speed = self.cars[1].speed  # fallback to current
 
-        # For heading, we do a naive approach: Car 1 always tries to move near Car 0
-        heading_error = 0.0  # stub
-        # Could compute angle difference if we want Car 1 to chase Car 0
+        # Steering towards Car 0
+        dx = self.cars[0].x - self.cars[1].x
+        dy = self.cars[0].y - self.cars[1].y
+        dx = (dx + self.track.width / 2) % self.track.width - self.track.width / 2
+        dy = (dy + self.track.height / 2) % self.track.height - self.track.height / 2
+        target_angle = np.arctan2(dy, dx)
+        heading_error = ((target_angle - self.cars[1].angle + np.pi) % (2 * np.pi)) - np.pi
 
         (throttle_ai, brake_ai, steer_ai) = self.low_level.compute_controls(
             self.cars[1].speed,
@@ -135,8 +143,7 @@ class PolePositionEnv(gym.Env):
         done = (self.current_step >= self.max_steps)
 
         # Example "real-time learning" for Car 1: gather experience
-        # (stub code - not a real RL update)
-        experience = (self._get_obs(), action, reward, self._get_obs())
+        experience = (prev_obs, action, reward, self._get_obs())
         self.learning_agent.update_on_experience([experience])
 
         return self._get_obs(), reward, done, False, {}
@@ -156,6 +163,9 @@ class PolePositionEnv(gym.Env):
         """
         Each step, generate separate sine waves (left for Car0, right for Car1).
         """
+        if sa is None:
+            return
+
         t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
         # Frequencies
         freq_left = 10.0 * self.cars[0].speed  # scale speed => audible freq
@@ -166,16 +176,18 @@ class PolePositionEnv(gym.Env):
         right_wave = 0.3 * np.sin(2 * np.pi * freq_right * t)
 
         # Interleave channels
-        waveform = np.vstack((left_wave, right_wave)).T.astype(np.float32)
+        waveform = np.vstack((left_wave, right_wave)).T
+        # Convert to 16-bit PCM for simpleaudio
+        waveform_int16 = np.int16(waveform * 32767)
 
         # Stop previous sound if playing
         if self.audio_stream is not None:
             self.audio_stream.stop()
 
         self.audio_stream = sa.play_buffer(
-            waveform,
+            waveform_int16,
             num_channels=2,
-            bytes_per_sample=4,
+            bytes_per_sample=2,
             sample_rate=sample_rate
         )
 

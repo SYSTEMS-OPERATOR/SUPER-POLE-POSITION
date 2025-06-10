@@ -7,23 +7,33 @@ Houses:
 - LearningAgent: Placeholder for real-time learning / RL logic.
 """
 
-import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM
+try:
+    import torch  # noqa: F401 - optional dependency
+    from transformers import AutoTokenizer, AutoModelForCausalLM
+except Exception:  # pragma: no cover - optional dependency may be missing
+    torch = None
+    AutoTokenizer = None
+    AutoModelForCausalLM = None
 
 class GPTPlanner:
-    """
-    High-level planner that uses GPT for text-based decisions.
-    For performance, ensure the model is small or run asynchronously.
-    """
-    def __init__(self, model_name='openai-community/gpt2'):
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-        self.model = AutoModelForCausalLM.from_pretrained(model_name)
+    """High-level planner that can optionally use a GPT model."""
+
+    def __init__(self, model_name: str = 'openai-community/gpt2') -> None:
+        """Load the GPT model if the transformers stack is available."""
+        if AutoTokenizer is None:
+            # Dependencies missing – fall back to a deterministic planner.
+            self.tokenizer = None
+            self.model = None
+        else:
+            self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+            self.model = AutoModelForCausalLM.from_pretrained(model_name)
 
     def generate_plan(self, state_dict):
-        """
-        :param state_dict: e.g. {'speed': float, 'position': (x, y), 'lap_time': float, etc.}
-        :return: A string that may encode a target speed or steering plan.
-        """
+        """Return a textual plan for the next action."""
+        if self.tokenizer is None or self.model is None:
+            # Fallback behaviour if transformers is unavailable
+            return "target_speed 10"
+
         prompt = (
             "Car state:\n"
             f"- Speed: {state_dict['speed']}\n"
@@ -65,18 +75,14 @@ class LearningAgent:
     In a real system, you'd manage experience buffers, do forward/backprop, etc.
     """
     def __init__(self):
-        # In practice, load a small neural net, Q-network, or policy net
-        pass
+        # Simple experience buffer for demonstration purposes
+        self.buffer = []
 
     def update_on_experience(self, experience_batch):
         """
         Stub method showing where you'd do gradient updates each step/lap.
         :param experience_batch: e.g. [(state, action, reward, next_state), ...]
         """
-        # Pseudocode:
-        # 1) Convert to tensors
-        # 2) Compute Q-loss or policy gradient
-        # 3) optimizer.zero_grad()
-        # 4) loss.backward()
-        # 5) optimizer.step()
-        pass
+        # A real agent would perform gradient updates here.  We simply
+        # accumulate the experiences so they can be inspected later.
+        self.buffer.extend(experience_batch)

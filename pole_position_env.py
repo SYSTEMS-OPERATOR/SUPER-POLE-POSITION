@@ -143,12 +143,13 @@ class PolePositionEnv(gym.Env):
         for c in self.cars:
             self.track.wrap_position(c)
 
-        # Update progress and laps
+        # Update progress along the course and detect lap completion
         lap_reward = 0.0
         for idx, c in enumerate(self.cars):
             prev_prog = self.car_progress[idx]
             prog = self.track.progress_along_course(c)
-            if prog < prev_prog:
+            # Trigger a new lap when progress wraps from near 1 back to 0
+            if prev_prog > 0.8 and prog < 0.2:
                 self.car_laps[idx] += 1
                 if idx == 0:
                     lap_reward += 5.0

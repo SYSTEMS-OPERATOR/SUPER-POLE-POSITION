@@ -17,9 +17,9 @@ try:
 except Exception:  # pragma: no cover - optional dependency
     sa = None
 
-from car import Car
-from track import Track
-from ai_controllers import GPTPlanner, LowLevelController, LearningAgent
+from ..physics.car import Car
+from ..physics.track import Track
+from ..agents.controllers import GPTPlanner, LowLevelController, LearningAgent
 
 class PolePositionEnv(gym.Env):
     """

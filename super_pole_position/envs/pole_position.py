@@ -7,7 +7,7 @@ Implements a Gym environment for multi-car racing:
 """
 
 import numpy as np
-import gym
+import gymnasium as gym
 try:
     import pygame  # optional dependency for graphics
 except Exception:  # pragma: no cover - optional dependency may be missing

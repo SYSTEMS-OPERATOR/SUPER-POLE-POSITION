@@ -9,13 +9,17 @@ Implements a Gym environment for multi-car racing:
 import numpy as np
 import gym
 try:
+    import pygame  # optional dependency for graphics
+except Exception:  # pragma: no cover - optional dependency may be missing
+    pygame = None
+try:
     import simpleaudio as sa
 except Exception:  # pragma: no cover - optional dependency
     sa = None
 
-from car import Car
-from track import Track
-from ai_controllers import GPTPlanner, LowLevelController, LearningAgent
+from ..physics.car import Car
+from ..physics.track import Track
+from ..agents.controllers import GPTPlanner, LowLevelController, LearningAgent
 
 class PolePositionEnv(gym.Env):
     """
@@ -41,9 +45,13 @@ class PolePositionEnv(gym.Env):
         self.low_level = LowLevelController()
         self.learning_agent = LearningAgent()
 
-        # For multi-agent or expansions, define an action_space for each agent.
-        # Here, we define a single Discrete(3) for Car 0 (player) => throttle, brake, no-op.
-        self.action_space = gym.spaces.Discrete(3)
+        # Action space for Car 0 when controlled by a human or AI.
+        # throttle: {0,1}, brake: {0,1}, steer: [-1,1]
+        self.action_space = gym.spaces.Dict({
+            "throttle": gym.spaces.Discrete(2),
+            "brake": gym.spaces.Discrete(2),
+            "steer": gym.spaces.Box(low=-1.0, high=1.0, shape=())
+        })
 
         # Observations: (car0_x, car0_y, car0_speed, car1_x, car1_y, car1_speed)
         high = np.array([self.track.width, self.track.height,  self.cars[0].max_speed,
@@ -66,6 +74,11 @@ class PolePositionEnv(gym.Env):
         self.start_pos = (self.cars[0].x, self.cars[0].y)
         self.lap_threshold = 5.0
         self._prev_start_dist = None
+
+        # pygame-related attributes (initialized lazily)
+        self.screen = None
+        self.clock = None
+        self._scale = 3  # pixels per track unit
 
     def reset(self, seed=None, options=None):
         if self.current_step > 0 or self.timer > 0:
@@ -96,8 +109,13 @@ class PolePositionEnv(gym.Env):
 
     def step(self, action):
         """
-        Single action for Car 0 => 0=throttle, 1=brake, 2=no-action
-        Car 1 is AI-driven using GPT plan + LowLevelController
+        Step the environment.
+
+        ``action`` can be either the old discrete form (0=throttle, 1=brake,
+        2=no-op) or a tuple/dict specifying ``throttle``, ``brake`` and
+        ``steer`` values.  This keeps backwards compatibility while enabling
+        richer human control.
+        Car 1 is AI-driven using GPT plan + LowLevelController.
         """
         self.current_step += 1
         self.timer += 1.0
@@ -105,11 +123,19 @@ class PolePositionEnv(gym.Env):
 
         # ---- Car 0 (Player / Random) ----
         throttle, brake, steer = False, False, 0.0
-        if action == 0:
-            throttle = True
-        elif action == 1:
-            brake = True
-        # else action==2 => no action
+        if isinstance(action, (tuple, list)):
+            if len(action) >= 3:
+                throttle, brake, steer = bool(action[0]), bool(action[1]), float(action[2])
+        elif isinstance(action, dict):
+            throttle = bool(action.get("throttle", False))
+            brake = bool(action.get("brake", False))
+            steer = float(action.get("steer", 0.0))
+        else:
+            if action == 0:
+                throttle = True
+            elif action == 1:
+                brake = True
+            # else action==2 => no action
 
         self.cars[0].apply_controls(throttle, brake, steer, dt=1.0)
         reward = self.cars[0].speed * 0.05
@@ -194,21 +220,58 @@ class PolePositionEnv(gym.Env):
         return self._get_obs(), reward, done, False, {}
 
     def render(self):
-        """
-        Minimal textual render in console.
-        For real usage, integrate pygame or another library for visuals.
-        """
-        if self.render_mode == "human":
-            lap_time = self.timer - self.lap_start_time
-            best = f"{self.best_lap_time:.2f}s" if self.best_lap_time is not None else "N/A"
+        """Render the environment."""
+        if self.render_mode != "human":
+            return
+
+        lap_time = self.timer - self.lap_start_time
+        best = f"{self.best_lap_time:.2f}s" if self.best_lap_time is not None else "N/A"
+
+        if pygame is None:
+            # Fallback textual render
             print(
-                f"Time {self.timer:.0f}s | Lap {self.completed_laps + 1}"
-                f" T={lap_time:.1f}s | Best={best}"
+                f"Time {self.timer:.0f}s | Lap {self.completed_laps + 1} T={lap_time:.1f}s | Best={best}"
             )
             print(
                 f"Car0: ({self.cars[0].x:.2f}, {self.cars[0].y:.2f}) Spd={self.cars[0].speed:.2f} | "
                 f"Car1: ({self.cars[1].x:.2f}, {self.cars[1].y:.2f}) Spd={self.cars[1].speed:.2f}"
             )
+            return
+        else:
+            print(
+                f"Time {self.timer:.0f}s | Lap {self.completed_laps + 1} T={lap_time:.1f}s | Best={best}"
+            )
+
+        if self.screen is None:
+            pygame.init()
+            size = (int(self.track.width * self._scale), int(self.track.height * self._scale))
+            self.screen = pygame.display.set_mode(size)
+            pygame.display.set_caption("Super Pole Position")
+            self.clock = pygame.time.Clock()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.close()
+                return
+
+        self.screen.fill((0, 0, 0))
+        # Track border
+        pygame.draw.rect(
+            self.screen,
+            (50, 50, 50),
+            pygame.Rect(0, 0, self.track.width * self._scale, self.track.height * self._scale),
+            2,
+        )
+
+        colors = [(255, 0, 0), (0, 255, 0)]
+        for car, color in zip(self.cars, colors):
+            x = int(car.x * self._scale)
+            y = int(car.y * self._scale)
+            pygame.draw.circle(self.screen, color, (x, y), 5)
+
+        pygame.display.flip()
+        if self.clock:
+            self.clock.tick(self.metadata.get("render_fps", 30))
 
     def _play_binaural_audio(self, duration=0.5, sample_rate=44100):
         """
@@ -251,14 +314,17 @@ class PolePositionEnv(gym.Env):
                 pass
             self.audio_stream = None
 
-    def _summarize_episode(self):
-        """Print race summary and maintain high-score list."""
+        if pygame is not None and self.screen is not None:
+            pygame.quit()
+            self.screen = None
+
+    def _summarize_episode(self) -> None:
+        """Print race summary and update high scores."""
         total_time = self.timer
         if total_time <= 0:
             return
-        best = self.best_lap_time if self.best_lap_time is not None else float('inf')
-        print(
-            f"\nEpisode finished in {total_time:.1f}s with {self.completed_laps} laps.")
+
+        print(f"\nEpisode finished in {total_time:.1f}s with {self.completed_laps} laps.")
         if self.best_lap_time is not None:
             print(f"Best lap: {self.best_lap_time:.2f}s")
             self.high_scores.append(self.best_lap_time)

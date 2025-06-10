@@ -31,7 +31,8 @@ def main():
 
         print(f"Episode {ep+1} finished in {steps} steps with reward={total_reward:.2f}")
 
-    # Cleanup, especially if there's ongoing audio
+    # Print summary for the final episode and clean up
+    env._summarize_episode()
     env.close()
 
 if __name__ == "__main__":

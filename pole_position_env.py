@@ -56,9 +56,29 @@ class PolePositionEnv(gym.Env):
         self.current_step = 0
         self.max_steps = 500  # limit episode length
 
+        # Timing / lap tracking
+        self.timer = 0.0
+        self.lap_start_time = 0.0
+        self.best_lap_time = None
+        self.lap_times = []
+        self.completed_laps = 0
+        self.high_scores = []  # best lap times across episodes
+        self.start_pos = (self.cars[0].x, self.cars[0].y)
+        self.lap_threshold = 5.0
+        self._prev_start_dist = None
+
     def reset(self, seed=None, options=None):
+        if self.current_step > 0 or self.timer > 0:
+            self._summarize_episode()
+
         super().reset(seed=seed)
         self.current_step = 0
+        self.timer = 0.0
+        self.lap_start_time = 0.0
+        self.best_lap_time = None
+        self.lap_times = []
+        self.completed_laps = 0
+        self._prev_start_dist = None
 
         # Reset cars to start positions
         self.cars[0].x = 50.0
@@ -80,6 +100,7 @@ class PolePositionEnv(gym.Env):
         Car 1 is AI-driven using GPT plan + LowLevelController
         """
         self.current_step += 1
+        self.timer += 1.0
         prev_obs = self._get_obs()
 
         # ---- Car 0 (Player / Random) ----
@@ -91,6 +112,7 @@ class PolePositionEnv(gym.Env):
         # else action==2 => no action
 
         self.cars[0].apply_controls(throttle, brake, steer, dt=1.0)
+        reward = self.cars[0].speed * 0.05
 
         # ---- Car 1 (AI) ----
         # High-level plan from GPT
@@ -127,11 +149,34 @@ class PolePositionEnv(gym.Env):
         for c in self.cars:
             self.track.wrap_position(c)
 
+        # ----- Lap Timing for Car 0 -----
+        start_dx = self.cars[0].x - self.start_pos[0]
+        start_dy = self.cars[0].y - self.start_pos[1]
+        dist_to_start = float(np.hypot(start_dx, start_dy))
+        if self._prev_start_dist is None:
+            self._prev_start_dist = dist_to_start
+        else:
+            crossed = (
+                self._prev_start_dist > self.lap_threshold
+                and dist_to_start <= self.lap_threshold
+                and self.timer > 0.0
+            )
+            if crossed:
+                lap_time = self.timer - self.lap_start_time
+                self.lap_times.append(lap_time)
+                if self.best_lap_time is None or lap_time < self.best_lap_time:
+                    self.best_lap_time = lap_time
+                    reward += 5.0  # reward new record
+                reward += 2.0  # reward lap completion
+                self.lap_start_time = self.timer
+                self.completed_laps += 1
+            self._prev_start_dist = dist_to_start
+
         # Binaural audio: generate waveform based on each car's speed
         self._play_binaural_audio()
 
-        # Reward: e.g. Car 0 gets reward for going faster or for time alive
-        reward = self.cars[0].speed * 0.05
+        # Base reward: proportional to speed
+        reward += self.cars[0].speed * 0.05
 
         # Optionally, check collisions or add penalty
         dist = self.track.distance(self.cars[0], self.cars[1])
@@ -154,10 +199,16 @@ class PolePositionEnv(gym.Env):
         For real usage, integrate pygame or another library for visuals.
         """
         if self.render_mode == "human":
-            print(f"Car0: ({self.cars[0].x:.2f}, {self.cars[0].y:.2f}) "
-                  f"Spd={self.cars[0].speed:.2f} | "
-                  f"Car1: ({self.cars[1].x:.2f}, {self.cars[1].y:.2f}) "
-                  f"Spd={self.cars[1].speed:.2f}")
+            lap_time = self.timer - self.lap_start_time
+            best = f"{self.best_lap_time:.2f}s" if self.best_lap_time is not None else "N/A"
+            print(
+                f"Time {self.timer:.0f}s | Lap {self.completed_laps + 1}"
+                f" T={lap_time:.1f}s | Best={best}"
+            )
+            print(
+                f"Car0: ({self.cars[0].x:.2f}, {self.cars[0].y:.2f}) Spd={self.cars[0].speed:.2f} | "
+                f"Car1: ({self.cars[1].x:.2f}, {self.cars[1].y:.2f}) Spd={self.cars[1].speed:.2f}"
+            )
 
     def _play_binaural_audio(self, duration=0.5, sample_rate=44100):
         """
@@ -199,6 +250,23 @@ class PolePositionEnv(gym.Env):
             except Exception:
                 pass
             self.audio_stream = None
+
+    def _summarize_episode(self):
+        """Print race summary and maintain high-score list."""
+        total_time = self.timer
+        if total_time <= 0:
+            return
+        best = self.best_lap_time if self.best_lap_time is not None else float('inf')
+        print(
+            f"\nEpisode finished in {total_time:.1f}s with {self.completed_laps} laps.")
+        if self.best_lap_time is not None:
+            print(f"Best lap: {self.best_lap_time:.2f}s")
+            self.high_scores.append(self.best_lap_time)
+            self.high_scores.sort()
+            self.high_scores = self.high_scores[:5]
+            print("-- High Scores --")
+            for i, t in enumerate(self.high_scores, 1):
+                print(f"{i}. {t:.2f}s")
 
     def _get_obs(self):
         """

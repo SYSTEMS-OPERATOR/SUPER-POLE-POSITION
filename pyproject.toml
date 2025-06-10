@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "super-pole-position"
+version = "0.1.0"
+description = "Gymnasium environment for AI-driven Pole Position style racing."
+readme = "README.md"
+license = {text = "Unlicense"}
+authors = [{name="System Operators"}]
+requires-python = ">=3.8"
+dependencies = [
+    "gymnasium",
+    "numpy"
+]
+
+[project.optional-dependencies]
+graphics = ["pygame"]
+audio = ["simpleaudio"]
+ai = ["torch", "transformers"]
+
+[project.scripts]
+super-pole-position = "super_pole_position.cli:main"

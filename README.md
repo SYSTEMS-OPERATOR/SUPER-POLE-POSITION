@@ -72,24 +72,24 @@ _A Reinforcement Learning Lab for Next-Gen AI Racers_
 - 🎮 Pygame (for optional graphics)
 - 📡 ZeroMQ / WebSockets (for live AI telemetry)
 
-🔽 **Install Dependencies**
+🔽 **Install**
 ```bash
-pip install gymnasium numpy torch transformers simpleaudio pygame zmq
+pip install super-pole-position[graphics,audio,ai]
 ```
 
 🚀 **Run a Test Race**
 ```bash
-python main.py
+super-pole-position
 ```
 
 🏁 **AI-Only Mode**
 ```bash
-python main.py --ai
+super-pole-position --ai
 ```
 
 📊 **Log & Monitor AI Performance**
 ```bash
-python viewer.py
+super-pole-position --episodes 1
 ```
 
 ---

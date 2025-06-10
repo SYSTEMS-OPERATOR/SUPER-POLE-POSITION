@@ -35,6 +35,8 @@ class PolePositionEnv(gym.Env):
         # Track & cars
         self.track = Track(width=200.0, height=200.0)
         self.cars = [Car(x=50, y=50), Car(x=150, y=150)]
+        self.car_progress = [0.0 for _ in self.cars]
+        self.car_laps = [0 for _ in self.cars]
         
         # AI components for second car
         self.planner = GPTPlanner()         # High-level
@@ -45,12 +47,24 @@ class PolePositionEnv(gym.Env):
         # Here, we define a single Discrete(3) for Car 0 (player) => throttle, brake, no-op.
         self.action_space = gym.spaces.Discrete(3)
 
-        # Observations: (car0_x, car0_y, car0_speed, car1_x, car1_y, car1_speed)
-        high = np.array([self.track.width, self.track.height,  self.cars[0].max_speed,
-                         self.track.width, self.track.height,  self.cars[1].max_speed],
-                        dtype=np.float32)
-        low = np.array([0.0, 0.0, 0.0,  0.0, 0.0,  0.0], dtype=np.float32)
-        self.observation_space = gym.spaces.Box(low, high, shape=(6,), dtype=np.float32)
+        # Observations include position, speed, progress and laps for each car
+        high = np.array(
+            [
+                self.track.width,
+                self.track.height,
+                self.cars[0].max_speed,
+                1.0,
+                1000.0,
+                self.track.width,
+                self.track.height,
+                self.cars[1].max_speed,
+                1.0,
+                1000.0,
+            ],
+            dtype=np.float32,
+        )
+        low = np.zeros_like(high, dtype=np.float32)
+        self.observation_space = gym.spaces.Box(low, high, shape=(10,), dtype=np.float32)
 
         self.audio_stream = None
         self.current_step = 0
@@ -59,6 +73,8 @@ class PolePositionEnv(gym.Env):
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
         self.current_step = 0
+        self.car_progress = [0.0 for _ in self.cars]
+        self.car_laps = [0 for _ in self.cars]
 
         # Reset cars to start positions
         self.cars[0].x = 50.0
@@ -127,11 +143,22 @@ class PolePositionEnv(gym.Env):
         for c in self.cars:
             self.track.wrap_position(c)
 
+        # Update progress and laps
+        lap_reward = 0.0
+        for idx, c in enumerate(self.cars):
+            prev_prog = self.car_progress[idx]
+            prog = self.track.progress_along_course(c)
+            if prog < prev_prog:
+                self.car_laps[idx] += 1
+                if idx == 0:
+                    lap_reward += 5.0
+            self.car_progress[idx] = prog
+
         # Binaural audio: generate waveform based on each car's speed
         self._play_binaural_audio()
 
         # Reward: e.g. Car 0 gets reward for going faster or for time alive
-        reward = self.cars[0].speed * 0.05
+        reward = self.cars[0].speed * 0.05 + lap_reward
 
         # Optionally, check collisions or add penalty
         dist = self.track.distance(self.cars[0], self.cars[1])
@@ -154,10 +181,14 @@ class PolePositionEnv(gym.Env):
         For real usage, integrate pygame or another library for visuals.
         """
         if self.render_mode == "human":
-            print(f"Car0: ({self.cars[0].x:.2f}, {self.cars[0].y:.2f}) "
-                  f"Spd={self.cars[0].speed:.2f} | "
-                  f"Car1: ({self.cars[1].x:.2f}, {self.cars[1].y:.2f}) "
-                  f"Spd={self.cars[1].speed:.2f}")
+            print(
+                f"Car0: ({self.cars[0].x:.2f}, {self.cars[0].y:.2f}) "
+                f"Spd={self.cars[0].speed:.2f} "
+                f"Lap={self.car_laps[0]} Prog={self.car_progress[0]:.2f} | "
+                f"Car1: ({self.cars[1].x:.2f}, {self.cars[1].y:.2f}) "
+                f"Spd={self.cars[1].speed:.2f} "
+                f"Lap={self.car_laps[1]} Prog={self.car_progress[1]:.2f}"
+            )
 
     def _play_binaural_audio(self, duration=0.5, sample_rate=44100):
         """
@@ -202,13 +233,20 @@ class PolePositionEnv(gym.Env):
 
     def _get_obs(self):
         """
-        Observation: [car0_x, car0_y, car0_speed, car1_x, car1_y, car1_speed]
+        Observation includes positions, speeds, progress and lap counts.
         """
-        return np.array([
-            self.cars[0].x,
-            self.cars[0].y,
-            self.cars[0].speed,
-            self.cars[1].x,
-            self.cars[1].y,
-            self.cars[1].speed
-        ], dtype=np.float32)
+        return np.array(
+            [
+                self.cars[0].x,
+                self.cars[0].y,
+                self.cars[0].speed,
+                self.car_progress[0],
+                float(self.car_laps[0]),
+                self.cars[1].x,
+                self.cars[1].y,
+                self.cars[1].speed,
+                self.car_progress[1],
+                float(self.car_laps[1]),
+            ],
+            dtype=np.float32,
+        )

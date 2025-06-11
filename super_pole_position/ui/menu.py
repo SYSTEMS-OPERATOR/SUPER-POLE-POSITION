@@ -1,4 +1,5 @@
 """Simple title menu with options and hi-score display."""
+
 from __future__ import annotations
 
 import os
@@ -34,14 +35,20 @@ class MenuState:
         self.selected = 0
 
     def visible(self) -> list[str]:
+        """Return list of option names currently visible."""
+
         if self.options_for("audio")[self.values["audio"]] == "off":
             return ["difficulty", "audio", "track"]
         return self.order
 
     def options_for(self, name: str) -> list:
+        """Return allowed values for option ``name``."""
+
         return self.options[name]
 
     def handle(self, key: str):
+        """Update state in response to a keypress."""
+
         key = key.upper()
         if key == "UP":
             self.selected = (self.selected - 1) % len(self.visible())
@@ -59,6 +66,8 @@ class MenuState:
         return "CONTINUE"
 
     def config(self) -> dict:
+        """Return a configuration dictionary representing the current state."""
+
         return {
             "difficulty": self.options_for("difficulty")[self.values["difficulty"]],
             "audio": self.options_for("audio")[self.values["audio"]] == "on",
@@ -69,7 +78,10 @@ class MenuState:
 
 # --- pygame frontend -----------------------------------------------------
 
+
 def _load_backdrop(rng: random.Random) -> pygame.Surface | None:
+    """Return a backdrop surface or ``None`` when pygame is unavailable."""
+
     if not pygame:
         return None
     bg_dir = Path(__file__).resolve().parent.parent / "assets" / "title_bg"
@@ -78,7 +90,7 @@ def _load_backdrop(rng: random.Random) -> pygame.Surface | None:
         img = pygame.image.load(str(rng.choice(files)))
         return img.convert()
     # generate placeholder if no images bundled
-    surf = pygame.Surface((screen_width := 320, 240))
+    surf = pygame.Surface((320, 240))
     surf.fill((rng.randrange(256), rng.randrange(256), rng.randrange(256)))
     return surf
 

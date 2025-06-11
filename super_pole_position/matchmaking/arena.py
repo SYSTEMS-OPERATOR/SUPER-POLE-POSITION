@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Iterable, Tuple
+from typing import Tuple
 
 from ..envs.pole_position import PolePositionEnv
 from ..agents.base_llm_agent import BaseLLMAgent
 
 
-def run_episode(env: PolePositionEnv, agents: Tuple[BaseLLMAgent, BaseLLMAgent]) -> float:
+def run_episode(
+    env: PolePositionEnv, agents: Tuple[BaseLLMAgent, BaseLLMAgent]
+) -> float:
     """Run one episode and return cumulative reward for agent 0."""
     obs, _ = env.reset()
     done = False

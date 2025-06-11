@@ -1,4 +1,5 @@
 """Minimal pygame viewer used during local races."""
+
 import os
 
 try:
@@ -8,6 +9,8 @@ except Exception:  # pragma: no cover
 
 
 def available() -> bool:
+    """Return ``True`` if pygame is installed."""
+
     return pygame is not None
 
 
@@ -15,12 +18,17 @@ class ArcadeRenderer:
     """Draw HUD and scenery layers using pygame."""
 
     def __init__(self, screen):
+        """Create a renderer bound to ``screen``."""
+
         self.screen = screen
         self.font = pygame.font.SysFont(None, 24) if pygame else None
         self.scenery = []
         if pygame:
             import pathlib
-            sc_dir = pathlib.Path(__file__).resolve().parent.parent / "assets" / "scenery"
+
+            sc_dir = (
+                pathlib.Path(__file__).resolve().parent.parent / "assets" / "scenery"
+            )
             for img in sc_dir.glob("*.png"):
                 try:
                     self.scenery.append(pygame.image.load(str(img)))
@@ -35,6 +43,8 @@ class ArcadeRenderer:
             self.crash_sound = silent
 
     def draw(self, env) -> None:
+        """Render the current environment state."""
+
         if not pygame:
             return
         # parallax scenery
@@ -52,7 +62,6 @@ class ArcadeRenderer:
 
         # audio channels
         if hasattr(self, "channels"):
-            pitch = env.cars[0].speed / env.cars[0].gear_max[-1]
             self.channels[0].play(self.engine_sound, loops=-1)
             if getattr(env, "skid_timer", 0) > 0 and not self.channels[1].get_busy():
                 self.channels[1].play(self.skid_sound)

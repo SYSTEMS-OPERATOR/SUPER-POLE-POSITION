@@ -9,6 +9,8 @@ _DEFAULT_FILE = Path(__file__).resolve().parent / "scores.json"
 
 
 def load_scores(file: Path | None = None) -> List[Dict]:
+    """Return list of score dicts from ``file``."""
+
     file = file or _DEFAULT_FILE
     if file.exists():
         try:
@@ -20,6 +22,8 @@ def load_scores(file: Path | None = None) -> List[Dict]:
 
 
 def update_scores(file: Path | None, name: str, score: int) -> None:
+    """Record ``score`` for ``name`` in ``file``."""
+
     file = file or _DEFAULT_FILE
     scores = load_scores(file)
     scores.append({"name": name, "score": int(score)})
@@ -28,5 +32,7 @@ def update_scores(file: Path | None, name: str, score: int) -> None:
 
 
 def reset_scores(file: Path | None = None) -> None:
+    """Clear all scores in ``file``."""
+
     file = file or _DEFAULT_FILE
     file.write_text(json.dumps({"scores": []}, indent=2))

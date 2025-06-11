@@ -80,6 +80,10 @@ class PolePositionEnv(gym.Env):
         self.crashes = 0
         self.crash_timer = 0.0
         self.safe_point = (50.0, 50.0)
+        self.offroad_frames = 0
+        self.slipstream_frames = 0
+        self.slipstream_timer = 0.0
+        self.skid_timer = 0.0
 
         self.audio_stream = None
         self.current_step = 0
@@ -97,6 +101,10 @@ class PolePositionEnv(gym.Env):
         self.next_checkpoint = 0.25
         self.qualifying_time = None
         self.crash_timer = 0.0
+        self.offroad_frames = 0
+        self.slipstream_frames = 0
+        self.slipstream_timer = 0.0
+        self.skid_timer = 0.0
 
         # Reset cars to start positions
         self.cars[0].x = 50.0
@@ -132,6 +140,8 @@ class PolePositionEnv(gym.Env):
         """
         self.current_step += 1
         self.remaining_time = max(self.remaining_time - 1.0, 0.0)
+        if self.skid_timer > 0:
+            self.skid_timer = max(self.skid_timer - 1.0, 0.0)
         prev_obs = self._get_obs()
         reward = 0.0
 
@@ -194,6 +204,36 @@ class PolePositionEnv(gym.Env):
         # Wrap positions on the track
         for c in self.cars:
             self.track.wrap_position(c)
+
+        # Off-road slowdown near track edges
+        offroad = self.cars[0].y < 5 or self.cars[0].y > self.track.height - 5
+        if offroad:
+            self.cars[0].speed *= 0.5
+            self.offroad_frames += 1
+
+        # Slip-angle skid penalty
+        if abs(steer) > 0.7 and self.cars[0].speed > 5:
+            self.cars[0].speed *= 0.95
+            self.skid_timer = 1.0
+
+        # Slipstream boost behind another car
+        slip = False
+        for other in [self.cars[1]] + self.traffic:
+            dx = (other.x - self.cars[0].x + self.track.width) % self.track.width
+            dy = abs(other.y - self.cars[0].y)
+            if 0 < dx <= 3.0 and dy < 1.0:
+                slip = True
+                break
+        if slip:
+            self.slipstream_timer += 1.0
+            if self.slipstream_timer >= 1.0:
+                self.cars[0].speed = min(
+                    self.cars[0].speed * 1.1,
+                    self.cars[0].gear_max[self.cars[0].gear],
+                )
+                self.slipstream_frames += 1
+        else:
+            self.slipstream_timer = 0.0
 
         if self.crash_timer > 0:
             self.crash_timer -= 1.0

@@ -54,7 +54,7 @@ class ArcadeRenderer:
         if hasattr(self, "channels"):
             pitch = env.cars[0].speed / env.cars[0].gear_max[-1]
             self.channels[0].play(self.engine_sound, loops=-1)
-            if abs(env.cars[0].angle) > 0.7 and env.cars[0].speed > 50:
+            if getattr(env, "skid_timer", 0) > 0 and not self.channels[1].get_busy():
                 self.channels[1].play(self.skid_sound)
             if env.crash_timer > 0 and not self.channels[2].get_busy():
                 self.channels[2].play(self.crash_sound)

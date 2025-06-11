@@ -1,0 +1,16 @@
+import os, sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from super_pole_position.envs.pole_position import PolePositionEnv
+
+
+def test_slipstream_boost():
+    env = PolePositionEnv(render_mode="human", mode="race")
+    env.reset()
+    lead = env.traffic[0]
+    env.cars[0].y = lead.y
+    env.cars[0].x = lead.x - 2
+    env.cars[0].speed = lead.speed = 5.0
+    env.cars[0].gear = 1
+    env.step((False, False, 0.0))
+    assert env.cars[0].speed > 5.0
+    env.close()

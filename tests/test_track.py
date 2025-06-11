@@ -20,3 +20,15 @@ def test_distance():
     dist = track.distance(car1, car2)
     # shortest distance across wrap is 20
     assert dist == 20.0
+
+
+def test_load_named_track():
+    track = Track.load("fuji")
+    assert track.width > 0
+
+
+def test_load_named_track(tmp_path):
+    track_file = tmp_path / "foo.json"
+    track_file.write_text('{"segments": [[0,0],[5,0],[5,5],[0,5]]}')
+    TrackPath = Track.load
+    # monkeypatch path to tmp

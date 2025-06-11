@@ -16,7 +16,15 @@ _A Reinforcement Learning Lab for Next-Gen AI Racers_
 🔹 **Classic NAMCO-inspired arcade physics**  
 🔹 **Multi-agent reinforcement learning** 🏎️🏎️  
 🔹 **Retro-styled toroidal tracks & infinite procedurally generated circuits**  
-🔹 **Real-time AI benchmarking & strategy evaluation**  
+🔹 **Real-time AI benchmarking & strategy evaluation**
+
+## Quick Start
+```bash
+pip install -e .[dev]
+spp qualify --agent null --track fuji
+```
+![](docs.gif)
+
 
 🔥 **Only the fastest and smartest AIs survive. Are you ready to build the ultimate racing intelligence?** 🔥  
 
@@ -116,3 +124,8 @@ super-pole-position --episodes 1
 🏎️ **HIT THE GAS.**  
 
 🔥 **THE FUTURE OF AI RACING BEGINS NOW.** 🔥  
+
+## What's new in v2
+- Named track loading
+- Traffic AI and crash logic
+- HUD with audio

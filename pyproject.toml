@@ -26,3 +26,9 @@ super-pole-position = "super_pole_position.cli:main"
 
 [tool.setuptools.packages.find]
 exclude = ["assets*"]
+
+[tool.ruff]
+line-length = 88
+
+[tool.black]
+line-length = 88

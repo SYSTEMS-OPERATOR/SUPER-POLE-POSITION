@@ -101,14 +101,17 @@ class PolePositionEnv(gym.Env):
         prev_obs = self._get_obs()
 
         # ---- Car 0 (Player / Random) ----
-        throttle, brake, steer = False, False, 0.0
+        throttle, brake, steer, gear_cmd = False, False, 0.0, 0
         if isinstance(action, (tuple, list)):
             if len(action) >= 3:
                 throttle, brake, steer = bool(action[0]), bool(action[1]), float(action[2])
+            if len(action) >= 4:
+                gear_cmd = int(action[3])
         elif isinstance(action, dict):
             throttle = bool(action.get("throttle", False))
             brake = bool(action.get("brake", False))
             steer = float(action.get("steer", 0.0))
+            gear_cmd = int(action.get("gear", 0))
         else:
             if action == 0:
                 throttle = True
@@ -116,6 +119,7 @@ class PolePositionEnv(gym.Env):
                 brake = True
             # else action==2 => no action
 
+        self.cars[0].shift(gear_cmd)
         self.cars[0].apply_controls(throttle, brake, steer, dt=1.0)
 
         # ---- Car 1 (AI) ----

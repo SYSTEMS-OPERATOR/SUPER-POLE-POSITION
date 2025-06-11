@@ -30,6 +30,8 @@ def run_episode(
 
 
 def update_leaderboard(file: Path, name: str, metrics: dict) -> None:
+    """Append ``metrics`` for ``name`` to ``file`` in leaderboard format."""
+
     data = {"schema_version": 2, "results": []}
     if file.exists():
         data = json.loads(file.read_text())

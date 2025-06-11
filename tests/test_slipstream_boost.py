@@ -6,6 +6,7 @@ from super_pole_position.envs.pole_position import PolePositionEnv
 def test_slipstream_boost():
     env = PolePositionEnv(render_mode="human", mode="race")
     env.reset()
+    env.start_timer = 0
     lead = env.traffic[0]
     env.cars[0].y = lead.y
     env.cars[0].x = lead.x - 2

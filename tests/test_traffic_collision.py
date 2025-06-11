@@ -6,6 +6,7 @@ from super_pole_position.envs.pole_position import PolePositionEnv
 def test_traffic_collision():
     env = PolePositionEnv(render_mode="human", mode="race")
     env.reset()
+    env.start_timer = 0
     env.cars[0].gear = 1
     env.cars[0].y = env.track.height / 2
     env.cars[0].x = env.traffic[0].x - 1

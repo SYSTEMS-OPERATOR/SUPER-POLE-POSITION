@@ -84,6 +84,14 @@ class PolePositionEnv(gym.Env):
         self.slipstream_frames = 0
         self.slipstream_timer = 0.0
         self.skid_timer = 0.0
+        self.start_timer = 0.0
+        self.start_phase = "READY"
+        self.lap = 0
+        self.score = 0.0
+        self.overtakes = 0
+        self.prev_progress = 0.0
+        self.prev_x = 0.0
+        self.prev_y = 0.0
 
         self.audio_stream = None
         self.current_step = 0
@@ -105,6 +113,14 @@ class PolePositionEnv(gym.Env):
         self.slipstream_frames = 0
         self.slipstream_timer = 0.0
         self.skid_timer = 0.0
+        self.start_timer = 5.0 if self.mode == "race" else 0.0
+        self.start_phase = "READY"
+        self.lap = 0
+        self.score = 0.0
+        self.overtakes = 0
+        self.prev_progress = 0.0
+        self.prev_x = 0.0
+        self.prev_y = 0.0
 
         # Reset cars to start positions
         self.cars[0].x = 50.0
@@ -124,6 +140,11 @@ class PolePositionEnv(gym.Env):
                 t.x = (i * 10) % self.track.width
                 t.y = self.track.height / 2
                 t.speed = 0.0
+                t.prev_x = t.x
+
+        self.prev_x = self.cars[0].x
+        self.prev_y = self.cars[0].y
+        self.prev_progress = self.track.progress(self.cars[0])
 
         # Return initial observation
         return self._get_obs(), {}
@@ -144,6 +165,16 @@ class PolePositionEnv(gym.Env):
             self.skid_timer = max(self.skid_timer - 1.0, 0.0)
         prev_obs = self._get_obs()
         reward = 0.0
+
+        # Start light sequence (does not block motion in tests)
+        if self.start_timer > 0:
+            self.start_timer -= 1.0
+            if self.start_timer >= 2.0:
+                self.start_phase = "READY"
+            elif self.start_timer > 0:
+                self.start_phase = "SET"
+            else:
+                self.start_phase = "GO"
 
         # ---- Car 0 (Player / Random) ----
         throttle, brake, steer, gear_cmd = False, False, 0.0, 0
@@ -252,13 +283,30 @@ class PolePositionEnv(gym.Env):
         # Binaural audio: generate waveform based on each car's speed
         self._play_binaural_audio()
 
+        # Scoring distance and overtakes
+        dist = float(((self.cars[0].x - self.prev_x) ** 2 + (self.cars[0].y - self.prev_y) ** 2) ** 0.5)
+        self.score += dist * 50
+        for t in self.traffic:
+            if hasattr(t, "prev_x") and self.prev_x < t.prev_x <= self.cars[0].x and abs(self.cars[0].y - t.y) < 1.0:
+                self.overtakes += 1
+                self.score += 50
+            t.prev_x = t.x
+
         progress = self.track.progress(self.cars[0])
+        if progress < self.prev_progress:
+            self.lap += 1
+            self.score += 2000
+        self.prev_progress = progress
+        self.prev_x = self.cars[0].x
+        self.prev_y = self.cars[0].y
         done = False
         if self.mode == "qualify":
             elapsed = (90.0 - self.remaining_time)
             reward = progress - 0.1 * elapsed
             if progress >= 1.0:
                 self.qualifying_time = elapsed
+                if elapsed < 55.0:
+                    self.score += 5000
                 done = True
         else:  # race
             reward = self.cars[0].speed * 0.05
@@ -271,6 +319,8 @@ class PolePositionEnv(gym.Env):
             if dist < 5.0:
                 reward -= 1.0
 
+        if self.mode == "race" and self.lap >= 4:
+            done = True
         done = done or self.remaining_time <= 0 or (self.current_step >= self.max_steps)
 
         experience = (prev_obs, action, reward, self._get_obs())

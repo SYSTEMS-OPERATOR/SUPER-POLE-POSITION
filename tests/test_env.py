@@ -14,5 +14,5 @@ def test_reset_and_step():
     # Apply a simple action: throttle car0
     obs, reward, done, trunc, info = env.step((True, False, 0.0))
     assert isinstance(reward, float)
-    assert len(obs) == 6
+    assert len(obs) == 17
     env.close()

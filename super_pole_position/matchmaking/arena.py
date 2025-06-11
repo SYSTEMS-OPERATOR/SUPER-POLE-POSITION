@@ -23,14 +23,16 @@ def run_episode(env: PolePositionEnv, agents: Tuple[BaseLLMAgent, BaseLLMAgent])
         )
         obs, reward, done, _, _ = env.step(action0_tuple)
         total += reward
-    env.close()
+    env.episode_reward = total
     return total
 
 
-def update_leaderboard(file: Path, name: str, reward: float) -> None:
-    data = {"results": []}
+def update_leaderboard(file: Path, name: str, metrics: dict) -> None:
+    data = {"schema_version": 2, "results": []}
     if file.exists():
         data = json.loads(file.read_text())
-    data["results"].append({"name": name, "reward": reward})
-    data["results"] = sorted(data["results"], key=lambda r: -r["reward"])[:10]
+    entry = {"name": name}
+    entry.update(metrics)
+    data["results"].append(entry)
+    data["results"] = sorted(data["results"], key=lambda r: -r.get("reward", 0))[:10]
     file.write_text(json.dumps(data, indent=2))

@@ -11,6 +11,9 @@ import math
 
 class Car:
     """A basic arcade-style car with position, speed, angle, acceleration."""
+    length = 2.0
+    width = 1.0
+
     def __init__(self, x=0.0, y=0.0, angle=0.0, speed=0.0):
         self.x = x
         self.y = y
@@ -22,10 +25,13 @@ class Car:
         self.gear = 0
         self.max_speed = self.gear_max[-1]
         self.turn_rate = 2.0  # rad/sec
+        self.shift_count = 0
 
     def shift(self, change: int) -> None:
         """Change gear by ``change`` amount (e.g. -1, 0, +1)."""
-        self.gear = min(max(self.gear + change, 0), len(self.gear_max) - 1)
+        if change:
+            self.shift_count += 1
+            self.gear = min(max(self.gear + change, 0), len(self.gear_max) - 1)
 
     def apply_controls(self, throttle: bool, brake: bool, steering: float, dt: float = 1.0):
         """

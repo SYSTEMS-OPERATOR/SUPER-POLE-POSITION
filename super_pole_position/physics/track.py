@@ -6,6 +6,8 @@ Optionally, can be extended with segment-based or procedural generation.
 """
 
 import math
+import json
+from pathlib import Path
 
 class Track:
     """A toroidal track with a defined length or 2D bounding box."""
@@ -17,6 +19,19 @@ class Track:
         """
         self.width = width
         self.height = height
+        self.start_x = 0.0
+
+    @classmethod
+    def load(cls, name: str) -> "Track":
+        path = Path(__file__).resolve().parent.parent / "assets" / "tracks" / f"{name}.json"
+        if path.exists():
+            data = json.loads(path.read_text())
+            seg = data.get("segments", [])
+            if seg:
+                width = max(p[0] for p in seg)
+                height = max(p[1] for p in seg)
+                return cls(width=width, height=height)
+        return cls()
 
     def wrap_position(self, car):
         """
@@ -46,3 +61,8 @@ class Track:
         dy = min(dy, self.height - dy)
 
         return math.sqrt(dx * dx + dy * dy)
+
+    def progress(self, car) -> float:
+        """Return lap progress 0..1 based on x position."""
+        delta = (car.x - self.start_x) % self.width
+        return delta / self.width

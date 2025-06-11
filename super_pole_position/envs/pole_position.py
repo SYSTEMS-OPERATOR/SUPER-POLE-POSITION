@@ -19,6 +19,7 @@ except Exception:  # pragma: no cover - optional dependency
 
 from ..physics.car import Car
 from ..physics.track import Track
+from ..physics.traffic_car import TrafficCar
 from ..agents.controllers import GPTPlanner, LowLevelController, LearningAgent
 
 class PolePositionEnv(gym.Env):
@@ -32,13 +33,19 @@ class PolePositionEnv(gym.Env):
 
     metadata = {"render_modes": ["human"], "render_fps": 30}
 
-    def __init__(self, render_mode="human"):
+    def __init__(self, render_mode="human", mode: str = "race", track_name: str | None = None):
         super().__init__()
         self.render_mode = render_mode
+        self.mode = mode
 
         # Track & cars
-        self.track = Track(width=200.0, height=200.0)
+        self.track = Track.load(track_name) if track_name else Track(width=200.0, height=200.0)
         self.cars = [Car(x=50, y=50), Car(x=150, y=150)]
+        self.traffic: list[TrafficCar] = []
+        if self.mode == "race":
+            for i in range(20):
+                x = (i * 10) % self.track.width
+                self.traffic.append(TrafficCar(x=x, y=self.track.height / 2))
         
         # AI components for second car
         self.planner = GPTPlanner()         # High-level
@@ -53,12 +60,26 @@ class PolePositionEnv(gym.Env):
             "steer": gym.spaces.Box(low=-1.0, high=1.0, shape=())
         })
 
-        # Observations: (car0_x, car0_y, car0_speed, car1_x, car1_y, car1_speed)
-        high = np.array([self.track.width, self.track.height,  self.cars[0].max_speed,
-                         self.track.width, self.track.height,  self.cars[1].max_speed],
-                        dtype=np.float32)
-        low = np.array([0.0, 0.0, 0.0,  0.0, 0.0,  0.0], dtype=np.float32)
-        self.observation_space = gym.spaces.Box(low, high, shape=(6,), dtype=np.float32)
+        # Observations: (car0_x, car0_y, car0_speed, car1_x, car1_y, car1_speed, remaining_time)
+        high = np.array([
+            self.track.width,
+            self.track.height,
+            self.cars[0].max_speed,
+            self.track.width,
+            self.track.height,
+            self.cars[1].max_speed,
+            999.0,
+        ] + [self.track.width, self.track.height] * 5, dtype=np.float32)
+        low = np.array([0.0] * (7 + 10), dtype=np.float32)
+        self.k_traffic = 5
+        self.observation_space = gym.spaces.Box(low, high, shape=(7 + 10,), dtype=np.float32)
+        self.remaining_time = 0.0
+        self.next_checkpoint = 0.25
+        self.qualifying_time = None
+        self.passes = 0
+        self.crashes = 0
+        self.crash_timer = 0.0
+        self.safe_point = (50.0, 50.0)
 
         self.audio_stream = None
         self.current_step = 0
@@ -72,17 +93,29 @@ class PolePositionEnv(gym.Env):
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
         self.current_step = 0
+        self.remaining_time = 90.0 if self.mode == "qualify" else 75.0
+        self.next_checkpoint = 0.25
+        self.qualifying_time = None
+        self.crash_timer = 0.0
 
         # Reset cars to start positions
         self.cars[0].x = 50.0
         self.cars[0].y = 50.0
         self.cars[0].angle = 0.0
         self.cars[0].speed = 0.0
+        self.track.start_x = self.cars[0].x
+        self.safe_point = (self.cars[0].x, self.cars[0].y)
 
         self.cars[1].x = 150.0
         self.cars[1].y = 150.0
         self.cars[1].angle = 0.0
         self.cars[1].speed = 0.0
+
+        if self.mode == "race":
+            for i, t in enumerate(self.traffic):
+                t.x = (i * 10) % self.track.width
+                t.y = self.track.height / 2
+                t.speed = 0.0
 
         # Return initial observation
         return self._get_obs(), {}
@@ -98,7 +131,9 @@ class PolePositionEnv(gym.Env):
         Car 1 is AI-driven using GPT plan + LowLevelController.
         """
         self.current_step += 1
+        self.remaining_time = max(self.remaining_time - 1.0, 0.0)
         prev_obs = self._get_obs()
+        reward = 0.0
 
         # ---- Car 0 (Player / Random) ----
         throttle, brake, steer, gear_cmd = False, False, 0.0, 0
@@ -122,57 +157,82 @@ class PolePositionEnv(gym.Env):
         self.cars[0].shift(gear_cmd)
         self.cars[0].apply_controls(throttle, brake, steer, dt=1.0)
 
-        # ---- Car 1 (AI) ----
-        # High-level plan from GPT
-        state_dict = {
-            "x": self.cars[1].x,
-            "y": self.cars[1].y,
-            "speed": self.cars[1].speed
-        }
-        plan_text = self.planner.generate_plan(state_dict)
+        if self.mode == "race":
+            # ---- Car 1 (AI) ----
+            state_dict = {
+                "x": self.cars[1].x,
+                "y": self.cars[1].y,
+                "speed": self.cars[1].speed,
+            }
+            plan_text = self.planner.generate_plan(state_dict)
 
-        # Example: parse last token as a target speed
-        tokens = plan_text.strip().split()
-        try:
-            target_speed = float(tokens[-1])
-        except ValueError:
-            target_speed = self.cars[1].speed  # fallback to current
+            tokens = plan_text.strip().split()
+            try:
+                target_speed = float(tokens[-1])
+            except ValueError:
+                target_speed = self.cars[1].speed
 
-        # Steering towards Car 0
-        dx = self.cars[0].x - self.cars[1].x
-        dy = self.cars[0].y - self.cars[1].y
-        dx = (dx + self.track.width / 2) % self.track.width - self.track.width / 2
-        dy = (dy + self.track.height / 2) % self.track.height - self.track.height / 2
-        target_angle = np.arctan2(dy, dx)
-        heading_error = ((target_angle - self.cars[1].angle + np.pi) % (2 * np.pi)) - np.pi
+            dx = self.cars[0].x - self.cars[1].x
+            dy = self.cars[0].y - self.cars[1].y
+            dx = (dx + self.track.width / 2) % self.track.width - self.track.width / 2
+            dy = (dy + self.track.height / 2) % self.track.height - self.track.height / 2
+            target_angle = np.arctan2(dy, dx)
+            heading_error = ((target_angle - self.cars[1].angle + np.pi) % (2 * np.pi)) - np.pi
 
-        (throttle_ai, brake_ai, steer_ai) = self.low_level.compute_controls(
-            self.cars[1].speed,
-            target_speed,
-            heading_error=heading_error
-        )
-        self.cars[1].apply_controls(throttle_ai, brake_ai, steer_ai, dt=1.0)
+            throttle_ai, brake_ai, steer_ai = self.low_level.compute_controls(
+                self.cars[1].speed,
+                target_speed,
+                heading_error=heading_error,
+            )
+            self.cars[1].apply_controls(throttle_ai, brake_ai, steer_ai, dt=1.0)
+
+            for t in self.traffic:
+                th, br = t.policy()
+                t.apply_controls(th, br, 0.0, dt=1.0)
+                self.track.wrap_position(t)
 
         # Wrap positions on the track
         for c in self.cars:
             self.track.wrap_position(c)
 
+        if self.crash_timer > 0:
+            self.crash_timer -= 1.0
+            if self.crash_timer <= 0:
+                self.cars[0].x, self.cars[0].y = self.safe_point
+                self.cars[0].speed = 0.0
+        else:
+            self.safe_point = (self.cars[0].x, self.cars[0].y)
+            for t in self.traffic:
+                if abs(t.x - self.cars[0].x) < Car.length and abs(t.y - self.cars[0].y) < Car.width / 2:
+                    self.crashes += 1
+                    self.crash_timer = 2.5
+                    reward = -10.0
+                    return self._get_obs(), reward, False, False, {}
+
         # Binaural audio: generate waveform based on each car's speed
         self._play_binaural_audio()
 
-        # Reward: e.g. Car 0 gets reward for going faster or for time alive
-        reward = self.cars[0].speed * 0.05
+        progress = self.track.progress(self.cars[0])
+        done = False
+        if self.mode == "qualify":
+            elapsed = (90.0 - self.remaining_time)
+            reward = progress - 0.1 * elapsed
+            if progress >= 1.0:
+                self.qualifying_time = elapsed
+                done = True
+        else:  # race
+            reward = self.cars[0].speed * 0.05
+            while progress >= self.next_checkpoint:
+                self.remaining_time += 30.0
+                self.next_checkpoint += 0.25
 
-        # Optionally, check collisions or add penalty
-        dist = self.track.distance(self.cars[0], self.cars[1])
-        if dist < 5.0:
-            # E.g. collision penalty or partial slowdown
-            reward -= 1.0
+        if self.mode == "race":
+            dist = self.track.distance(self.cars[0], self.cars[1])
+            if dist < 5.0:
+                reward -= 1.0
 
-        # Done if max steps reached
-        done = (self.current_step >= self.max_steps)
+        done = done or self.remaining_time <= 0 or (self.current_step >= self.max_steps)
 
-        # Example "real-time learning" for Car 1: gather experience
         experience = (prev_obs, action, reward, self._get_obs())
         self.learning_agent.update_on_experience([experience])
 
@@ -270,14 +330,24 @@ class PolePositionEnv(gym.Env):
             self.screen = None
 
     def _get_obs(self):
-        """
-        Observation: [car0_x, car0_y, car0_speed, car1_x, car1_y, car1_speed]
-        """
-        return np.array([
+        """Return observation array including nearest traffic cars."""
+        base = [
             self.cars[0].x,
             self.cars[0].y,
             self.cars[0].speed,
             self.cars[1].x,
             self.cars[1].y,
-            self.cars[1].speed
-        ], dtype=np.float32)
+            self.cars[1].speed,
+            self.remaining_time,
+        ]
+        traffic_rel = []
+        if self.traffic:
+            dists = [self.track.distance(self.cars[0], t) for t in self.traffic]
+            ordered = [t for _, t in sorted(zip(dists, self.traffic), key=lambda p: p[0])]
+            for t in ordered[: self.k_traffic]:
+                dx = (t.x - self.cars[0].x)
+                dy = (t.y - self.cars[0].y)
+                traffic_rel.extend([dx, dy])
+        while len(traffic_rel) < 2 * self.k_traffic:
+            traffic_rel.extend([0.0, 0.0])
+        return np.array(base + traffic_rel, dtype=np.float32)

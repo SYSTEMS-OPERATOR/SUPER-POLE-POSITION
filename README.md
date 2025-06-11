@@ -26,6 +26,12 @@ spp qualify --agent null --track fuji
 ![](docs.gif)
 
 
+### Title Menu
+Running with `--render` opens a simple title screen. Use the arrow keys to set
+**difficulty**, toggle **audio**, choose a **track**, and adjust **volume**.
+Press **Enter** to begin or **Esc** to quit.
+
+
 🔥 **Only the fastest and smartest AIs survive. Are you ready to build the ultimate racing intelligence?** 🔥  
 
 ---

@@ -8,10 +8,12 @@ from .agents.base_llm_agent import NullAgent
 from .envs.pole_position import PolePositionEnv
 from .matchmaking.arena import run_episode, update_leaderboard
 from .evaluation.metrics import summary
-from .evaluation.scores import load_scores, update_scores, reset_scores
+from .evaluation.scores import load_scores, reset_scores, update_scores
 
 
 def main() -> None:
+    """Entry point for the ``super-pole-position`` command line interface."""
+
     parser = argparse.ArgumentParser(prog="spp")
     sub = parser.add_subparsers(dest="cmd")
     q = sub.add_parser("qualify")
@@ -42,31 +44,57 @@ def main() -> None:
 
     if args.cmd == "qualify":
         if args.render:
-            import pygame
-            from .ui import menu
+            try:
+                import pygame
+                from .ui import menu
+            except Exception:  # noqa: E402 - optional dependency
+                print("pygame required for --render", flush=True)
+                raise SystemExit(1)
+
             pygame.init()
             screen = pygame.display.set_mode((640, 480))
-            cfg = menu.main_loop(screen)
+            try:
+                cfg = menu.main_loop(screen)
+            except Exception:
+                cfg = None
             pygame.quit()
             if cfg is None:
                 return
             args.track = cfg.get("track", args.track)
             os.environ["AUDIO"] = "1" if cfg.get("audio", True) else "0"
-        env = PolePositionEnv(render_mode="human", mode="qualify", track_name=args.track)
+        env = PolePositionEnv(
+            render_mode="human", mode="qualify", track_name=args.track
+        )
         agent = NullAgent()
         run_episode(env, (agent, agent))
         metrics = summary(env)
-        update_leaderboard(Path(__file__).parent / "evaluation" / "leaderboard.json", f"{args.agent}-qualify", metrics)
-        update_scores(Path(__file__).parent / "evaluation" / "scores.json", args.agent, int(env.score))
+        update_leaderboard(
+            Path(__file__).parent / "evaluation" / "leaderboard.json",
+            f"{args.agent}-qualify",
+            metrics,
+        )
+        update_scores(
+            Path(__file__).parent / "evaluation" / "scores.json",
+            args.agent,
+            int(env.score),
+        )
         env.close()
         print(metrics)
     else:
         if args.render:
-            import pygame
-            from .ui import menu
+            try:
+                import pygame
+                from .ui import menu
+            except Exception:  # noqa: E402 - optional dependency
+                print("pygame required for --render", flush=True)
+                raise SystemExit(1)
+
             pygame.init()
             screen = pygame.display.set_mode((640, 480))
-            cfg = menu.main_loop(screen)
+            try:
+                cfg = menu.main_loop(screen)
+            except Exception:
+                cfg = None
             pygame.quit()
             if cfg is None:
                 return
@@ -76,8 +104,16 @@ def main() -> None:
         agent = NullAgent()
         run_episode(env, (agent, agent))
         metrics = summary(env)
-        update_leaderboard(Path(__file__).parent / "evaluation" / "leaderboard.json", f"{args.agent}-race", metrics)
-        update_scores(Path(__file__).parent / "evaluation" / "scores.json", args.agent, int(env.score))
+        update_leaderboard(
+            Path(__file__).parent / "evaluation" / "leaderboard.json",
+            f"{args.agent}-race",
+            metrics,
+        )
+        update_scores(
+            Path(__file__).parent / "evaluation" / "scores.json",
+            args.agent,
+            int(env.score),
+        )
         env.close()
         print(metrics)
 

@@ -19,10 +19,16 @@ dependencies = [
 graphics = ["pygame"]
 audio = ["simpleaudio"]
 ai = ["torch", "transformers"]
-dev = ["pytest", "coverage"]
+dev = ["pytest", "pytest-cov", "coverage"]
 
 [project.scripts]
 super-pole-position = "super_pole_position.cli:main"
 
 [tool.setuptools.packages.find]
 exclude = ["assets*"]
+
+[tool.ruff]
+line-length = 88
+
+[tool.black]
+line-length = 88

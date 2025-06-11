@@ -15,6 +15,8 @@ class NullAgent(BaseLLMAgent):
     """Heuristic agent used for offline tests."""
 
     def act(self, observation: Any) -> dict:
+        """Return a simple throttle/brake policy for baseline testing."""
+
         # Simple policy: throttle until half max speed, no steering
         speed = observation[2]
         throttle = speed < 5.0

@@ -16,14 +16,22 @@ class MistralAgent(BaseLLMAgent):
     """Agent that uses mistralai SDK."""
 
     def __init__(self, model: str = "mistral-large-2402") -> None:
+        """Set up the SDK client if the environment allows network access."""
+
         self.model = model
         self._enabled = MistralClient is not None and os.getenv("ALLOW_NET") == "1"
-        self.client = MistralClient(os.getenv("MISTRAL_API_KEY")) if self._enabled else None
+        self.client = (
+            MistralClient(os.getenv("MISTRAL_API_KEY")) if self._enabled else None
+        )
 
     def act(self, observation: Any) -> dict:
+        """Query the model and return an action dict."""
+
         if not self._enabled or self.client is None:
             return NullAgent().act(observation)
-        prompt = f"Observation: {observation}. Return JSON with throttle, brake, steer."
+        prompt = (
+            f"Observation: {observation}. Return JSON with throttle, brake, steer."
+        )
         resp = self.client.chat(model=self.model, messages=[{"role": "user", "content": prompt}])
         content = resp.choices[0].message.content
         try:

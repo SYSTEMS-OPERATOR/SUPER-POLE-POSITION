@@ -17,8 +17,15 @@ class Car:
         self.angle = angle  # Radians; 0 means facing 'east' by convention
         self.speed = speed
         self.acceleration = 2.0
-        self.max_speed = 15.0
+        # Two gear ratios: index 0=LOW, 1=HIGH
+        self.gear_max = [8.0, 15.0]
+        self.gear = 0
+        self.max_speed = self.gear_max[-1]
         self.turn_rate = 2.0  # rad/sec
+
+    def shift(self, change: int) -> None:
+        """Change gear by ``change`` amount (e.g. -1, 0, +1)."""
+        self.gear = min(max(self.gear + change, 0), len(self.gear_max) - 1)
 
     def apply_controls(self, throttle: bool, brake: bool, steering: float, dt: float = 1.0):
         """
@@ -34,11 +41,12 @@ class Car:
         if brake:
             self.speed -= self.acceleration * dt
 
-        # Clamp speed
+        # Clamp speed by current gear
+        max_speed = self.gear_max[self.gear]
         if self.speed < 0.0:
             self.speed = 0.0
-        elif self.speed > self.max_speed:
-            self.speed = self.max_speed
+        elif self.speed > max_speed:
+            self.speed = max_speed
 
         # Steering
         self.angle += steering * self.turn_rate * dt
@@ -48,3 +56,4 @@ class Car:
         dy = self.speed * math.sin(self.angle) * dt
         self.x += dx
         self.y += dy
+

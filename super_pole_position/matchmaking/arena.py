@@ -15,7 +15,12 @@ def run_episode(env: PolePositionEnv, agents: Tuple[BaseLLMAgent, BaseLLMAgent])
     total = 0.0
     while not done:
         action0 = agents[0].act(obs)
-        action0_tuple = (action0["throttle"], action0["brake"], action0["steer"])
+        action0_tuple = (
+            action0.get("throttle", 0),
+            action0.get("brake", 0),
+            action0.get("steer", 0.0),
+            action0.get("gear", 0),
+        )
         obs, reward, done, _, _ = env.step(action0_tuple)
         total += reward
     env.close()

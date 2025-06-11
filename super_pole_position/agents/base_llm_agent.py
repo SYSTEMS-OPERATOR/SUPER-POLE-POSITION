@@ -18,4 +18,9 @@ class NullAgent(BaseLLMAgent):
         # Simple policy: throttle until half max speed, no steering
         speed = observation[2]
         throttle = speed < 5.0
-        return {"throttle": int(throttle), "brake": int(not throttle), "steer": 0.0}
+        return {
+            "throttle": int(throttle),
+            "brake": int(not throttle),
+            "steer": 0.0,
+            "gear": 0,
+        }

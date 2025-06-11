@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
 
 from .agents.base_llm_agent import NullAgent
@@ -16,10 +17,12 @@ def main() -> None:
     q = sub.add_parser("qualify")
     q.add_argument("--agent", default="null")
     q.add_argument("--track", default="fuji")
+    q.add_argument("--render", action="store_true")
 
     r = sub.add_parser("race")
     r.add_argument("--agent", default="null")
     r.add_argument("--track", default="fuji")
+    r.add_argument("--render", action="store_true")
 
     sub.add_parser("hiscore")
     sub.add_parser("reset-scores")
@@ -38,6 +41,17 @@ def main() -> None:
         return
 
     if args.cmd == "qualify":
+        if args.render:
+            import pygame
+            from .ui import menu
+            pygame.init()
+            screen = pygame.display.set_mode((640, 480))
+            cfg = menu.main_loop(screen)
+            pygame.quit()
+            if cfg is None:
+                return
+            args.track = cfg.get("track", args.track)
+            os.environ["AUDIO"] = "1" if cfg.get("audio", True) else "0"
         env = PolePositionEnv(render_mode="human", mode="qualify", track_name=args.track)
         agent = NullAgent()
         run_episode(env, (agent, agent))
@@ -47,6 +61,17 @@ def main() -> None:
         env.close()
         print(metrics)
     else:
+        if args.render:
+            import pygame
+            from .ui import menu
+            pygame.init()
+            screen = pygame.display.set_mode((640, 480))
+            cfg = menu.main_loop(screen)
+            pygame.quit()
+            if cfg is None:
+                return
+            args.track = cfg.get("track", args.track)
+            os.environ["AUDIO"] = "1" if cfg.get("audio", True) else "0"
         env = PolePositionEnv(render_mode="human", mode="race", track_name=args.track)
         agent = NullAgent()
         run_episode(env, (agent, agent))

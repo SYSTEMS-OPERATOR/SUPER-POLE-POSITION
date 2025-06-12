@@ -4,7 +4,13 @@ _A Reinforcement Learning Lab for Next-Gen AI Racers_
 
 🕹️ **INSERT COIN TO CONTINUE...**  
 💾 **LOADING AI MODELS...**  
-🚦 **READY? SET. GO!**  
+🚦 **READY? SET. GO!**
+
+```
+ rrr
+rrrrr
+ rrr
+```
 
 ---
 
@@ -63,6 +69,7 @@ Press **Enter** to begin or **Esc** to quit.
 🌀 **Toroidal Racing Physics:** No edges, no limits—just infinite speed.
 🖼️ **Retro ASCII sprites** for cars, billboards and explosions.
 🚀 **Hyper Mode** for uncapped speed and obstacle chaos.
+🕹️ **Arcade-accurate mechanics**: slipstream boost, off-road slowdown, crash penalties
 
 ---
 
@@ -138,3 +145,6 @@ super-pole-position --episodes 1
 - Traffic AI and crash logic
 - HUD with audio
 - Hyper mode for uncapped speed and performance metrics
+- All original arcade mechanics recreated: slipstreaming, off-road slowdown, and timed checkpoints
+- Try `--hyper` for a *next-gen AI challenge*
+- Display performance metrics by setting `PERF_HUD=1`

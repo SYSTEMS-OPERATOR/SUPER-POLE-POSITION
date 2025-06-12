@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import csv
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from .metrics import summary
@@ -23,16 +23,16 @@ def log_episode(env, file: Path | None = None, step_file: Path | None = None) ->
         ``benchmarks/YYYY-MM-DD/<timestamp>-steps.csv``.
     :return: Path to the file written.
     """
-    date_dir = BENCH_ROOT / datetime.utcnow().strftime("%Y-%m-%d")
+    date_dir = BENCH_ROOT / datetime.now(timezone.utc).strftime("%Y-%m-%d")
     date_dir.mkdir(parents=True, exist_ok=True)
     if file is None:
-        timestamp = datetime.utcnow().strftime("%H%M%S")
+        timestamp = datetime.now(timezone.utc).strftime("%H%M%S")
         file = date_dir / f"{timestamp}.json"
     if step_file is None:
         step_file = date_dir / f"{file.stem}-steps.csv"
 
     data = summary(env)
-    data["timestamp"] = datetime.utcnow().isoformat()
+    data["timestamp"] = datetime.now(timezone.utc).isoformat()
     file.write_text(json.dumps(data, indent=2))
 
     # Per-step CSV log if env provides ``step_log``

@@ -26,6 +26,8 @@ class Car:
         self.max_speed = self.gear_max[-1]
         self.turn_rate = 2.0  # rad/sec
         self.shift_count = 0
+        # If True speed is not clamped by gear ratios (Hyper mode)
+        self.unlimited = False
 
     def shift(self, change: int) -> None:
         """Change gear by ``change`` amount (e.g. -1, 0, +1)."""
@@ -55,11 +57,11 @@ class Car:
         if brake:
             self.speed -= self.acceleration * dt
 
-        # Clamp speed by current gear
+        # Clamp speed by current gear unless unlimited is enabled
         max_speed = self.gear_max[self.gear]
         if self.speed < 0.0:
             self.speed = 0.0
-        elif self.speed > max_speed:
+        elif not self.unlimited and self.speed > max_speed:
             self.speed = max_speed
 
         # Steering

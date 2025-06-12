@@ -8,6 +8,7 @@ Implements a Gym environment for multi-car racing:
 
 import numpy as np
 import gymnasium as gym
+import time
 from pathlib import Path
 try:
     import pygame  # optional dependency for graphics
@@ -62,6 +63,8 @@ class PolePositionEnv(gym.Env):
             for car in self.cars:
                 car.gear_max = [g * 2 for g in car.gear_max]
                 car.max_speed = car.gear_max[-1]
+                # Remove speed clamp for Hyper mode
+                car.unlimited = True
         self.traffic: list[TrafficCar] = []
         if self.mode == "race":
             for i in range(20):
@@ -113,6 +116,12 @@ class PolePositionEnv(gym.Env):
         self.prev_progress = 0.0
         self.prev_x = 0.0
         self.prev_y = 0.0
+
+        # Performance metrics
+        self.plan_durations: list[float] = []
+        self.plan_tokens: list[int] = []
+        self.step_durations: list[float] = []
+        self.ai_offtrack = 0
 
         self.audio_stream = None
         if sa is not None:
@@ -206,6 +215,7 @@ class PolePositionEnv(gym.Env):
         richer human control.
         Car 1 is AI-driven using GPT plan + LowLevelController.
         """
+        step_start = time.perf_counter()
         self.current_step += 1
         self.remaining_time = max(self.remaining_time - 1.0, 0.0)
         if self.skid_timer > 0:
@@ -264,7 +274,10 @@ class PolePositionEnv(gym.Env):
                 "y": self.cars[1].y,
                 "speed": self.cars[1].speed,
             }
+            plan_start = time.perf_counter()
             plan_text = self.planner.generate_plan(state_dict)
+            self.plan_durations.append(time.perf_counter() - plan_start)
+            self.plan_tokens.append(len(plan_text.strip().split()))
 
             tokens = plan_text.strip().split()
             try:
@@ -287,6 +300,8 @@ class PolePositionEnv(gym.Env):
             self.cars[1].apply_controls(
                 throttle_ai, brake_ai, steer_ai, dt=1.0, track=self.track
             )
+            if self.cars[1].y < 5 or self.cars[1].y > self.track.height - 5:
+                self.ai_offtrack += 1
 
             for t in self.traffic:
                 th, br = t.policy()
@@ -399,7 +414,7 @@ class PolePositionEnv(gym.Env):
 
         experience = (prev_obs, action, reward, self._get_obs())
         self.learning_agent.update_on_experience([experience])
-
+        self.step_durations.append(time.perf_counter() - step_start)
         return self._get_obs(), reward, done, False, {}
 
     def render(self):

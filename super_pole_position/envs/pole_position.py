@@ -119,27 +119,24 @@ class PolePositionEnv(gym.Env):
             try:
                 # Audio files are expected under assets/audio/ but may be absent
                 # in open-source releases.  They will be provided separately.
-                path = Path(__file__).resolve().parent.parent / "assets" / "audio" / "crash.wav"
-                self.crash_wave = sa.WaveObject.from_wave_file(str(path))
-                self.prepare_wave = sa.WaveObject.from_wave_file(
-                    str(Path(__file__).resolve().parent.parent / "assets" / "audio" / "prepare.wav")
-                )
-                self.final_lap_wave = sa.WaveObject.from_wave_file(
-                    str(Path(__file__).resolve().parent.parent / "assets" / "audio" / "final_lap.wav")
-                )
-                self.bgm_wave = sa.WaveObject.from_wave_file(
-                    str(Path(__file__).resolve().parent.parent / "assets" / "audio" / "namco_theme.wav")
-                )
+                base = Path(__file__).resolve().parent.parent / "assets" / "audio"
+                self.crash_wave = sa.WaveObject.from_wave_file(str(base / "crash.wav"))
+                self.prepare_wave = sa.WaveObject.from_wave_file(str(base / "prepare.wav"))
+                self.final_lap_wave = sa.WaveObject.from_wave_file(str(base / "final_lap.wav"))
+                self.goal_wave = sa.WaveObject.from_wave_file(str(base / "goal.wav"))
+                self.bgm_wave = sa.WaveObject.from_wave_file(str(base / "namco_theme.wav"))
             except Exception:  # pragma: no cover - file missing
                 # Placeholders handle missing WAVs during tests
                 self.crash_wave = None
                 self.prepare_wave = None
                 self.final_lap_wave = None
+                self.goal_wave = None
                 self.bgm_wave = None
         else:
             self.crash_wave = None
             self.prepare_wave = None
             self.final_lap_wave = None
+            self.goal_wave = None
             self.bgm_wave = None
         self.current_step = 0
         self.max_steps = 500  # limit episode length
@@ -310,6 +307,7 @@ class PolePositionEnv(gym.Env):
         if abs(steer) > 0.7 and self.cars[0].speed > 5:
             self.cars[0].speed *= 0.95
             self.skid_timer = 1.0
+            self._play_skid_audio()
 
         # Slipstream boost behind another car
         slip = False
@@ -389,6 +387,7 @@ class PolePositionEnv(gym.Env):
 
         if self.mode == "race" and self.lap >= 4:
             done = True
+            self._play_goal_voice()
         done = done or self.remaining_time <= 0 or (self.current_step >= self.max_steps)
         if done:
             try:
@@ -449,7 +448,7 @@ class PolePositionEnv(gym.Env):
         if self.clock:
             self.clock.tick(self.metadata.get("render_fps", 30))
 
-    def _play_binaural_audio(self, duration=0.5, sample_rate=44100):
+    def _play_binaural_audio(self, duration=0.1, sample_rate=44100):
         """
         Each step, generate separate sine waves (left for Car0, right for Car1).
         """
@@ -461,9 +460,16 @@ class PolePositionEnv(gym.Env):
         freq_left = 10.0 * self.cars[0].speed  # scale speed => audible freq
         freq_right = 10.0 * self.cars[1].speed
 
-        # Sine wave for each channel
-        left_wave = 0.3 * np.sin(2 * np.pi * freq_left * t)
-        right_wave = 0.3 * np.sin(2 * np.pi * freq_right * t)
+        # Layered engine harmonics
+        def engine_wave(freq):
+            base = 0.3 * np.sin(2 * np.pi * freq * t)
+            harm2 = 0.2 * np.sin(2 * np.pi * freq * 2 * t)
+            harm3 = 0.1 * np.sin(2 * np.pi * freq * 3 * t)
+            rumble = 0.05 * np.random.uniform(-1.0, 1.0, len(t))
+            return base + harm2 + harm3 + rumble
+
+        left_wave = engine_wave(freq_left)
+        right_wave = engine_wave(freq_right)
 
         # Interleave channels
         waveform = np.vstack((left_wave, right_wave)).T
@@ -486,10 +492,8 @@ class PolePositionEnv(gym.Env):
 
         if sa is None or self.crash_wave is None:
             return
-        try:
-            self.crash_wave.play()
-        except Exception:  # pragma: no cover
-            pass
+        pan = (self.cars[0].x - self.track.width / 2) / (self.track.width / 2)
+        self._play_panned_wave(self.crash_wave, pan)
 
     def _play_prepare_voice(self) -> None:
         """Play the 'Get Ready' voice sample."""
@@ -520,6 +524,69 @@ class PolePositionEnv(gym.Env):
             self.final_lap_wave.play()
         except Exception:  # pragma: no cover
             pass
+
+    def _play_goal_voice(self) -> None:
+        """Play 'Goal' voice sample when race finishes."""
+
+        if sa is None or self.goal_wave is None:
+            return
+        try:
+            self.goal_wave.play()
+        except Exception:  # pragma: no cover
+            pass
+
+    def _play_panned_wave(self, wave_obj, pan: float) -> None:
+        """Play ``wave_obj`` panned left/right based on ``pan`` (-1..1)."""
+
+        if sa is None or wave_obj is None:
+            return
+        try:
+            audio = np.frombuffer(wave_obj.audio_data, dtype=np.int16)
+            if wave_obj.num_channels == 1:
+                audio = np.repeat(audio, 2)
+            audio = audio.reshape(-1, 2)
+            pan = max(-1.0, min(1.0, pan))
+            left_gain = 1.0 - max(0.0, pan)
+            right_gain = 1.0 + min(0.0, pan)
+            audio[:, 0] = (audio[:, 0] * left_gain).astype(np.int16)
+            audio[:, 1] = (audio[:, 1] * right_gain).astype(np.int16)
+            if self.audio_stream is not None:
+                self.audio_stream.stop()
+            self.audio_stream = sa.play_buffer(
+                audio,
+                num_channels=2,
+                bytes_per_sample=wave_obj.bytes_per_sample,
+                sample_rate=wave_obj.sample_rate,
+            )
+        except Exception:  # pragma: no cover
+            try:
+                wave_obj.play()
+            except Exception:
+                pass
+
+    def _play_skid_audio(self) -> None:
+        """Play short noise burst when skidding with stereo pan."""
+
+        if sa is None:
+            return
+        duration = 0.2
+        sample_rate = 44100
+        t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
+        noise = np.random.uniform(-1.0, 1.0, len(t))
+        pan = (self.cars[0].x - self.track.width / 2) / (self.track.width / 2)
+        pan = max(-1.0, min(1.0, pan))
+        left = 0.3 * noise * (1.0 - max(0.0, pan))
+        right = 0.3 * noise * (1.0 + min(0.0, pan))
+        waveform = np.vstack((left, right)).T
+        waveform_int16 = np.int16(waveform * 32767)
+        if self.audio_stream is not None:
+            self.audio_stream.stop()
+        self.audio_stream = sa.play_buffer(
+            waveform_int16,
+            num_channels=2,
+            bytes_per_sample=2,
+            sample_rate=sample_rate,
+        )
 
     def close(self):
         """Clean up resources like audio streams."""

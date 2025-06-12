@@ -110,7 +110,8 @@ class Pseudo3DRenderer:
     The projection is a very rough approximation of the arcade original.
     Objects are drawn with a simple 1/z perspective relative to the player's car
     along the x-axis.  The road converges toward a vanishing point on the
-    horizon using linear interpolation.
+    horizon using linear interpolation.  The horizon shifts based on the
+    player's steering angle to mimic curves.
     """
 
     def __init__(self, screen):
@@ -135,23 +136,28 @@ class Pseudo3DRenderer:
         self.screen.fill(self.sky_color)
         pygame.draw.rect(self.screen, self.ground_color, (0, self.horizon, width, height - self.horizon))
 
-        # road trapezoid (vanishing toward center)
+        # road trapezoid (vanishing point shifts with car angle)
         road_w = width * 0.6
         bottom = height
+        player = env.cars[0]
+        # ``curve`` is roughly -1.0..1.0 based on steering angle
+        curve = max(-1.0, min(player.angle / 0.5, 1.0))
+        offset = curve * width * 0.15
+        horizon_x = width / 2 + offset
         points = [
-            ((width - road_w) / 2, bottom),
-            ((width + road_w) / 2, bottom),
-            (width / 2 + road_w * 0.1, self.horizon),
-            (width / 2 - road_w * 0.1, self.horizon),
+            ((width - road_w) / 2 - offset, bottom),
+            ((width + road_w) / 2 - offset, bottom),
+            (horizon_x + road_w * 0.1, self.horizon),
+            (horizon_x - road_w * 0.1, self.horizon),
         ]
         pygame.draw.polygon(self.screen, (60, 60, 60), points)
 
-        # center line
+        # center line follows the vanishing point
         pygame.draw.line(
             self.screen,
             (255, 255, 255),
-            (width / 2, bottom),
-            (width / 2, self.horizon),
+            (width / 2 - offset, bottom),
+            (horizon_x, self.horizon),
             2,
         )
 
@@ -162,7 +168,7 @@ class Pseudo3DRenderer:
             scale = max(0.1, min(1.0 / (dx / 5.0 + 1.0), 1.0))
             o_h = 15 * scale
             o_w = obs.width * scale
-            ox = width / 2 + (obs.y - env.track.height / 2)
+            ox = width / 2 + (obs.y - env.track.height / 2) - offset * (1.0 - scale)
             oy = bottom - (bottom - self.horizon) * scale
             rect = pygame.Rect(int(ox - o_w / 2), int(oy - o_h), int(o_w), int(o_h))
             pygame.draw.rect(self.screen, (200, 200, 200), rect)
@@ -173,7 +179,7 @@ class Pseudo3DRenderer:
         scale = max(0.1, min(1.0 / (dist / 5.0 + 1.0), 1.0))
         car_h = 20 * scale
         car_w = 10 * scale
-        x = width / 2
+        x = width / 2 - offset * (1.0 - scale)
         y = bottom - (bottom - self.horizon) * scale
         rect = pygame.Rect(int(x - car_w / 2), int(y - car_h), int(car_w), int(car_h))
         pygame.draw.rect(self.screen, self.car_color, rect)

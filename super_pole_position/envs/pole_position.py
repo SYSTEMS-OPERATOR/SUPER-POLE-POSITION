@@ -563,11 +563,12 @@ class PolePositionEnv(gym.Env):
             pass
 
     def _play_bgm_loop(self) -> None:
-        """Play background music once (placeholder loop)."""
+        """Start background music playback once."""
 
         if sa is None or self.bgm_wave is None:
             return
         try:
+            # simpleaudio lacks looping support; play once per reset
             self.bgm_wave.play()
         except Exception:  # pragma: no cover
             pass

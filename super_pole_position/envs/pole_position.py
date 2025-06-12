@@ -485,18 +485,12 @@ class PolePositionEnv(gym.Env):
             self.clock.tick(self.metadata.get("render_fps", 30))
 
     def _play_binaural_audio(self, duration=0.1, sample_rate=44100):
-        """
-        Each step, generate separate sine waves (left for Car0, right for Car1).
-        """
+        """Generate stereo engine audio with basic position-based panning."""
         if sa is None:
             return
 
         t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
-        # Frequencies
-        freq_left = 10.0 * self.cars[0].speed  # scale speed => audible freq
-        freq_right = 10.0 * self.cars[1].speed
 
-        # Layered engine harmonics
         def engine_wave(freq):
             base = 0.3 * np.sin(2 * np.pi * freq * t)
             harm2 = 0.2 * np.sin(2 * np.pi * freq * 2 * t)
@@ -504,15 +498,25 @@ class PolePositionEnv(gym.Env):
             rumble = 0.05 * np.random.uniform(-1.0, 1.0, len(t))
             return base + harm2 + harm3 + rumble
 
-        left_wave = engine_wave(freq_left)
-        right_wave = engine_wave(freq_right)
+        def panned_engine(car):
+            freq = 10.0 * car.speed
+            pan = (car.y - self.track.height / 2) / (self.track.height / 2)
+            pan = max(-1.0, min(1.0, pan))
+            wave = engine_wave(freq)
+            left_gain = 1.0 - max(0.0, pan)
+            right_gain = 1.0 + min(0.0, pan)
+            return wave * left_gain, wave * right_gain
 
-        # Interleave channels
-        waveform = np.vstack((left_wave, right_wave)).T
-        # Convert to 16-bit PCM for simpleaudio
+        left0, right0 = panned_engine(self.cars[0])
+        left1, right1 = panned_engine(self.cars[1])
+
+        left = left0 + left1
+        right = right0 + right1
+
+        waveform = np.vstack((left, right)).T
+        waveform = np.clip(waveform, -1.0, 1.0)
         waveform_int16 = np.int16(waveform * 32767)
 
-        # Stop previous sound if playing
         if self.audio_stream is not None:
             self.audio_stream.stop()
 
@@ -520,7 +524,7 @@ class PolePositionEnv(gym.Env):
             waveform_int16,
             num_channels=2,
             bytes_per_sample=2,
-            sample_rate=sample_rate
+            sample_rate=sample_rate,
         )
 
     def _play_crash_audio(self) -> None:

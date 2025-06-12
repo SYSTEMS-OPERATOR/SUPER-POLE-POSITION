@@ -17,3 +17,4 @@
 - [x] Full HUD: lap counter, timer, position, mini-map
 - [x] Cabinet-style color palette & scanline effect
 - [x] Test suite for each new feature
+- [x] Stereo engine audio panned by car position

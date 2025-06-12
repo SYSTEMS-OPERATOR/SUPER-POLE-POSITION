@@ -265,18 +265,19 @@ class Pseudo3DRenderer:
             self.screen.blit(spd_text, (10, 110))
 
             perf_lines = []
-            if getattr(env, "step_durations", []):
-                perf_lines.append(
-                    f"step {env.step_durations[-1]*1000:.1f} ms"
-                )
-            if getattr(env, "plan_durations", []):
-                perf_lines.append(
-                    f"plan {env.plan_durations[-1]*1000:.1f} ms"
-                )
-            if getattr(env, "plan_tokens", []):
-                perf_lines.append(
-                    f"tok {env.plan_tokens[-1]}"
-                )
+            if os.environ.get("PERF_HUD", "0") != "0":
+                if getattr(env, "step_durations", []):
+                    perf_lines.append(
+                        f"step {env.step_durations[-1]*1000:.1f} ms"
+                    )
+                if getattr(env, "plan_durations", []):
+                    perf_lines.append(
+                        f"plan {env.plan_durations[-1]*1000:.1f} ms"
+                    )
+                if getattr(env, "plan_tokens", []):
+                    perf_lines.append(
+                        f"tok {env.plan_tokens[-1]}"
+                    )
             for i, line in enumerate(perf_lines):
                 t = font.render(line, True, (255, 255, 255))
                 self.screen.blit(t, (width - 160, 30 + 20 * i))

@@ -33,13 +33,21 @@ class Car:
             self.shift_count += 1
             self.gear = min(max(self.gear + change, 0), len(self.gear_max) - 1)
 
-    def apply_controls(self, throttle: bool, brake: bool, steering: float, dt: float = 1.0):
+    def apply_controls(
+        self,
+        throttle: bool,
+        brake: bool,
+        steering: float,
+        dt: float = 1.0,
+        track=None,
+    ):
         """
         Updates the car's speed and angle based on throttle/brake/steering inputs.
         :param throttle: If True, accelerate.
         :param brake: If True, decelerate.
         :param steering: Negative => turn left, Positive => turn right.
         :param dt: Timestep in seconds.
+        :param track: Optional track to check for off-road slowdown.
         """
         # Accelerate / Decelerate
         if throttle:
@@ -62,4 +70,14 @@ class Car:
         dy = self.speed * math.sin(self.angle) * dt
         self.x += dx
         self.y += dy
+
+        # Off-road slowdown
+        if track and (self.y < 5 or self.y > track.height - 5):
+            self.speed *= 0.5
+
+    def crash(self) -> None:
+        """Stop the car and reset gear when a crash occurs."""
+
+        self.speed = 0.0
+        self.gear = 0
 

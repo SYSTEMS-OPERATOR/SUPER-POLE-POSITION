@@ -8,6 +8,7 @@ Implements a Gym environment for multi-car racing:
 
 import numpy as np
 import gymnasium as gym
+from pathlib import Path
 try:
     import pygame  # optional dependency for graphics
 except Exception:  # pragma: no cover - optional dependency may be missing
@@ -94,6 +95,32 @@ class PolePositionEnv(gym.Env):
         self.prev_y = 0.0
 
         self.audio_stream = None
+        if sa is not None:
+            try:
+                # Audio files are expected under assets/audio/ but may be absent
+                # in open-source releases.  They will be provided separately.
+                path = Path(__file__).resolve().parent.parent / "assets" / "audio" / "crash.wav"
+                self.crash_wave = sa.WaveObject.from_wave_file(str(path))
+                self.prepare_wave = sa.WaveObject.from_wave_file(
+                    str(Path(__file__).resolve().parent.parent / "assets" / "audio" / "prepare.wav")
+                )
+                self.final_lap_wave = sa.WaveObject.from_wave_file(
+                    str(Path(__file__).resolve().parent.parent / "assets" / "audio" / "final_lap.wav")
+                )
+                self.bgm_wave = sa.WaveObject.from_wave_file(
+                    str(Path(__file__).resolve().parent.parent / "assets" / "audio" / "namco_theme.wav")
+                )
+            except Exception:  # pragma: no cover - file missing
+                # Placeholders handle missing WAVs during tests
+                self.crash_wave = None
+                self.prepare_wave = None
+                self.final_lap_wave = None
+                self.bgm_wave = None
+        else:
+            self.crash_wave = None
+            self.prepare_wave = None
+            self.final_lap_wave = None
+            self.bgm_wave = None
         self.current_step = 0
         self.max_steps = 500  # limit episode length
 
@@ -146,6 +173,9 @@ class PolePositionEnv(gym.Env):
         self.prev_y = self.cars[0].y
         self.prev_progress = self.track.progress(self.cars[0])
 
+        self._play_prepare_voice()
+        self._play_bgm_loop()
+
         # Return initial observation
         return self._get_obs(), {}
 
@@ -196,7 +226,7 @@ class PolePositionEnv(gym.Env):
             # else action==2 => no action
 
         self.cars[0].shift(gear_cmd)
-        self.cars[0].apply_controls(throttle, brake, steer, dt=1.0)
+        self.cars[0].apply_controls(throttle, brake, steer, dt=1.0, track=self.track)
 
         if self.mode == "race":
             # ---- Car 1 (AI) ----
@@ -225,11 +255,13 @@ class PolePositionEnv(gym.Env):
                 target_speed,
                 heading_error=heading_error,
             )
-            self.cars[1].apply_controls(throttle_ai, brake_ai, steer_ai, dt=1.0)
+            self.cars[1].apply_controls(
+                throttle_ai, brake_ai, steer_ai, dt=1.0, track=self.track
+            )
 
             for t in self.traffic:
                 th, br = t.policy()
-                t.apply_controls(th, br, 0.0, dt=1.0)
+                t.apply_controls(th, br, 0.0, dt=1.0, track=self.track)
                 self.track.wrap_position(t)
 
         # Wrap positions on the track
@@ -277,6 +309,8 @@ class PolePositionEnv(gym.Env):
                 if abs(t.x - self.cars[0].x) < Car.length and abs(t.y - self.cars[0].y) < Car.width / 2:
                     self.crashes += 1
                     self.crash_timer = 2.5
+                    self._play_crash_audio()
+                    self.cars[0].crash()
                     reward = -10.0
                     return self._get_obs(), reward, False, False, {}
 
@@ -296,6 +330,8 @@ class PolePositionEnv(gym.Env):
         if progress < self.prev_progress:
             self.lap += 1
             self.score += 2000
+            if self.lap == 3:
+                self._play_final_lap_voice()
         self.prev_progress = progress
         self.prev_x = self.cars[0].x
         self.prev_y = self.cars[0].y
@@ -405,6 +441,46 @@ class PolePositionEnv(gym.Env):
             bytes_per_sample=2,
             sample_rate=sample_rate
         )
+
+    def _play_crash_audio(self) -> None:
+        """Play crash sound effect once."""
+
+        if sa is None or self.crash_wave is None:
+            return
+        try:
+            self.crash_wave.play()
+        except Exception:  # pragma: no cover
+            pass
+
+    def _play_prepare_voice(self) -> None:
+        """Play the 'Get Ready' voice sample."""
+
+        if sa is None or self.prepare_wave is None:
+            return
+        try:
+            self.prepare_wave.play()
+        except Exception:  # pragma: no cover
+            pass
+
+    def _play_bgm_loop(self) -> None:
+        """Play background music once (placeholder loop)."""
+
+        if sa is None or self.bgm_wave is None:
+            return
+        try:
+            self.bgm_wave.play()
+        except Exception:  # pragma: no cover
+            pass
+
+    def _play_final_lap_voice(self) -> None:
+        """Play 'Final Lap' voice sample."""
+
+        if sa is None or self.final_lap_wave is None:
+            return
+        try:
+            self.final_lap_wave.play()
+        except Exception:  # pragma: no cover
+            pass
 
     def close(self):
         """Clean up resources like audio streams."""

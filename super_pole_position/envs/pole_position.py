@@ -216,6 +216,18 @@ class PolePositionEnv(gym.Env):
         prev_obs = self._get_obs()
         reward = 0.0
 
+        if self.crash_timer <= 0:
+            for t in self.traffic:
+                if (
+                    abs(t.x - self.cars[0].x) < Car.length
+                    and abs(t.y - self.cars[0].y) < Car.width / 2
+                ):
+                    self.crashes += 1
+                    self.crash_timer = 2.5
+                    self._play_crash_audio()
+                    self.cars[0].crash()
+                    return self._get_obs(), -10.0, False, False, {}
+
         # Start light sequence (does not block motion in tests)
         if self.start_timer > 0:
             self.start_timer -= 1.0

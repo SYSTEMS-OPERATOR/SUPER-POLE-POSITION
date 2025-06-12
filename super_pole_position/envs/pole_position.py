@@ -122,6 +122,8 @@ class PolePositionEnv(gym.Env):
         self.plan_tokens: list[int] = []
         self.step_durations: list[float] = []
         self.ai_offtrack = 0
+        # Per-step metrics for benchmarking
+        self.step_log: list[dict] = []
 
         self.audio_stream = None
         if sa is not None:
@@ -201,6 +203,9 @@ class PolePositionEnv(gym.Env):
 
         self._play_prepare_voice()
         self._play_bgm_loop()
+
+        # Clear per-step log
+        self.step_log = []
 
         # Return initial observation
         return self._get_obs(), {}
@@ -404,6 +409,22 @@ class PolePositionEnv(gym.Env):
             done = True
             self._play_goal_voice()
         done = done or self.remaining_time <= 0 or (self.current_step >= self.max_steps)
+
+        # Record per-step metrics
+        self.step_log.append(
+            {
+                "step": self.current_step,
+                "car0_x": self.cars[0].x,
+                "car0_y": self.cars[0].y,
+                "car0_speed": self.cars[0].speed,
+                "car1_x": self.cars[1].x,
+                "car1_y": self.cars[1].y,
+                "car1_speed": self.cars[1].speed,
+                "reward": reward,
+                "remaining_time": self.remaining_time,
+                "lap": self.lap,
+            }
+        )
         if done:
             try:
                 from ..evaluation.logger import log_episode

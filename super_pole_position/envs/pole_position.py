@@ -30,18 +30,38 @@ class PolePositionEnv(gym.Env):
     - Binaural audio based on each car's speed
     - GPT-based high-level plan for Car B
     - A single discrete action for Car A (player or random)
+    - Optional hyper mode for uncapped speed
     """
 
     metadata = {"render_modes": ["human"], "render_fps": 30}
 
-    def __init__(self, render_mode="human", mode: str = "race", track_name: str | None = None):
+    def __init__(
+        self,
+        render_mode: str = "human",
+        mode: str = "race",
+        track_name: str | None = None,
+        hyper: bool = False,
+    ) -> None:
+        """Create a Pole Position environment.
+
+        :param render_mode: ``human`` for pygame output.
+        :param mode: ``race`` or ``qualify``.
+        :param track_name: Optional track to load.
+        :param hyper: If ``True`` doubles gear limits for extreme speed.
+        """
+
         super().__init__()
         self.render_mode = render_mode
         self.mode = mode
+        self.hyper = hyper
 
         # Track & cars
         self.track = Track.load(track_name) if track_name else Track(width=200.0, height=200.0)
         self.cars = [Car(x=50, y=50), Car(x=150, y=150)]
+        if self.hyper:
+            for car in self.cars:
+                car.gear_max = [g * 2 for g in car.gear_max]
+                car.max_speed = car.gear_max[-1]
         self.traffic: list[TrafficCar] = []
         if self.mode == "race":
             for i in range(20):
@@ -358,6 +378,13 @@ class PolePositionEnv(gym.Env):
         if self.mode == "race" and self.lap >= 4:
             done = True
         done = done or self.remaining_time <= 0 or (self.current_step >= self.max_steps)
+        if done:
+            try:
+                from ..evaluation.logger import log_episode
+
+                log_episode(self)
+            except Exception:
+                pass
 
         experience = (prev_obs, action, reward, self._get_obs())
         self.learning_agent.update_on_experience([experience])

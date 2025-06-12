@@ -9,6 +9,12 @@ import os
 from pathlib import Path
 
 from .sprites import BILLBOARD_ART, CAR_ART, EXPLOSION_FRAMES, ascii_surface
+from ..evaluation.scores import load_scores
+
+try:
+    HIGH_SCORE = max((s["score"] for s in load_scores(None)), default=0)
+except Exception:  # pragma: no cover - file may be missing
+    HIGH_SCORE = 0
 
 try:
     import pygame  # type: ignore
@@ -40,9 +46,7 @@ class ArcadeRenderer:
         self.font = pygame.font.SysFont(None, 24) if pygame else None
         self.scenery = []
         if pygame:
-            sc_dir = (
-                Path(__file__).resolve().parent.parent / "assets" / "scenery"
-            )
+            sc_dir = Path(__file__).resolve().parent.parent / "assets" / "scenery"
             for img in sc_dir.glob("*.png"):
                 try:
                     self.scenery.append(pygame.image.load(str(img)))
@@ -141,7 +145,11 @@ class Pseudo3DRenderer:
 
         # sky gradient
         self.screen.fill(self.sky_color)
-        pygame.draw.rect(self.screen, self.ground_color, (0, self.horizon, width, height - self.horizon))
+        pygame.draw.rect(
+            self.screen,
+            self.ground_color,
+            (0, self.horizon, width, height - self.horizon),
+        )
 
         # road trapezoid (vanishing point shifts with car angle)
         road_w = width * 0.6
@@ -219,34 +227,52 @@ class Pseudo3DRenderer:
 
         if env.crash_timer > 0 and self.explosion_frames:
             phase = (2.5 - env.crash_timer) / 2.5
-            idx = min(int(phase * (len(self.explosion_frames) - 1)), len(self.explosion_frames) - 1)
+            idx = min(
+                int(phase * (len(self.explosion_frames) - 1)),
+                len(self.explosion_frames) - 1,
+            )
             exp = pygame.transform.scale(
                 self.explosion_frames[idx], (int(car_w * 2), int(car_h * 2))
             )
             self.screen.blit(exp, (int(x - car_w), int(y - car_h * 2)))
         elif env.crash_timer > 0 and self.explosion:
-            exp = pygame.transform.scale(self.explosion, (int(car_w * 2), int(car_h * 2)))
+            exp = pygame.transform.scale(
+                self.explosion, (int(car_w * 2), int(car_h * 2))
+            )
             self.screen.blit(exp, (int(x - car_w), int(y - car_h * 2)))
 
         # Player HUD text
         if pygame.font:
             font = pygame.font.SysFont(None, 24)
-            spd = int(player.speed * 3.6)
-            txt = font.render(f"{spd} km/h", True, (255, 255, 255))
-            self.screen.blit(txt, (10, 10))
+            hi_score = max(HIGH_SCORE, int(env.score))
+            hi_text = font.render(f"HI {hi_score:06d}", True, (0, 255, 0))
+            score_text = font.render(f"SCORE {int(env.score):06d}", True, (0, 255, 0))
+            self.screen.blit(hi_text, (10, 10))
+            self.screen.blit(score_text, (10, 30))
 
-            lap_text = font.render(f"Lap {env.lap + 1}/4", True, (0, 255, 0))
-            time_text = font.render(f"{int(env.remaining_time)}s", True, (0, 255, 0))
+            lap_text = font.render(f"LAP {env.lap + 1}/4", True, (0, 255, 0))
+            time_text = font.render(
+                f"TIME {env.remaining_time:05.2f}", True, (0, 255, 0)
+            )
             pos = 1 if env.track.distance(player, other) < 0 else 2
-            pos_text = font.render(f"Pos {pos}/2", True, (0, 255, 0))
-            self.screen.blit(lap_text, (10, 30))
-            self.screen.blit(time_text, (10, 50))
-            self.screen.blit(pos_text, (10, 70))
+            pos_text = font.render(f"POS {pos}/2", True, (0, 255, 0))
+            self.screen.blit(lap_text, (10, 50))
+            self.screen.blit(time_text, (10, 70))
+            self.screen.blit(pos_text, (10, 90))
+
+            spd = int(player.speed * 3.6)
+            spd_text = font.render(f"{spd} km/h", True, (255, 255, 255))
+            self.screen.blit(spd_text, (10, 110))
 
             # mini-map simple dot positions
             map_h = 80
             map_w = 80
-            pygame.draw.rect(self.screen, (30, 30, 30), pygame.Rect(width - map_w - 10, 10, map_w, map_h), 1)
+            pygame.draw.rect(
+                self.screen,
+                (30, 30, 30),
+                pygame.Rect(width - map_w - 10, 10, map_w, map_h),
+                1,
+            )
             px = width - map_w - 10 + (player.x / env.track.width) * map_w
             py = 10 + (player.y / env.track.height) * map_h
             ox = width - map_w - 10 + (other.x / env.track.width) * map_w

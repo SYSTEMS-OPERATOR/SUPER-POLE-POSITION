@@ -1,0 +1,3 @@
+benchmarks/*
+!benchmarks/README.md
+__pycache__/

@@ -150,23 +150,41 @@ class Pseudo3DRenderer:
         # ``curve`` is roughly -1.0..1.0 based on steering angle
         curve = max(-1.0, min(player.angle / 0.5, 1.0))
         offset = curve * width * 0.15
-        horizon_x = width / 2 + offset
-        points = [
-            ((width - road_w) / 2 - offset, bottom),
-            ((width + road_w) / 2 - offset, bottom),
-            (horizon_x + road_w * 0.1, self.horizon),
-            (horizon_x - road_w * 0.1, self.horizon),
-        ]
-        pygame.draw.polygon(self.screen, (60, 60, 60), points)
 
-        # center line follows the vanishing point
-        pygame.draw.line(
-            self.screen,
-            (255, 255, 255),
-            (width / 2 - offset, bottom),
-            (horizon_x, self.horizon),
-            2,
-        )
+        slices = 12
+        road_top = road_w * 0.2
+        prev_center = width / 2
+        prev_width = road_w
+        prev_y = bottom
+        for i in range(slices):
+            t1 = (i + 1) / slices
+            y = bottom - (bottom - self.horizon) * t1
+            center = width / 2 + offset * t1
+            w = road_w - (road_w - road_top) * t1
+            points = [
+                (prev_center - prev_width / 2, prev_y),
+                (prev_center + prev_width / 2, prev_y),
+                (center + w / 2, y),
+                (center - w / 2, y),
+            ]
+            pygame.draw.polygon(self.screen, (60, 60, 60), points)
+            prev_center, prev_width, prev_y = center, w, y
+
+        # center line segmented along the curve
+        prev_center = width / 2
+        prev_y = bottom
+        for i in range(slices):
+            t = (i + 1) / slices
+            y = bottom - (bottom - self.horizon) * t
+            center = width / 2 + offset * t
+            pygame.draw.line(
+                self.screen,
+                (255, 255, 255),
+                (prev_center, prev_y),
+                (center, y),
+                2,
+            )
+            prev_center, prev_y = center, y
 
         # Obstacles rendered as roadside billboards
         player = env.cars[0]

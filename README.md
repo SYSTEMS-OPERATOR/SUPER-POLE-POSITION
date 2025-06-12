@@ -60,7 +60,8 @@ Press **Enter** to begin or **Esc** to quit.
 💾 **Logging & Benchmarking:** AI decision tracking, reaction times, and lap data stored for review.  
 🎶 **Binaural Audio Racing:** Hear the speed—each AI’s performance mapped to immersive stereo audio.  
 💡 **Autonomous Learning Mode:** Let AIs race, improve, and adapt without human intervention.  
-🌀 **Toroidal Racing Physics:** No edges, no limits—just infinite speed.  
+🌀 **Toroidal Racing Physics:** No edges, no limits—just infinite speed.
+🖼️ **Retro ASCII sprites** for cars, billboards and explosions.
 
 ---
 

@@ -8,6 +8,8 @@ module.
 import os
 from pathlib import Path
 
+from .sprites import BILLBOARD_ART, CAR_ART, EXPLOSION_FRAMES, ascii_surface
+
 try:
     import pygame  # type: ignore
 except Exception:  # pragma: no cover
@@ -118,10 +120,15 @@ class Pseudo3DRenderer:
         """Create the renderer bound to ``screen``."""
 
         self.screen = screen
+        if pygame and not pygame.font.get_init():
+            pygame.font.init()
         self.horizon = int(screen.get_height() * 0.4)
         self.sky_color = (100, 150, 255)
         self.ground_color = (40, 40, 40)
         self.car_color = (255, 0, 0)
+        self.car_sprite = ascii_surface(CAR_ART)
+        self.billboard_sprite = ascii_surface(BILLBOARD_ART)
+        self.explosion_frames = [ascii_surface(f) for f in EXPLOSION_FRAMES]
 
     def draw(self, env) -> None:
         """Draw the environment from a front-facing perspective."""
@@ -171,7 +178,11 @@ class Pseudo3DRenderer:
             ox = width / 2 + (obs.y - env.track.height / 2) - offset * (1.0 - scale)
             oy = bottom - (bottom - self.horizon) * scale
             rect = pygame.Rect(int(ox - o_w / 2), int(oy - o_h), int(o_w), int(o_h))
-            pygame.draw.rect(self.screen, (200, 200, 200), rect)
+            if self.billboard_sprite:
+                img = pygame.transform.scale(self.billboard_sprite, rect.size)
+                self.screen.blit(img, rect)
+            else:
+                pygame.draw.rect(self.screen, (200, 200, 200), rect)
 
         # Render the opponent car scaled by distance
         other = env.cars[1]
@@ -182,9 +193,20 @@ class Pseudo3DRenderer:
         x = width / 2 - offset * (1.0 - scale)
         y = bottom - (bottom - self.horizon) * scale
         rect = pygame.Rect(int(x - car_w / 2), int(y - car_h), int(car_w), int(car_h))
-        pygame.draw.rect(self.screen, self.car_color, rect)
+        if self.car_sprite:
+            img = pygame.transform.scale(self.car_sprite, rect.size)
+            self.screen.blit(img, rect)
+        else:
+            pygame.draw.rect(self.screen, self.car_color, rect)
 
-        if env.crash_timer > 0 and self.explosion:
+        if env.crash_timer > 0 and self.explosion_frames:
+            phase = (2.5 - env.crash_timer) / 2.5
+            idx = min(int(phase * (len(self.explosion_frames) - 1)), len(self.explosion_frames) - 1)
+            exp = pygame.transform.scale(
+                self.explosion_frames[idx], (int(car_w * 2), int(car_h * 2))
+            )
+            self.screen.blit(exp, (int(x - car_w), int(y - car_h * 2)))
+        elif env.crash_timer > 0 and self.explosion:
             exp = pygame.transform.scale(self.explosion, (int(car_w * 2), int(car_h * 2)))
             self.screen.blit(exp, (int(x - car_w), int(y - car_h * 2)))
 

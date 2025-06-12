@@ -62,6 +62,7 @@ Press **Enter** to begin or **Esc** to quit.
 💡 **Autonomous Learning Mode:** Let AIs race, improve, and adapt without human intervention.  
 🌀 **Toroidal Racing Physics:** No edges, no limits—just infinite speed.
 🖼️ **Retro ASCII sprites** for cars, billboards and explosions.
+🚀 **Hyper Mode** for uncapped speed and obstacle chaos.
 
 ---
 
@@ -136,3 +137,4 @@ super-pole-position --episodes 1
 - Named track loading
 - Traffic AI and crash logic
 - HUD with audio
+- Hyper mode for uncapped speed and performance metrics

@@ -11,6 +11,18 @@ def summary(env) -> dict:
         "passes": getattr(env, "passes", 0),
         "crashes": getattr(env, "crashes", 0),
         "gear_shifts": env.cars[0].shift_count if env.cars else 0,
+        "ai_offtrack": getattr(env, "ai_offtrack", 0),
+        "avg_plan_ms": (
+            1000.0 * sum(env.plan_durations) / len(env.plan_durations)
+            if getattr(env, "plan_durations", [])
+            else 0.0
+        ),
+        "avg_step_ms": (
+            1000.0 * sum(env.step_durations) / len(env.step_durations)
+            if getattr(env, "step_durations", [])
+            else 0.0
+        ),
+        "tokens": sum(getattr(env, "plan_tokens", [])),
     }
 
 

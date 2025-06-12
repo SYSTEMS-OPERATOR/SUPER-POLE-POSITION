@@ -117,6 +117,11 @@ class PolePositionEnv(gym.Env):
         self.prev_x = 0.0
         self.prev_y = 0.0
 
+        self.lap_timer = 0.0
+        self.last_lap_time = None
+        self.lap_flash = 0.0
+        self.lap_times: list[float] = []
+
         # Performance metrics
         self.plan_durations: list[float] = []
         self.plan_tokens: list[int] = []
@@ -160,7 +165,7 @@ class PolePositionEnv(gym.Env):
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
         self.current_step = 0
-        self.remaining_time = 90.0 if self.mode == "qualify" else 75.0
+        self.remaining_time = 73.0 if self.mode == "qualify" else 90.0
         self.next_checkpoint = 0.25
         self.qualifying_time = None
         self.crash_timer = 0.0
@@ -176,6 +181,11 @@ class PolePositionEnv(gym.Env):
         self.prev_progress = 0.0
         self.prev_x = 0.0
         self.prev_y = 0.0
+
+        self.lap_timer = 0.0
+        self.last_lap_time = None
+        self.lap_flash = 0.0
+        self.lap_times = []
 
         # Reset cars to start positions
         self.cars[0].x = 50.0
@@ -223,6 +233,9 @@ class PolePositionEnv(gym.Env):
         step_start = time.perf_counter()
         self.current_step += 1
         self.remaining_time = max(self.remaining_time - 1.0, 0.0)
+        self.lap_timer += 1.0
+        if self.lap_flash > 0.0:
+            self.lap_flash = max(self.lap_flash - 1.0, 0.0)
         if self.skid_timer > 0:
             self.skid_timer = max(self.skid_timer - 1.0, 0.0)
         prev_obs = self._get_obs()
@@ -380,6 +393,10 @@ class PolePositionEnv(gym.Env):
         if progress < self.prev_progress:
             self.lap += 1
             self.score += 2000
+            self.last_lap_time = self.lap_timer
+            self.lap_times.append(self.lap_timer)
+            self.lap_timer = 0.0
+            self.lap_flash = 2.0
             if self.lap == 3:
                 self._play_final_lap_voice()
         self.prev_progress = progress
@@ -387,7 +404,7 @@ class PolePositionEnv(gym.Env):
         self.prev_y = self.cars[0].y
         done = False
         if self.mode == "qualify":
-            elapsed = (90.0 - self.remaining_time)
+            elapsed = (73.0 - self.remaining_time)
             reward = progress - 0.1 * elapsed
             if progress >= 1.0:
                 self.qualifying_time = elapsed

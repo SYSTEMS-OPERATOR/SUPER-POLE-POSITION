@@ -96,10 +96,18 @@ class ArcadeRenderer:
 
         # HUD
         if self.font:
-            speed = int(env.cars[0].speed * 3.6)
+            speed = int(env.cars[0].speed * 2.23694)
             gear = "H" if env.cars[0].gear else "L"
-            text = self.font.render(f"{speed} km/h G:{gear}", True, (255, 255, 255))
+            text = self.font.render(f"SPEED {speed} MPH", True, (255, 255, 255))
+            gear_text = self.font.render(f"GEAR {gear}", True, (255, 255, 255))
             self.screen.blit(text, (10, 10))
+            self.screen.blit(gear_text, (10, 30))
+            time_text = self.font.render(f"TIME {env.remaining_time:05.2f}", True, (255, 255, 0))
+            self.screen.blit(time_text, (10, 50))
+            lap_val = env.lap_timer if env.lap_flash <= 0 else env.last_lap_time
+            if lap_val is not None:
+                lap_time = self.font.render(f"LAP {lap_val:05.2f}", True, (0, 255, 0))
+                self.screen.blit(lap_time, (10, 70))
 
         # audio channels
         if hasattr(self, "channels"):
@@ -250,19 +258,28 @@ class Pseudo3DRenderer:
             self.screen.blit(hi_text, (10, 10))
             self.screen.blit(score_text, (10, 30))
 
+            # center timer & lap timer
+            time_text = font.render(f"TIME {env.remaining_time:05.2f}", True, (255, 255, 0))
+            tx = width // 2 - time_text.get_width() // 2
+            self.screen.blit(time_text, (tx, 10))
+            lap_val = env.lap_timer if env.lap_flash <= 0 else env.last_lap_time
+            if lap_val is not None:
+                lap_time_text = font.render(f"LAP {lap_val:05.2f}", True, (0, 255, 0))
+                lx = width // 2 - lap_time_text.get_width() // 2
+                self.screen.blit(lap_time_text, (lx, 30))
+
             lap_text = font.render(f"LAP {env.lap + 1}/4", True, (0, 255, 0))
-            time_text = font.render(
-                f"TIME {env.remaining_time:05.2f}", True, (0, 255, 0)
-            )
             pos = 1 if env.track.distance(player, other) < 0 else 2
             pos_text = font.render(f"POS {pos}/2", True, (0, 255, 0))
             self.screen.blit(lap_text, (10, 50))
-            self.screen.blit(time_text, (10, 70))
-            self.screen.blit(pos_text, (10, 90))
+            self.screen.blit(pos_text, (10, 70))
 
-            spd = int(player.speed * 3.6)
-            spd_text = font.render(f"{spd} km/h", True, (255, 255, 255))
-            self.screen.blit(spd_text, (10, 110))
+            mph = int(player.speed * 2.23694)
+            spd_text = font.render(f"SPEED {mph} MPH", True, (255, 255, 255))
+            gear = "H" if player.gear else "L"
+            gear_text = font.render(f"GEAR {gear}", True, (255, 255, 255))
+            self.screen.blit(spd_text, (width - spd_text.get_width() - 10, 10))
+            self.screen.blit(gear_text, (width - gear_text.get_width() - 10, 30))
 
             perf_lines = []
             if os.environ.get("PERF_HUD", "0") != "0":

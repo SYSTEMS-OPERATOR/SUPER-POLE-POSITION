@@ -7,16 +7,16 @@ from pathlib import Path
 from .agents.base_llm_agent import NullAgent
 from .agents.openai_agent import OpenAIAgent
 from .agents.mistral_agent import MistralAgent
+from .envs.pole_position import PolePositionEnv
+from .matchmaking.arena import run_episode, update_leaderboard
+from .evaluation.metrics import summary
+from .evaluation.scores import load_scores, reset_scores, update_scores
 
 AGENT_MAP = {
     "null": NullAgent,
     "openai": OpenAIAgent,
     "mistral": MistralAgent,
 }
-from .envs.pole_position import PolePositionEnv
-from .matchmaking.arena import run_episode, update_leaderboard
-from .evaluation.metrics import summary
-from .evaluation.scores import load_scores, reset_scores, update_scores
 
 
 def main() -> None:

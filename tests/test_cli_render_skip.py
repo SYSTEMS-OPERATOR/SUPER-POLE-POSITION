@@ -1,12 +1,11 @@
-import subprocess
 import sys
+import pytest
+from super_pole_position import cli
 
 
 def test_cli_render_skip(monkeypatch):
     monkeypatch.setitem(sys.modules, "pygame", None)
-    result = subprocess.run(
-        [sys.executable, "-m", "super_pole_position.cli", "race", "--render"],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    assert result.returncode == 1
+    monkeypatch.setattr(sys, "argv", ["spp", "race", "--render"])
+    with pytest.raises(SystemExit) as exc:
+        cli.main()
+    assert exc.value.code == 1

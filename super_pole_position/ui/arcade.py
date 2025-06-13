@@ -269,7 +269,9 @@ class Pseudo3DRenderer:
                 self.screen.blit(lap_time_text, (lx, 30))
 
             lap_text = font.render(f"LAP {env.lap + 1}/4", True, (0, 255, 0))
-            pos = 1 if env.track.distance(player, other) < 0 else 2
+            p_prog = env.track.progress(player)
+            o_prog = env.track.progress(other)
+            pos = 1 if p_prog >= o_prog else 2
             pos_text = font.render(f"POS {pos}/2", True, (0, 255, 0))
             self.screen.blit(lap_text, (10, 50))
             self.screen.blit(pos_text, (10, 70))

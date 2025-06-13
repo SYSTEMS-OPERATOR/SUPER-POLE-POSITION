@@ -10,9 +10,11 @@ def test_traffic_ai_pathing():
     env.start_timer = 0
     car = env.traffic[0]
     car.y = 1.0  # force off center
+    start_offset = abs(car.y - env.track.height / 2)
     for _ in range(10):
         env.step((False, False, 0.0))
-    assert abs(car.y - env.track.height / 2) < env.track.height / 2
+    end_offset = abs(car.y - env.track.height / 2)
+    assert end_offset < start_offset
     env.close()
 
 

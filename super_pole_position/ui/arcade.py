@@ -1,9 +1,14 @@
-"""Minimal pygame viewer used during local races.
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Copyright (c) 2025 MIND INTERFACES, INC. All rights reserved.
+# Licensed under the MIT License.
 
-HUD elements use a simple CRT-style effect with a dark green palette. The
-scanline spacing and brightness are tuned via the ``Palette`` class in this
-module.
 """
+arcade.py
+Description: Module for Super Pole Position.
+"""
+
+
 
 import os
 from pathlib import Path

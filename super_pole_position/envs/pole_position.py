@@ -1,11 +1,16 @@
-"""
-pole_position_env.py
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Copyright (c) 2025 MIND INTERFACES, INC. All rights reserved.
+# Licensed under the MIT License.
 
-Implements a Gym environment for multi-car racing:
-- Two cars: player_car & ai_car, or AI vs AI.
-- Binaural audio: separate left/right channels based on each car's speed or position.
+"""
+pole_position.py
+Description: Module for Super Pole Position.
 """
 
+
+
+import os
 import numpy as np
 import gymnasium as gym
 import time
@@ -23,6 +28,8 @@ from ..physics.car import Car
 from ..physics.track import Track
 from ..physics.traffic_car import TrafficCar
 from ..agents.controllers import GPTPlanner, LowLevelController, LearningAgent
+
+FAST_TEST = bool(int(os.getenv("FAST_TEST", "0")))
 
 class PolePositionEnv(gym.Env):
     """
@@ -56,6 +63,12 @@ class PolePositionEnv(gym.Env):
         self.mode = mode
         self.hyper = hyper
 
+        self.time_limit = 90.0 if self.mode == "race" else 73.0
+        self.traffic_count = 20 if self.mode == "race" else 0
+        if FAST_TEST:
+            self.time_limit = min(self.time_limit, 5.0)
+            self.traffic_count = 2
+
         # Track & cars
         self.track = Track.load(track_name) if track_name else Track(width=200.0, height=200.0)
         self.cars = [Car(x=50, y=50), Car(x=150, y=150)]
@@ -67,7 +80,7 @@ class PolePositionEnv(gym.Env):
                 car.unlimited = True
         self.traffic: list[TrafficCar] = []
         if self.mode == "race":
-            for i in range(20):
+            for i in range(self.traffic_count):
                 x = (i * 10) % self.track.width
                 self.traffic.append(TrafficCar(x=x, y=self.track.height / 2))
         
@@ -97,7 +110,7 @@ class PolePositionEnv(gym.Env):
         low = np.array([0.0] * (7 + 10), dtype=np.float32)
         self.k_traffic = 5
         self.observation_space = gym.spaces.Box(low, high, shape=(7 + 10,), dtype=np.float32)
-        self.remaining_time = 0.0
+        self.remaining_time = self.time_limit
         self.next_checkpoint = 0.25
         self.qualifying_time = None
         self.passes = 0
@@ -165,7 +178,7 @@ class PolePositionEnv(gym.Env):
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
         self.current_step = 0
-        self.remaining_time = 73.0 if self.mode == "qualify" else 90.0
+        self.remaining_time = self.time_limit
         self.next_checkpoint = 0.25
         self.qualifying_time = None
         self.crash_timer = 0.0
@@ -231,6 +244,11 @@ class PolePositionEnv(gym.Env):
         Car 1 is AI-driven using GPT plan + LowLevelController.
         """
         step_start = time.perf_counter()
+        if FAST_TEST:
+            self.time_limit = min(self.time_limit, 5.0)
+            self.traffic_count = 2
+            if len(self.traffic) > self.traffic_count:
+                self.traffic = self.traffic[: self.traffic_count]
         self.current_step += 1
         self.remaining_time = max(self.remaining_time - 1.0, 0.0)
         self.lap_timer += 1.0
@@ -404,7 +422,7 @@ class PolePositionEnv(gym.Env):
         self.prev_y = self.cars[0].y
         done = False
         if self.mode == "qualify":
-            elapsed = (73.0 - self.remaining_time)
+            elapsed = (self.time_limit - self.remaining_time)
             reward = progress - 0.1 * elapsed
             if progress >= 1.0:
                 self.qualifying_time = elapsed

@@ -1,4 +1,14 @@
-"""Utility for writing simple JSON/CSV benchmark logs."""
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Copyright (c) 2025 MIND INTERFACES, INC. All rights reserved.
+# Licensed under the MIT License.
+
+"""
+logger.py
+Description: Module for Super Pole Position.
+"""
+
+
 
 from __future__ import annotations
 

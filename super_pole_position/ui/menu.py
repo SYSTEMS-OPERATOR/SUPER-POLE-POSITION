@@ -1,4 +1,14 @@
-"""Simple title menu with options and hi-score display."""
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Copyright (c) 2025 MIND INTERFACES, INC. All rights reserved.
+# Licensed under the MIT License.
+
+"""
+menu.py
+Description: Module for Super Pole Position.
+"""
+
+
 
 from __future__ import annotations
 

@@ -1,3 +1,14 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Copyright (c) 2025 MIND INTERFACES, INC. All rights reserved.
+# Licensed under the MIT License.
+
+"""
+sprites.py
+Description: Module for Super Pole Position.
+"""
+
+
 try:
     import pygame  # type: ignore
 except Exception:  # pragma: no cover - optional dependency

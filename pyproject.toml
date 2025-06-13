@@ -19,7 +19,7 @@ dependencies = [
 graphics = ["pygame"]
 audio = ["simpleaudio"]
 ai = ["torch", "transformers"]
-dev = ["pytest", "pytest-cov", "coverage"]
+dev = ["pytest", "pytest-cov", "coverage", "pytest-timeout"]
 
 [project.scripts]
 super-pole-position = "super_pole_position.cli:main"
@@ -32,3 +32,6 @@ line-length = 88
 
 [tool.black]
 line-length = 88
+
+[tool.pytest.ini_options]
+timeout = 10

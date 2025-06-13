@@ -6,6 +6,20 @@ from typing import Any
 
 from .base_llm_agent import BaseLLMAgent, NullAgent
 
+
+def parse_action(text: str) -> dict:
+    """Parse ``text`` containing JSON into an action dict."""
+
+    try:
+        data = json.loads(text)
+    except Exception:
+        return {"throttle": 0, "brake": 0, "steer": 0.0}
+    return {
+        "throttle": int(data.get("throttle", 0)),
+        "brake": int(data.get("brake", 0)),
+        "steer": float(data.get("steer", 0.0)),
+    }
+
 try:
     import openai  # type: ignore
 except Exception:  # pragma: no cover
@@ -29,10 +43,11 @@ class OpenAIAgent(BaseLLMAgent):
         prompt = (
             f"Observation: {observation}. Return JSON with throttle, brake, steer."
         )
-        resp = openai.chat.completions.create(model=self.model, messages=[{"role": "user", "content": prompt}])
+        resp = openai.chat.completions.create(
+            model=self.model, messages=[{"role": "user", "content": prompt}]
+        )
         content = resp.choices[0].message.content
-        try:
-            data = json.loads(content)
-            return {"throttle": int(data.get("throttle", 0)), "brake": int(data.get("brake", 0)), "steer": float(data.get("steer", 0.0))}
-        except Exception:
+        action = parse_action(content)
+        if action == {"throttle": 0, "brake": 0, "steer": 0.0}:
             return NullAgent().act(observation)
+        return action

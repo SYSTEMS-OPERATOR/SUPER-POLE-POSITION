@@ -6,8 +6,16 @@ class TrafficCar(Car):
         super().__init__(x=x, y=y)
         self.target_speed = target_speed
 
-    def policy(self):
-        """Return throttle/brake to reach target speed."""
+    def policy(self, track=None):
+        """Return throttle, brake, steer toward the track centerline."""
+
         throttle = self.speed < self.target_speed
         brake = self.speed > self.target_speed
-        return throttle, brake
+
+        steer = 0.0
+        if track is not None:
+            target_y = track.height / 2
+            offset = target_y - self.y
+            steer = max(-1.0, min(1.0, offset * 0.1))
+
+        return throttle, brake, steer

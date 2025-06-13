@@ -322,8 +322,8 @@ class PolePositionEnv(gym.Env):
                 self.ai_offtrack += 1
 
             for t in self.traffic:
-                th, br = t.policy()
-                t.apply_controls(th, br, 0.0, dt=1.0, track=self.track)
+                th, br, steer_ai = t.policy(track=self.track)
+                t.apply_controls(th, br, steer_ai, dt=1.0, track=self.track)
                 self.track.wrap_position(t)
 
         # Wrap positions on the track

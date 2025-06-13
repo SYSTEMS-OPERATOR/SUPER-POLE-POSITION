@@ -1,5 +1,5 @@
 """
-ai_controllers.py
+controllers.py
  
 Houses:
 - GPTPlanner: High-level strategy using a GPT model.
@@ -31,7 +31,7 @@ class GPTPlanner:
     def generate_plan(self, state_dict):
         """Return a textual plan for the next action."""
         if self.tokenizer is None or self.model is None:
-            # Fallback behaviour if transformers is unavailable
+            # Fallback behavior if transformers is unavailable
             return "target_speed 10"
 
         prompt = (

@@ -17,6 +17,15 @@ from dataclasses import dataclass
 
 
 @dataclass
+class Puddle:
+    """Circular puddle causing traction loss."""
+
+    x: float
+    y: float
+    radius: float
+
+
+@dataclass
 class Obstacle:
     """Static obstacle placed on the track."""
 
@@ -27,7 +36,8 @@ class Obstacle:
 
 class Track:
     """A toroidal track with a defined length or 2D bounding box."""
-    def __init__(self, width=200.0, height=200.0, obstacles=None):
+
+    def __init__(self, width=200.0, height=200.0, obstacles=None, puddles=None):
         """
         For a 2D track: we treat the space as a wraparound.
         :param width: Width of the track space.
@@ -37,6 +47,7 @@ class Track:
         self.height = height
         self.start_x = 0.0
         self.obstacles: list[Obstacle] = obstacles or []
+        self.puddles: list[Puddle] = puddles or []
 
     @classmethod
     def load(cls, name: str) -> "Track":
@@ -45,12 +56,18 @@ class Track:
             data = json.loads(path.read_text())
             seg = data.get("segments", [])
             obstacles = [Obstacle(**o) for o in data.get("obstacles", [])]
+            puddles = [Puddle(**p) for p in data.get("puddles", [])]
             if seg:
                 width = max(p[0] for p in seg)
                 height = max(p[1] for p in seg)
-                return cls(width=width, height=height, obstacles=obstacles)
-            if obstacles:
-                return cls(obstacles=obstacles)
+                return cls(
+                    width=width,
+                    height=height,
+                    obstacles=obstacles,
+                    puddles=puddles,
+                )
+            if obstacles or puddles:
+                return cls(obstacles=obstacles, puddles=puddles)
         return cls()
 
     @classmethod
@@ -62,12 +79,18 @@ class Track:
             data = json.loads(path.read_text())
             seg = data.get("segments", [])
             obstacles = [Obstacle(**o) for o in data.get("obstacles", [])]
+            puddles = [Puddle(**p) for p in data.get("puddles", [])]
             if seg:
                 width = max(p[0] for p in seg)
                 height = max(p[1] for p in seg)
-                return cls(width=width, height=height, obstacles=obstacles)
-            if obstacles:
-                return cls(obstacles=obstacles)
+                return cls(
+                    width=width,
+                    height=height,
+                    obstacles=obstacles,
+                    puddles=puddles,
+                )
+            if obstacles or puddles:
+                return cls(obstacles=obstacles, puddles=puddles)
         raise FileNotFoundError(name)
 
     def wrap_position(self, car):
@@ -103,3 +126,13 @@ class Track:
         """Return lap progress 0..1 based on x position."""
         delta = (car.x - self.start_x) % self.width
         return delta / self.width
+
+    def in_puddle(self, car) -> bool:
+        """Return True if ``car`` is inside a puddle."""
+
+        for p in self.puddles:
+            dx = car.x - p.x
+            dy = car.y - p.y
+            if dx * dx + dy * dy <= p.radius * p.radius:
+                return True
+        return False

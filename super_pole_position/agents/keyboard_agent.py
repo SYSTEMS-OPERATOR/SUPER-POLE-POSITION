@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-keyboard_agent.py
-Description: Module for Super Pole Position.
-"""
+"""Keyboard controls for your retro racer. 🎹"""
 
 from __future__ import annotations
 
@@ -26,18 +23,19 @@ class KeyboardAgent(BaseLLMAgent):
         if pygame is None:
             return {"throttle": 0, "brake": 0, "steer": 0.0, "gear": 0}
 
+        # 🎮 Capture current key states
         keys = pygame.key.get_pressed()
-        throttle = int(keys[pygame.K_UP])
-        brake = int(keys[pygame.K_DOWN])
+        throttle = int(keys[pygame.K_UP])  # ⬆️ accelerate
+        brake = int(keys[pygame.K_DOWN])  # ⬇️ slow down
         steer = 0.0
-        if keys[pygame.K_LEFT]:
+        if keys[pygame.K_LEFT]:  # ⬅️ turn left
             steer -= 1.0
-        if keys[pygame.K_RIGHT]:
+        if keys[pygame.K_RIGHT]:  # ➡️ turn right
             steer += 1.0
 
         gear = 0
-        shift_up = keys[pygame.K_x]
-        shift_down = keys[pygame.K_z]
+        shift_up = keys[pygame.K_x]  # X to shift up
+        shift_down = keys[pygame.K_z]  # Z to shift down
         if shift_up and not self._last_up:
             gear = 1
         if shift_down and not self._last_down:

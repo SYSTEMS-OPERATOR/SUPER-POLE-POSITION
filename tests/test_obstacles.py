@@ -11,6 +11,7 @@ Description: Test suite for test_obstacles.
 import pytest  # noqa: F401
 from super_pole_position.physics.track import Track
 
+
 def test_load_obstacles():
     try:
         track = Track.load_namco("fuji_namco")

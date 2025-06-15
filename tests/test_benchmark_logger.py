@@ -10,6 +10,7 @@ Description: Test suite for test_benchmark_logger.
 
 import pytest  # noqa: F401
 
+
 from datetime import datetime, timezone
 from pathlib import Path
 

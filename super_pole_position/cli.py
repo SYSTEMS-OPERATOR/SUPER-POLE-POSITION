@@ -18,6 +18,7 @@ from pathlib import Path
 from .agents.base_llm_agent import NullAgent
 from .agents.openai_agent import OpenAIAgent
 from .agents.mistral_agent import MistralAgent
+from .agents.keyboard_agent import KeyboardAgent
 from .envs.pole_position import PolePositionEnv
 from .matchmaking.arena import run_episode, update_leaderboard
 from .evaluation.metrics import summary
@@ -27,6 +28,7 @@ AGENT_MAP = {
     "null": NullAgent,
     "openai": OpenAIAgent,
     "mistral": MistralAgent,
+    "keyboard": KeyboardAgent,
 }
 
 

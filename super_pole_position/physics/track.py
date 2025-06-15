@@ -9,7 +9,6 @@ Description: Module for Super Pole Position.
 """
 
 
-
 import math
 import json
 from pathlib import Path
@@ -46,10 +45,13 @@ class Obstacle:
     height: float
     billboard: bool = False
 
+
 class Track:
     """A toroidal track with a defined length or 2D bounding box."""
 
-    def __init__(self, width=200.0, height=200.0, obstacles=None, puddles=None, surfaces=None):
+    def __init__(
+        self, width=200.0, height=200.0, obstacles=None, puddles=None, surfaces=None
+    ):
         """
         For a 2D track: we treat the space as a wraparound.
         :param width: Width of the track space.
@@ -64,14 +66,20 @@ class Track:
 
     @classmethod
     def load(cls, name: str) -> "Track":
-        path = Path(__file__).resolve().parent.parent / "assets" / "tracks" / f"{name}.json"
+        path = (
+            Path(__file__).resolve().parent.parent
+            / "assets"
+            / "tracks"
+            / f"{name}.json"
+        )
         if path.exists():
-            data = json.loads(path.read_text())
+            try:
+                data = json.loads(path.read_text())
+            except Exception:
+                return cls()
             seg = data.get("segments", [])
             obstacles = [Obstacle(**o) for o in data.get("obstacles", [])]
             puddles = [Puddle(**p) for p in data.get("puddles", [])]
-            surfaces = [SurfaceZone(**s) for s in data.get("surfaces", [])]
-            surfaces = [SurfaceZone(**s) for s in data.get("surfaces", [])]
             surfaces = [SurfaceZone(**s) for s in data.get("surfaces", [])]
             if seg:
                 width = max(p[0] for p in seg)
@@ -91,9 +99,17 @@ class Track:
     def load_namco(cls, name: str) -> "Track":
         """Load one of the original Namco tracks by name."""
 
-        path = Path(__file__).resolve().parent.parent / "assets" / "tracks" / f"{name}.json"
+        path = (
+            Path(__file__).resolve().parent.parent
+            / "assets"
+            / "tracks"
+            / f"{name}.json"
+        )
         if path.exists():
-            data = json.loads(path.read_text())
+            try:
+                data = json.loads(path.read_text())
+            except Exception:
+                return cls()
             seg = data.get("segments", [])
             obstacles = [Obstacle(**o) for o in data.get("obstacles", [])]
             puddles = [Puddle(**p) for p in data.get("puddles", [])]
@@ -160,10 +176,7 @@ class Track:
         """Return friction coefficient for ``car`` based on surface zones."""
 
         for s in self.surfaces:
-            if (
-                s.x <= car.x <= s.x + s.width
-                and s.y <= car.y <= s.y + s.height
-            ):
+            if s.x <= car.x <= s.x + s.width and s.y <= car.y <= s.y + s.height:
                 return s.friction
         return 1.0
 

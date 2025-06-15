@@ -34,6 +34,7 @@ def parse_action(text: str) -> dict:
         "steer": float(data.get("steer", 0.0)),
     }
 
+
 # ``openai`` is an optional dependency. Import it lazily so the rest of the
 # package works even when the library is not installed.
 try:  # pragma: no cover - the import is environment-dependent
@@ -65,17 +66,19 @@ class OpenAIAgent(BaseLLMAgent):
 
         if not self._enabled or self.client is None:
             return NullAgent().act(observation)
-        prompt = (
-            f"Observation: {observation}. Return JSON with throttle, brake, steer."
-        )
+        prompt = f"Observation: {observation}. Return JSON with throttle, brake, steer."
         # ``chat.completions.create`` is supported across openai versions.  We
         # rely on the ``client`` attribute set up in ``__init__``.
-        resp = self.client.chat.completions.create(
-            model=self.model,
-            messages=[{"role": "user", "content": prompt}],
-        )
-        content = resp.choices[0].message.content
-        action = parse_action(content)
-        if action == {"throttle": 0, "brake": 0, "steer": 0.0}:
+        try:
+            resp = self.client.chat.completions.create(
+                model=self.model,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            content = resp.choices[0].message.content
+            action = parse_action(content)
+            if action == {"throttle": 0, "brake": 0, "steer": 0.0}:
+                return NullAgent().act(observation)
+            return action
+        except Exception as exc:  # pragma: no cover - network failure
+            print(f"OpenAIAgent error: {exc}", flush=True)
             return NullAgent().act(observation)
-        return action

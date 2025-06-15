@@ -29,15 +29,27 @@ except Exception:  # pragma: no cover - optional dependency may be missing
 class GPTPlanner:
     """High-level planner that can optionally use a GPT model."""
 
-    def __init__(self, model_name: str = 'openai-community/gpt2') -> None:
-        """Load the GPT model if the transformers stack is available."""
+    def __init__(
+        self,
+        model_name: str = "openai-community/gpt2",
+        autoload: bool = False,
+    ) -> None:
+        """Optionally set up the GPT model lazily."""
+
+        self.model_name = model_name
+        self.tokenizer = None
+        self.model = None
+        if autoload and AutoTokenizer is not None:
+            self.load_model()
+
+    def load_model(self) -> None:
+        """Load the tokenizer and model when dependencies are available."""
+
         if AutoTokenizer is None:
-            # Dependencies missing – fall back to a deterministic planner.
-            self.tokenizer = None
-            self.model = None
-        else:
-            self.tokenizer = AutoTokenizer.from_pretrained(model_name)
-            self.model = AutoModelForCausalLM.from_pretrained(model_name)
+            return
+        if self.tokenizer is None or self.model is None:
+            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
+            self.model = AutoModelForCausalLM.from_pretrained(self.model_name)
 
     def generate_plan(self, state_dict):
         """Return a textual plan for the next action."""

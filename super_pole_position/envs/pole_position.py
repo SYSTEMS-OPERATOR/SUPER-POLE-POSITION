@@ -107,7 +107,8 @@ class PolePositionEnv(gym.Env):
                 )
 
         # AI components for second car
-        self.planner = GPTPlanner()  # High-level
+        # Load GPT model lazily to avoid startup hiccups
+        self.planner = GPTPlanner(autoload=False)  # High-level
         self.low_level = LowLevelController()
         self.learning_agent = LearningAgent()
 
@@ -226,6 +227,19 @@ class PolePositionEnv(gym.Env):
         self.clock = None
         self._scale = 3  # pixels per track unit
         self.renderer = None
+
+    def configure_planner(self) -> None:
+        """Prompt the player to load the GPT planner on demand."""
+
+        print("Load GPT model? [y/N]", flush=True)
+        ans = input().strip().lower()
+        if ans.startswith("y"):
+            try:
+                self.planner.load_model()
+                print("Model loaded!", flush=True)
+            except Exception as exc:  # pragma: no cover - runtime error
+                print(f"Load failed: {exc}", flush=True)
+
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
@@ -612,6 +626,8 @@ class PolePositionEnv(gym.Env):
                 if event.type == pygame.QUIT:
                     self.close()
                     return
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_m:
+                    self.configure_planner()
         except Exception as exc:  # pragma: no cover - event error
             print(f"pygame event error: {exc}", flush=True)
             return

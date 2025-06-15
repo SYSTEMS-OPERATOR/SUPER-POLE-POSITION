@@ -346,7 +346,14 @@ class PolePositionEnv(gym.Env):
             # else action==2 => no action
 
         self.cars[0].shift(gear_cmd)
-        self.cars[0].apply_controls(throttle, brake, steer, dt=1.0, track=self.track)
+        dt = 1.0
+        if self.clock is not None:
+            try:
+                ms = self.clock.get_time()
+                dt = ms / 1000.0 if ms > 0 else 1.0 / self.metadata.get("render_fps", 30)
+            except Exception:
+                dt = 1.0 / self.metadata.get("render_fps", 30)
+        self.cars[0].apply_controls(throttle, brake, steer, dt=dt, track=self.track)
 
         if self.mode == "race":
             # ---- Car 1 (AI) ----
@@ -383,14 +390,18 @@ class PolePositionEnv(gym.Env):
                 heading_error=heading_error,
             )
             self.cars[1].apply_controls(
-                throttle_ai, brake_ai, steer_ai, dt=1.0, track=self.track
+                throttle_ai,
+                brake_ai,
+                steer_ai,
+                dt=dt,
+                track=self.track,
             )
             if self.cars[1].y < 5 or self.cars[1].y > self.track.height - 5:
                 self.ai_offtrack += 1
 
             for t in self.traffic:
                 th, br, steer_ai = t.policy(track=self.track)
-                t.apply_controls(th, br, steer_ai, dt=1.0, track=self.track)
+                t.apply_controls(th, br, steer_ai, dt=dt, track=self.track)
                 self.track.wrap_position(t)
 
         # Wrap positions on the track

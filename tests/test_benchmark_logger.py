@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 from super_pole_position.envs.pole_position import PolePositionEnv
@@ -15,7 +15,7 @@ def test_log_episode_creates_files(tmp_path, monkeypatch):
     env.step((0, 0, 0.0))
     env.close()
 
-    date_dir = tmp_path / "benchmarks" / datetime.utcnow().strftime("%Y-%m-%d")
+    date_dir = tmp_path / "benchmarks" / datetime.now(timezone.utc).strftime("%Y-%m-%d")
     files = list(date_dir.iterdir())
     assert any(f.suffix == ".json" for f in files)
     assert any(f.suffix == ".csv" for f in files)

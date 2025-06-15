@@ -1,4 +1,5 @@
-import pygame
+import pytest
+pygame = pytest.importorskip("pygame")
 from super_pole_position.envs.pole_position import PolePositionEnv
 from super_pole_position.ui.arcade import Pseudo3DRenderer
 

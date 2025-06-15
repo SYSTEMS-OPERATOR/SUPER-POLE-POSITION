@@ -31,7 +31,21 @@ from ..physics.traffic_car import TrafficCar
 from ..agents.controllers import GPTPlanner, LowLevelController, LearningAgent
 from ..ui.arcade import Pseudo3DRenderer
 
+from ..config import load_parity_config
+from ..config import load_arcade_parity
+
+_PARITY_CONFIG = load_arcade_parity()
+ENGINE_BASE_FREQ = _PARITY_CONFIG.get("engine_base_freq", 400.0)
+ENGINE_PITCH_FACTOR = _PARITY_CONFIG.get("engine_pitch_factor", 3000.0)
+
+
+def engine_pitch(rpm: float) -> float:
+    """Return engine frequency in Hz for ``rpm`` (0..1)."""
+
+    return ENGINE_BASE_FREQ + ENGINE_PITCH_FACTOR * rpm
+
 FAST_TEST = bool(int(os.getenv("FAST_TEST", "0")))
+PARITY_CFG = load_parity_config()
 
 
 class PolePositionEnv(gym.Env):
@@ -415,8 +429,10 @@ class PolePositionEnv(gym.Env):
             self.offroad_frames += 1
 
         if self.track.in_puddle(self.cars[0]):
-            self.cars[0].speed *= 0.7
-            self.cars[0].angle += np.random.uniform(-0.2, 0.2)
+            factor = PARITY_CFG["puddle"].get("speed_factor", 0.7)
+            jitter = PARITY_CFG["puddle"].get("angle_jitter", 0.2)
+            self.cars[0].speed *= factor
+            self.cars[0].angle += np.random.uniform(-jitter, jitter)
 
         if self.track.billboard_hit(self.cars[0]):
             self.remaining_time = max(self.remaining_time - 5.0, 0.0)
@@ -648,7 +664,7 @@ class PolePositionEnv(gym.Env):
             return base + harm2 + harm3 + rumble
 
         def panned_engine(car):
-            freq = 400.0 + 3000.0 * car.rpm()
+            freq = engine_pitch(car.rpm())
             pan = (car.y - self.track.height / 2) / (self.track.height / 2)
             pan = max(-1.0, min(1.0, pan))
             wave = engine_wave(freq)

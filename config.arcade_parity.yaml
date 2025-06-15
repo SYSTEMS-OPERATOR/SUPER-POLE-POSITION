@@ -1,2 +1,11 @@
+# Arcade parity tuning parameters
+puddle:
+  speed_factor: 0.65
+  angle_jitter: 0.2
+
+engine_base_freq: 400.0
+engine_pitch_factor: 3100.0
+scanline_step: 2
 scanline_spacing: 2
 scanline_alpha: 60
+

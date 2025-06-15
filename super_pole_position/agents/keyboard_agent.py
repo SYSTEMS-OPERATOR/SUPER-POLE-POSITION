@@ -20,19 +20,25 @@ class KeyboardAgent(BaseLLMAgent):
         self._last_down = False
 
     def act(self, observation) -> dict:
+        """Return a steering command based on pressed keys."""
         if pygame is None:
+            # Without pygame we return a neutral action. 🤖
             return {"throttle": 0, "brake": 0, "steer": 0.0, "gear": 0}
 
         # 🎮 Capture current key states
         keys = pygame.key.get_pressed()
+        # Basic throttle/brake logic. 🚀
         throttle = int(keys[pygame.K_UP])  # ⬆️ accelerate
         brake = int(keys[pygame.K_DOWN])  # ⬇️ slow down
+
+        # Steering uses arrow keys.
         steer = 0.0
         if keys[pygame.K_LEFT]:  # ⬅️ turn left
             steer -= 1.0
         if keys[pygame.K_RIGHT]:  # ➡️ turn right
             steer += 1.0
 
+        # Simple gear shifting with Z/X. 🔧
         gear = 0
         shift_up = keys[pygame.K_x]  # X to shift up
         shift_down = keys[pygame.K_z]  # Z to shift down
@@ -42,4 +48,10 @@ class KeyboardAgent(BaseLLMAgent):
             gear = -1
         self._last_up = shift_up
         self._last_down = shift_down
-        return {"throttle": throttle, "brake": brake, "steer": steer, "gear": gear}
+
+        return {
+            "throttle": throttle,
+            "brake": brake,
+            "steer": steer,
+            "gear": gear,
+        }

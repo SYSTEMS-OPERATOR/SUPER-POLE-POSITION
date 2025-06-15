@@ -13,6 +13,47 @@ Description: Module for Super Pole Position.
 import os
 from pathlib import Path
 
+
+def _load_config() -> dict:
+    """Return arcade parity config from ``config.arcade_parity.yaml``.
+
+    Falls back to defaults when the file is missing or unreadable. A very
+    small built-in parser handles ``key: value`` pairs to avoid external
+    YAML dependencies.
+    """
+
+    default = {"scanline_spacing": 2, "scanline_alpha": 40}
+    cfg_path = Path(__file__).resolve().parents[1] / "config.arcade_parity.yaml"
+    if not cfg_path.exists():
+        return default
+    try:
+        import yaml  # type: ignore
+
+        data = yaml.safe_load(cfg_path.read_text())
+        if isinstance(data, dict):
+            default.update(data)
+        return default
+    except Exception:
+        try:
+            for line in cfg_path.read_text().splitlines():
+                if ":" in line:
+                    key, val = line.split(":", 1)
+                    val = val.strip().strip("'\"")
+                    if val.replace(".", "", 1).isdigit():
+                        if "." in val:
+                            val = float(val)
+                        else:
+                            val = int(val)
+                    default[key.strip()] = val
+        except Exception:
+            pass
+        return default
+
+
+_PARITY_CFG = _load_config()
+SCANLINE_SPACING = int(_PARITY_CFG.get("scanline_spacing", 2))
+SCANLINE_ALPHA = int(_PARITY_CFG.get("scanline_alpha", 40))
+
 from .sprites import BILLBOARD_ART, CAR_ART, EXPLOSION_FRAMES, ascii_surface
 from ..evaluation.scores import load_scores
 
@@ -177,6 +218,8 @@ class Pseudo3DRenderer:
         self.car_sprite = ascii_surface(CAR_ART)
         self.billboard_sprite = ascii_surface(BILLBOARD_ART)
         self.explosion_frames = [ascii_surface(f) for f in EXPLOSION_FRAMES]
+        self.scanline_spacing = SCANLINE_SPACING
+        self.scanline_alpha = SCANLINE_ALPHA
 
     def road_polygon(self, offset: float) -> list[tuple[float, float]]:
         """Return trapezoid points for the road given ``offset``."""
@@ -367,5 +410,9 @@ class Pseudo3DRenderer:
             pygame.draw.circle(self.screen, (0, 255, 0), (int(ox), int(oy)), 3)
 
         # Scanline effect
-        for y in range(0, height, 2):
-            pygame.draw.line(self.screen, (0, 0, 0), (0, y), (width, y), 1)
+        if self.scanline_alpha > 0:
+            row = pygame.Surface((width, 1))
+            row.fill((0, 0, 0))
+            row.set_alpha(self.scanline_alpha)
+            for y in range(0, height, self.scanline_spacing):
+                self.screen.blit(row, (0, y))

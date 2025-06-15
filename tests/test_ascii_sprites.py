@@ -1,6 +1,6 @@
 import pytest
-pygame = pytest.importorskip("pygame")
-from super_pole_position.ui.sprites import ascii_surface, CAR_ART
+pygame = pytest.importorskip("pygame")  # noqa: E402
+from super_pole_position.ui.sprites import ascii_surface, CAR_ART  # noqa: E402
 
 
 def test_ascii_surface():

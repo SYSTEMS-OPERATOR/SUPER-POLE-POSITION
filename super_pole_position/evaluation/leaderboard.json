@@ -1,1 +1,17 @@
-{"schema_version": 2, "results": []}
+{
+  "schema_version": 2,
+  "results": [
+    {
+      "name": "null-race",
+      "reward": 1.1,
+      "qualifying_time": null,
+      "passes": 0,
+      "crashes": 0,
+      "gear_shifts": 0,
+      "ai_offtrack": 0,
+      "avg_plan_ms": 0.0005506000093191687,
+      "avg_step_ms": 0.1612029999932929,
+      "tokens": 10
+    }
+  ]
+}

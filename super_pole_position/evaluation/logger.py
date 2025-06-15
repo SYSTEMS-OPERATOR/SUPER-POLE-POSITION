@@ -9,7 +9,6 @@ Description: Module for Super Pole Position.
 """
 
 
-
 from __future__ import annotations
 
 import csv
@@ -43,15 +42,22 @@ def log_episode(env, file: Path | None = None, step_file: Path | None = None) ->
 
     data = summary(env)
     data["timestamp"] = datetime.now(timezone.utc).isoformat()
-    file.write_text(json.dumps(data, indent=2))
+    try:
+        file.write_text(json.dumps(data, indent=2))
+    except Exception as exc:  # pragma: no cover - file error
+        print(f"log_episode write error: {exc}", flush=True)
+        return file
 
     # Per-step CSV log if env provides ``step_log``
     if getattr(env, "step_log", None):
         fields = list(env.step_log[0].keys()) if env.step_log else []
-        with step_file.open("w", newline="") as fh:
-            writer = csv.DictWriter(fh, fieldnames=fields)
-            writer.writeheader()
-            for row in env.step_log:
-                writer.writerow(row)
+        try:
+            with step_file.open("w", newline="") as fh:
+                writer = csv.DictWriter(fh, fieldnames=fields)
+                writer.writeheader()
+                for row in env.step_log:
+                    writer.writerow(row)
+        except Exception as exc:  # pragma: no cover - csv error
+            print(f"step log write error: {exc}", flush=True)
 
     return file

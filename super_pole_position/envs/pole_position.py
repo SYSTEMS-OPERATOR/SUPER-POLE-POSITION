@@ -13,6 +13,7 @@ import numpy as np
 import gymnasium as gym
 import time
 from pathlib import Path
+
 try:
     import pygame  # optional dependency for graphics
     from pygame import mixer as pg_mixer  # audio fallback via pygame
@@ -28,8 +29,10 @@ from ..physics.car import Car
 from ..physics.track import Track
 from ..physics.traffic_car import TrafficCar
 from ..agents.controllers import GPTPlanner, LowLevelController, LearningAgent
+from ..ui.arcade import Pseudo3DRenderer
 
 FAST_TEST = bool(int(os.getenv("FAST_TEST", "0")))
+
 
 class PolePositionEnv(gym.Env):
     """
@@ -70,7 +73,9 @@ class PolePositionEnv(gym.Env):
             self.traffic_count = 2
 
         # Track & cars
-        self.track = Track.load(track_name) if track_name else Track(width=200.0, height=200.0)
+        self.track = (
+            Track.load(track_name) if track_name else Track(width=200.0, height=200.0)
+        )
         self.cars = [Car(x=50, y=50), Car(x=150, y=150)]
         if self.hyper:
             for car in self.cars:
@@ -82,37 +87,45 @@ class PolePositionEnv(gym.Env):
         if self.mode == "race":
             for i in range(self.traffic_count):
                 x = (i * 10) % self.track.width
-                speed = 6.0 + (i % 3)
+                speed = 5.0 + (i % 3)
                 self.traffic.append(
                     TrafficCar(x=x, y=self.track.height / 2, target_speed=speed)
                 )
-        
+
         # AI components for second car
-        self.planner = GPTPlanner()         # High-level
+        self.planner = GPTPlanner()  # High-level
         self.low_level = LowLevelController()
         self.learning_agent = LearningAgent()
 
         # Action space for Car 0 when controlled by a human or AI.
         # throttle: {0,1}, brake: {0,1}, steer: [-1,1]
-        self.action_space = gym.spaces.Dict({
-            "throttle": gym.spaces.Discrete(2),
-            "brake": gym.spaces.Discrete(2),
-            "steer": gym.spaces.Box(low=-1.0, high=1.0, shape=())
-        })
+        self.action_space = gym.spaces.Dict(
+            {
+                "throttle": gym.spaces.Discrete(2),
+                "brake": gym.spaces.Discrete(2),
+                "steer": gym.spaces.Box(low=-1.0, high=1.0, shape=()),
+            }
+        )
 
         # Observations: (car0_x, car0_y, car0_speed, car1_x, car1_y, car1_speed, remaining_time)
-        high = np.array([
-            self.track.width,
-            self.track.height,
-            self.cars[0].max_speed,
-            self.track.width,
-            self.track.height,
-            self.cars[1].max_speed,
-            999.0,
-        ] + [self.track.width, self.track.height] * 5, dtype=np.float32)
+        high = np.array(
+            [
+                self.track.width,
+                self.track.height,
+                self.cars[0].max_speed,
+                self.track.width,
+                self.track.height,
+                self.cars[1].max_speed,
+                999.0,
+            ]
+            + [self.track.width, self.track.height] * 5,
+            dtype=np.float32,
+        )
         low = np.array([0.0] * (7 + 10), dtype=np.float32)
         self.k_traffic = 5
-        self.observation_space = gym.spaces.Box(low, high, shape=(7 + 10,), dtype=np.float32)
+        self.observation_space = gym.spaces.Box(
+            low, high, shape=(7 + 10,), dtype=np.float32
+        )
         self.remaining_time = self.time_limit
         self.next_checkpoint = 0.25
         self.qualifying_time = None
@@ -154,10 +167,16 @@ class PolePositionEnv(gym.Env):
                 # Audio files are expected under assets/audio/ but may be absent
                 # in open-source releases.  They will be provided separately.
                 self.crash_wave = sa.WaveObject.from_wave_file(str(base / "crash.wav"))
-                self.prepare_wave = sa.WaveObject.from_wave_file(str(base / "prepare.wav"))
-                self.final_lap_wave = sa.WaveObject.from_wave_file(str(base / "final_lap.wav"))
+                self.prepare_wave = sa.WaveObject.from_wave_file(
+                    str(base / "prepare.wav")
+                )
+                self.final_lap_wave = sa.WaveObject.from_wave_file(
+                    str(base / "final_lap.wav")
+                )
                 self.goal_wave = sa.WaveObject.from_wave_file(str(base / "goal.wav"))
-                self.bgm_wave = sa.WaveObject.from_wave_file(str(base / "namco_theme.wav"))
+                self.bgm_wave = sa.WaveObject.from_wave_file(
+                    str(base / "namco_theme.wav")
+                )
             except Exception:  # pragma: no cover - file missing
                 # Placeholders handle missing WAVs during tests
                 self.crash_wave = None
@@ -192,6 +211,7 @@ class PolePositionEnv(gym.Env):
         self.screen = None
         self.clock = None
         self._scale = 3  # pixels per track unit
+        self.renderer = None
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
@@ -269,6 +289,8 @@ class PolePositionEnv(gym.Env):
             if len(self.traffic) > self.traffic_count:
                 self.traffic = self.traffic[: self.traffic_count]
         self.current_step += 1
+        if self.current_step == 1:
+            self.next_checkpoint = self.track.progress(self.cars[0]) + 0.25
         self.remaining_time = max(self.remaining_time - 1.0, 0.0)
         self.lap_timer += 1.0
         if self.lap_flash > 0.0:
@@ -304,7 +326,11 @@ class PolePositionEnv(gym.Env):
         throttle, brake, steer, gear_cmd = False, False, 0.0, 0
         if isinstance(action, (tuple, list)):
             if len(action) >= 3:
-                throttle, brake, steer = bool(action[0]), bool(action[1]), float(action[2])
+                throttle, brake, steer = (
+                    bool(action[0]),
+                    bool(action[1]),
+                    float(action[2]),
+                )
             if len(action) >= 4:
                 gear_cmd = int(action[3])
         elif isinstance(action, dict):
@@ -343,9 +369,13 @@ class PolePositionEnv(gym.Env):
             dx = self.cars[0].x - self.cars[1].x
             dy = self.cars[0].y - self.cars[1].y
             dx = (dx + self.track.width / 2) % self.track.width - self.track.width / 2
-            dy = (dy + self.track.height / 2) % self.track.height - self.track.height / 2
+            dy = (
+                dy + self.track.height / 2
+            ) % self.track.height - self.track.height / 2
             target_angle = np.arctan2(dy, dx)
-            heading_error = ((target_angle - self.cars[1].angle + np.pi) % (2 * np.pi)) - np.pi
+            heading_error = (
+                (target_angle - self.cars[1].angle + np.pi) % (2 * np.pi)
+            ) - np.pi
 
             throttle_ai, brake_ai, steer_ai = self.low_level.compute_controls(
                 self.cars[1].speed,
@@ -359,7 +389,7 @@ class PolePositionEnv(gym.Env):
                 self.ai_offtrack += 1
 
             for t in self.traffic:
-                th, br, steer_ai = t.policy(track=self.track, target=self.cars[0])
+                th, br, steer_ai = t.policy(track=self.track)
                 t.apply_controls(th, br, steer_ai, dt=1.0, track=self.track)
                 self.track.wrap_position(t)
 
@@ -414,7 +444,10 @@ class PolePositionEnv(gym.Env):
         else:
             self.safe_point = (self.cars[0].x, self.cars[0].y)
             for t in self.traffic:
-                if abs(t.x - self.cars[0].x) < Car.length and abs(t.y - self.cars[0].y) < Car.width / 2:
+                if (
+                    abs(t.x - self.cars[0].x) < Car.length
+                    and abs(t.y - self.cars[0].y) < Car.width / 2
+                ):
                     self.crashes += 1
                     self.crash_timer = 2.5
                     self._play_crash_audio()
@@ -426,10 +459,17 @@ class PolePositionEnv(gym.Env):
         self._play_binaural_audio()
 
         # Scoring distance and overtakes
-        dist = float(((self.cars[0].x - self.prev_x) ** 2 + (self.cars[0].y - self.prev_y) ** 2) ** 0.5)
+        dist = float(
+            ((self.cars[0].x - self.prev_x) ** 2 + (self.cars[0].y - self.prev_y) ** 2)
+            ** 0.5
+        )
         self.score += dist * 50
         for t in self.traffic:
-            if hasattr(t, "prev_x") and self.prev_x < t.prev_x <= self.cars[0].x and abs(self.cars[0].y - t.y) < 1.0:
+            if (
+                hasattr(t, "prev_x")
+                and self.prev_x < t.prev_x <= self.cars[0].x
+                and abs(self.cars[0].y - t.y) < 1.0
+            ):
                 self.overtakes += 1
                 self.score += 50
             t.prev_x = t.x
@@ -446,18 +486,22 @@ class PolePositionEnv(gym.Env):
             if self.mode == "qualify":
                 self.grid_order = sorted(
                     range(len(self.cars)),
-                    key=lambda i: self.lap_times[i]
-                    if i < len(self.lap_times)
-                    else float("inf"),
+                    key=lambda i: (
+                        self.lap_times[i] if i < len(self.lap_times) else float("inf")
+                    ),
                 )
             if self.lap == 3:
                 self._play_final_lap_voice()
+        if self.mode == "race":
+            while progress >= self.next_checkpoint:
+                self.remaining_time += 30.0
+                self.next_checkpoint += 0.25
         self.prev_progress = progress
         self.prev_x = self.cars[0].x
         self.prev_y = self.cars[0].y
         done = False
         if self.mode == "qualify":
-            elapsed = (self.time_limit - self.remaining_time)
+            elapsed = self.time_limit - self.remaining_time
             reward = progress - 0.1 * elapsed
             if progress >= 1.0:
                 self.qualifying_time = elapsed
@@ -508,6 +552,7 @@ class PolePositionEnv(gym.Env):
 
     def render(self):
         """Render the environment."""
+        global pygame
         if self.render_mode != "human":
             return
 
@@ -522,35 +567,60 @@ class PolePositionEnv(gym.Env):
             return
 
         if self.screen is None:
-            pygame.init()
-            size = (int(self.track.width * self._scale), int(self.track.height * self._scale))
-            self.screen = pygame.display.set_mode(size)
-            pygame.display.set_caption("Super Pole Position")
-            self.clock = pygame.time.Clock()
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.close()
+            try:
+                pygame.init()
+                size = (640, 480)
+                self.screen = pygame.display.set_mode(size)
+                pygame.display.set_caption("Super Pole Position")
+                self.clock = pygame.time.Clock()
+                self.renderer = Pseudo3DRenderer(self.screen)
+            except Exception as exc:  # pragma: no cover - init error
+                print(f"pygame init failed: {exc}", flush=True)
+                self.screen = None
+                pygame = None
                 return
 
+        try:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.close()
+                    return
+        except Exception as exc:  # pragma: no cover - event error
+            print(f"pygame event error: {exc}", flush=True)
+            return
+
+        try:
+            if self.renderer:
+                self.renderer.draw(self)
+            else:
+                self._render_fallback()
+            pygame.display.flip()
+            if self.clock:
+                self.clock.tick(self.metadata.get("render_fps", 30))
+        except Exception as exc:  # pragma: no cover - render error
+            print(f"render failure: {exc}", flush=True)
+            self.close()
+
+    def _render_fallback(self) -> None:
+        """Draw a simple top-down view if arcade renderer is unavailable."""
+
         self.screen.fill((0, 0, 0))
-        # Track border
         pygame.draw.rect(
             self.screen,
             (50, 50, 50),
-            pygame.Rect(0, 0, self.track.width * self._scale, self.track.height * self._scale),
+            pygame.Rect(
+                0,
+                0,
+                self.track.width * self._scale,
+                self.track.height * self._scale,
+            ),
             2,
         )
-
         colors = [(255, 0, 0), (0, 255, 0)]
         for car, color in zip(self.cars, colors):
             x = int(car.x * self._scale)
             y = int(car.y * self._scale)
             pygame.draw.circle(self.screen, color, (x, y), 5)
-
-        pygame.display.flip()
-        if self.clock:
-            self.clock.tick(self.metadata.get("render_fps", 30))
 
     def _play_binaural_audio(self, duration=0.1, sample_rate=44100):
         """Generate stereo engine audio with basic position-based panning."""
@@ -778,10 +848,12 @@ class PolePositionEnv(gym.Env):
         traffic_rel = []
         if self.traffic:
             dists = [self.track.distance(self.cars[0], t) for t in self.traffic]
-            ordered = [t for _, t in sorted(zip(dists, self.traffic), key=lambda p: p[0])]
+            ordered = [
+                t for _, t in sorted(zip(dists, self.traffic), key=lambda p: p[0])
+            ]
             for t in ordered[: self.k_traffic]:
-                dx = (t.x - self.cars[0].x)
-                dy = (t.y - self.cars[0].y)
+                dx = t.x - self.cars[0].x
+                dy = t.y - self.cars[0].y
                 traffic_rel.extend([dx, dy])
         while len(traffic_rel) < 2 * self.k_traffic:
             traffic_rel.extend([0.0, 0.0])

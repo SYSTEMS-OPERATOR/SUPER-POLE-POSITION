@@ -40,13 +40,19 @@ class MistralAgent(BaseLLMAgent):
 
         if not self._enabled or self.client is None:
             return NullAgent().act(observation)
-        prompt = (
-            f"Observation: {observation}. Return JSON with throttle, brake, steer."
-        )
-        resp = self.client.chat(model=self.model, messages=[{"role": "user", "content": prompt}])
-        content = resp.choices[0].message.content
+        prompt = f"Observation: {observation}. Return JSON with throttle, brake, steer."
         try:
+            resp = self.client.chat(
+                model=self.model,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            content = resp.choices[0].message.content
             data = json.loads(content)
-            return {"throttle": int(data.get("throttle", 0)), "brake": int(data.get("brake", 0)), "steer": float(data.get("steer", 0.0))}
-        except Exception:
+            return {
+                "throttle": int(data.get("throttle", 0)),
+                "brake": int(data.get("brake", 0)),
+                "steer": float(data.get("steer", 0.0)),
+            }
+        except Exception as exc:  # pragma: no cover - network failure
+            print(f"MistralAgent error: {exc}", flush=True)
             return NullAgent().act(observation)

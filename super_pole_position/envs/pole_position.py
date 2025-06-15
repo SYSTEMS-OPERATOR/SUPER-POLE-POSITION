@@ -12,6 +12,7 @@ import os
 import numpy as np
 import gymnasium as gym
 import time
+from random import random
 from pathlib import Path
 try:
     import pygame  # optional dependency for graphics
@@ -23,11 +24,12 @@ except Exception:  # pragma: no cover - optional dependency
     sa = None
 
 from ..physics.car import Car
-from ..physics.track import Track
+from ..physics.track import Track, Obstacle
 from ..physics.traffic_car import TrafficCar
 from ..agents.controllers import GPTPlanner, LowLevelController, LearningAgent
 
 FAST_TEST = bool(int(os.getenv("FAST_TEST", "0")))
+HYPER = os.getenv("HYPER_MODE", "0") == "1"
 
 class PolePositionEnv(gym.Env):
     """
@@ -114,6 +116,7 @@ class PolePositionEnv(gym.Env):
         self.passes = 0
         self.crashes = 0
         self.crash_timer = 0.0
+        self.crash_duration = 2.5
         self.safe_point = (50.0, 50.0)
         self.offroad_frames = 0
         self.slipstream_frames = 0
@@ -123,6 +126,7 @@ class PolePositionEnv(gym.Env):
         self.start_phase = "READY"
         self.lap = 0
         self.score = 0.0
+        self.high_score = 0
         self.overtakes = 0
         self.prev_progress = 0.0
         self.prev_x = 0.0
@@ -300,6 +304,17 @@ class PolePositionEnv(gym.Env):
 
         self.cars[0].shift(gear_cmd)
         self.cars[0].apply_controls(throttle, brake, steer, dt=1.0, track=self.track)
+        if HYPER:
+            self.cars[0].unlimited = True
+            if random() < 0.01:
+                self.track.obstacles.append(
+                    Obstacle(
+                        x=self.cars[0].x + 5,
+                        y=self.cars[0].y,
+                        width=2.0,
+                        height=2.0,
+                    )
+                )
 
         if self.mode == "race":
             # ---- Car 1 (AI) ----

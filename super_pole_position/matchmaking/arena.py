@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from datetime import datetime, timezone
 from typing import Tuple
 
 from ..envs.pole_position import PolePositionEnv
@@ -37,6 +38,16 @@ def run_episode(
         obs, reward, done, _, _ = env.step(action0_tuple)
         total += reward
     env.episode_reward = total
+    date_dir = Path("benchmarks") / datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    date_dir.mkdir(parents=True, exist_ok=True)
+    ts = datetime.now(timezone.utc).strftime("%H%M%S")
+    out = {
+        "agent": getattr(agents[0], "name", "agent"),
+        "track": getattr(env, "track_name", "unknown"),
+        "result": {"reward": total},
+        "perf": {"steps": env.current_step},
+    }
+    (date_dir / f"{ts}.json").write_text(json.dumps(out, indent=2))
     return total
 
 

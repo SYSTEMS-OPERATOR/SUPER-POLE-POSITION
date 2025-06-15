@@ -48,6 +48,7 @@ class ArcadeRenderer:
         """Create a renderer bound to ``screen``."""
 
         self.screen = screen
+        self.palette = {"white": Palette.white, "green": Palette.green}
         self.font = pygame.font.SysFont(None, 24) if pygame else None
         self.scenery = []
         if pygame:
@@ -77,16 +78,28 @@ class ArcadeRenderer:
                 self.crash_sound = silent
         else:
             self.channels = []
-        self.explosion = None
+        self.explosion_sheet = None
         if pygame:
             exp_path = (
                 Path(__file__).resolve().parent.parent / "assets" / "explosion_16f.png"
             )
             try:
                 # Sprite sheet not bundled; will be added later.
-                self.explosion = pygame.image.load(str(exp_path))
+                self.explosion_sheet = pygame.image.load(str(exp_path))
             except Exception:
-                self.explosion = None
+                self.explosion_sheet = None
+
+    def draw_explosion(self, env, car_pos):
+        """Draw explosion animation based on crash timer."""
+
+        if not pygame or self.explosion_sheet is None:
+            return
+        fw = self.explosion_sheet.get_width() // 16
+        fh = self.explosion_sheet.get_height()
+        frame_dur = env.crash_duration / 16
+        idx = min(15, int((env.crash_duration - env.crash_timer) / frame_dur))
+        frame = self.explosion_sheet.subsurface((idx * fw, 0, fw, fh))
+        self.screen.blit(frame, car_pos)
 
     def draw(self, env) -> None:
         """Render the current environment state."""
@@ -101,18 +114,23 @@ class ArcadeRenderer:
 
         # HUD
         if self.font:
+            if env.score > getattr(env, "high_score", 0):
+                env.high_score = env.score
+            txt = f"SCORE {int(env.score):05d}   HI {int(env.high_score):05d}"
+            score_surf = self.font.render(txt, True, self.palette["white"])
+            self.screen.blit(score_surf, (10, 10))
             speed = int(env.cars[0].speed * 2.23694)
             gear = "H" if env.cars[0].gear else "L"
-            text = self.font.render(f"SPEED {speed} MPH", True, (255, 255, 255))
+            spd_text = self.font.render(f"SPEED {speed} MPH", True, (255, 255, 255))
             gear_text = self.font.render(f"GEAR {gear}", True, (255, 255, 255))
-            self.screen.blit(text, (10, 10))
-            self.screen.blit(gear_text, (10, 30))
+            self.screen.blit(spd_text, (10, 30))
+            self.screen.blit(gear_text, (10, 50))
             time_text = self.font.render(f"TIME {env.remaining_time:05.2f}", True, (255, 255, 0))
-            self.screen.blit(time_text, (10, 50))
+            self.screen.blit(time_text, (10, 70))
             lap_val = env.lap_timer if env.lap_flash <= 0 else env.last_lap_time
             if lap_val is not None:
                 lap_time = self.font.render(f"LAP {lap_val:05.2f}", True, (0, 255, 0))
-                self.screen.blit(lap_time, (10, 70))
+                self.screen.blit(lap_time, (10, 90))
 
         # audio channels
         if hasattr(self, "channels"):
@@ -146,6 +164,75 @@ class Pseudo3DRenderer:
         self.car_sprite = ascii_surface(CAR_ART)
         self.billboard_sprite = ascii_surface(BILLBOARD_ART)
         self.explosion_frames = [ascii_surface(f) for f in EXPLOSION_FRAMES]
+        self.explosion_sheet = None
+        if pygame:
+            sheet_path = (
+                Path(__file__).resolve().parent.parent
+                / "assets"
+                / "explosion_16f.png"
+            )
+            try:
+                self.explosion_sheet = pygame.image.load(str(sheet_path))
+            except Exception:
+                self.explosion_sheet = None
+
+    def draw_road(self, env):
+        """Draw road trapezoid and return top vertex positions."""
+
+        width = self.screen.get_width()
+        height = self.screen.get_height()
+
+        road_w = width * 0.6
+        road_half_width = road_w / 2
+        center_x = width / 2
+        bottom = height
+
+        if hasattr(env.track, "curvature_at"):
+            player_s = getattr(env, "player_s", 0.0)
+            curvature = env.track.curvature_at(player_s)
+        else:
+            curvature = getattr(env.cars[0], "steering", 0.0)
+        offset = curvature * (width / 4)
+
+        x1_top = center_x - road_half_width + offset
+        x2_top = center_x + road_half_width + offset
+
+        slices = 12
+        road_top = road_w * 0.2
+        prev_center = center_x
+        prev_width = road_w
+        prev_y = bottom
+        for i in range(slices):
+            t1 = (i + 1) / slices
+            y = bottom - (bottom - self.horizon) * t1
+            center = center_x + offset * t1
+            w = road_w - (road_w - road_top) * t1
+            points = [
+                (prev_center - prev_width / 2, prev_y),
+                (prev_center + prev_width / 2, prev_y),
+                (center + w / 2, y),
+                (center - w / 2, y),
+            ]
+            pygame.draw.polygon(self.screen, (60, 60, 60), points)
+            prev_center, prev_width, prev_y = center, w, y
+
+        # center line segmented along the curve
+        prev_center = center_x
+        prev_y = bottom
+        for i in range(slices):
+            t = (i + 1) / slices
+            y = bottom - (bottom - self.horizon) * t
+            center = center_x + offset * t
+            pygame.draw.line(
+                self.screen,
+                (255, 255, 255),
+                (prev_center, prev_y),
+                (center, y),
+                2,
+            )
+            prev_center, prev_y = center, y
+
+        return x1_top, x2_top, offset
 
     def draw(self, env) -> None:
         """Draw the environment from a front-facing perspective."""
@@ -164,48 +251,10 @@ class Pseudo3DRenderer:
             (0, self.horizon, width, height - self.horizon),
         )
 
-        # road trapezoid (vanishing point shifts with car angle)
-        road_w = width * 0.6
-        bottom = height
         player = env.cars[0]
-        # ``curve`` is roughly -1.0..1.0 based on steering angle
-        curve = max(-1.0, min(player.angle / 0.5, 1.0))
-        offset = curve * width * 0.15
+        bottom = height
 
-        slices = 12
-        road_top = road_w * 0.2
-        prev_center = width / 2
-        prev_width = road_w
-        prev_y = bottom
-        for i in range(slices):
-            t1 = (i + 1) / slices
-            y = bottom - (bottom - self.horizon) * t1
-            center = width / 2 + offset * t1
-            w = road_w - (road_w - road_top) * t1
-            points = [
-                (prev_center - prev_width / 2, prev_y),
-                (prev_center + prev_width / 2, prev_y),
-                (center + w / 2, y),
-                (center - w / 2, y),
-            ]
-            pygame.draw.polygon(self.screen, (60, 60, 60), points)
-            prev_center, prev_width, prev_y = center, w, y
-
-        # center line segmented along the curve
-        prev_center = width / 2
-        prev_y = bottom
-        for i in range(slices):
-            t = (i + 1) / slices
-            y = bottom - (bottom - self.horizon) * t
-            center = width / 2 + offset * t
-            pygame.draw.line(
-                self.screen,
-                (255, 255, 255),
-                (prev_center, prev_y),
-                (center, y),
-                2,
-            )
-            prev_center, prev_y = center, y
+        _, _, offset = self.draw_road(env)
 
         # Obstacles rendered as roadside billboards
         player = env.cars[0]
@@ -238,19 +287,25 @@ class Pseudo3DRenderer:
         else:
             pygame.draw.rect(self.screen, self.car_color, rect)
 
-        if env.crash_timer > 0 and self.explosion_frames:
-            phase = (2.5 - env.crash_timer) / 2.5
+        if env.crash_timer > 0 and self.explosion_sheet:
+            fw = self.explosion_sheet.get_width() // 16
+            fh = self.explosion_sheet.get_height()
+            frame_dur = env.crash_duration / 16
+            idx = min(
+                15,
+                int((env.crash_duration - env.crash_timer) / frame_dur),
+            )
+            frame = self.explosion_sheet.subsurface((idx * fw, 0, fw, fh))
+            img = pygame.transform.scale(frame, (int(car_w * 2), int(car_h * 2)))
+            self.screen.blit(img, (int(x - car_w), int(y - car_h * 2)))
+        elif env.crash_timer > 0 and self.explosion_frames:
+            phase = (env.crash_duration - env.crash_timer) / env.crash_duration
             idx = min(
                 int(phase * (len(self.explosion_frames) - 1)),
                 len(self.explosion_frames) - 1,
             )
             exp = pygame.transform.scale(
                 self.explosion_frames[idx], (int(car_w * 2), int(car_h * 2))
-            )
-            self.screen.blit(exp, (int(x - car_w), int(y - car_h * 2)))
-        elif env.crash_timer > 0 and self.explosion:
-            exp = pygame.transform.scale(
-                self.explosion, (int(car_w * 2), int(car_h * 2))
             )
             self.screen.blit(exp, (int(x - car_w), int(y - car_h * 2)))
 
@@ -287,6 +342,12 @@ class Pseudo3DRenderer:
             gear_text = font.render(f"GEAR {gear}", True, (255, 255, 255))
             self.screen.blit(spd_text, (width - spd_text.get_width() - 10, 10))
             self.screen.blit(gear_text, (width - gear_text.get_width() - 10, 30))
+
+            latency_ms = getattr(env, "latency_ms", 0)
+            loop_hz = getattr(env, "loop_hz", 0)
+            perf_txt = f"LAG {latency_ms}ms  LOOP {loop_hz}Hz"
+            perf_surf = font.render(perf_txt, True, self.palette.get("green", (0, 255, 0)))
+            self.screen.blit(perf_surf, (width - 180, 10))
 
             perf_lines = []
             if os.environ.get("PERF_HUD", "0") != "0":

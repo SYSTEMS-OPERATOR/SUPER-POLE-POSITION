@@ -13,5 +13,6 @@ Description: Module for Super Pole Position.
 from .car import Car
 from .track import Track
 from .traffic_car import TrafficCar
+from .state import CarState
 
-__all__ = ["Car", "Track", "TrafficCar"]
+__all__ = ["Car", "Track", "TrafficCar", "CarState"]

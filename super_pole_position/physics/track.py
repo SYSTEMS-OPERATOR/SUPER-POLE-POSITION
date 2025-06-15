@@ -162,6 +162,12 @@ class Track:
         delta = (car.x - self.start_x) % self.width
         return delta / self.width
 
+    def distance_along_track(self, pos) -> float:
+        """Return normalized distance 0..1 along track from ``start_x``."""
+        x = pos.x if hasattr(pos, "x") else pos[0]
+        delta = (x - self.start_x) % self.width
+        return delta / self.width
+
     def in_puddle(self, car) -> bool:
         """Return True if ``car`` is inside a puddle."""
 

@@ -21,10 +21,15 @@ def main() -> None:
 
     print("🏎️ SUPER-POLE-POSITION 🏁")
     print(INTRO)
-    input("Press Enter to start!")
+    # Wait for the player to start – retro style! ✨
+    input("Press Enter to start! 🎉")
+    # Create a race-ready environment. 🏆
     env = PolePositionEnv(render_mode="human", mode="race", track_name="fuji")
+    # KeyboardAgent lets you take control of the action. 🎮
     agent = KeyboardAgent()
+    # Run a single episode with our agent versus itself. 🤖
     run_episode(env, (agent, agent))
+    # Print a quick metrics summary. 📊
     print(summary(env))
     env.close()
 

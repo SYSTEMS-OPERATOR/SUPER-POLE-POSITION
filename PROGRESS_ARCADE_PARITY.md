@@ -1,4 +1,4 @@
-# Arcade Parity Progress
+# 🕹️ Arcade Parity Progress
 
 ## Design Objectives
 

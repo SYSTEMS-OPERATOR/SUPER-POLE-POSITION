@@ -12,6 +12,7 @@ Description: Module for Super Pole Position.
 
 import os
 from pathlib import Path
+from typing import Dict
 
 from .sprites import BILLBOARD_ART, CAR_ART, EXPLOSION_FRAMES, ascii_surface
 from ..evaluation.scores import load_scores
@@ -25,6 +26,22 @@ try:
     import pygame  # type: ignore
 except Exception:  # pragma: no cover
     pygame = None
+
+
+def _load_arcade_config() -> Dict[str, int]:
+    """Return scanline configuration from ``config.arcade_parity.yaml``."""
+
+    cfg = {"scanline_step": 2, "scanline_alpha": 255}
+    path = Path(__file__).resolve().parents[2] / "config.arcade_parity.yaml"
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            for line in fh:
+                if ":" in line:
+                    key, val = line.split(":", 1)
+                    cfg[key.strip()] = int(val.strip())
+    except Exception:
+        pass
+    return cfg
 
 
 class Palette:
@@ -177,6 +194,14 @@ class Pseudo3DRenderer:
         self.car_sprite = ascii_surface(CAR_ART)
         self.billboard_sprite = ascii_surface(BILLBOARD_ART)
         self.explosion_frames = [ascii_surface(f) for f in EXPLOSION_FRAMES]
+        cfg = _load_arcade_config()
+        self.scanline_step = cfg["scanline_step"]
+        self.scanline_alpha = cfg["scanline_alpha"]
+        if pygame:
+            self._scanline_row = pygame.Surface((1, 1), pygame.SRCALPHA)
+            self._scanline_row.fill((0, 0, 0, self.scanline_alpha))
+        else:
+            self._scanline_row = None
 
     def road_polygon(self, offset: float) -> list[tuple[float, float]]:
         """Return trapezoid points for the road given ``offset``."""
@@ -367,5 +392,7 @@ class Pseudo3DRenderer:
             pygame.draw.circle(self.screen, (0, 255, 0), (int(ox), int(oy)), 3)
 
         # Scanline effect
-        for y in range(0, height, 2):
-            pygame.draw.line(self.screen, (0, 0, 0), (0, y), (width, y), 1)
+        if self._scanline_row:
+            row = pygame.transform.scale(self._scanline_row, (width, 1))
+            for y in range(0, height, self.scanline_step):
+                self.screen.blit(row, (0, y))

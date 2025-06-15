@@ -11,10 +11,10 @@ Description: Test suite for test_hud_render.
 import pytest  # noqa: F401
 
 import pygame
-pygame = pytest.importorskip("pygame")
+pygame = pytest.importorskip("pygame")  # noqa: E402
 
-from super_pole_position.envs.pole_position import PolePositionEnv
-from super_pole_position.ui.arcade import Pseudo3DRenderer
+from super_pole_position.envs.pole_position import PolePositionEnv  # noqa: E402
+from super_pole_position.ui.arcade import Pseudo3DRenderer  # noqa: E402
 
 
 def test_hud_render_smoke():

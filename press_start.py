@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-"""Launch the game with one press. 🕹️🚦
 
-Tiny script for a quick retro blast.
-"""
+"""Launch the game with one press. 🕹️✨"""
+
 
 from __future__ import annotations
 
@@ -21,12 +20,17 @@ rrrrr
 
 
 def main() -> None:
-    """Show a tiny intro and jump into the race."""
+    """Show a tiny intro and jump into the race. 🏁"""
 
+    # 🚦 Display the game title
     print("🏎️ SUPER-POLE-POSITION 🏁")
     print(INTRO)
 
+
+    # ⏱️ Wait for the player to begin
     input("Press Enter to start!")
+
+    # 🎮 Create the environment and keyboard agent
     # 🚗 Prepare the track and cars
     # Create a race-ready environment. 🏆
 
@@ -34,7 +38,9 @@ def main() -> None:
     # KeyboardAgent lets you take control of the action. 🎮
     agent = KeyboardAgent()
 
+    # 🏎️ Run a single race where both cars share the same agent
     # 🔁 One quick lap with two identical agents
+
     run_episode(env, (agent, agent))
     # 📊 Display a tiny summary
 

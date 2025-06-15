@@ -9,7 +9,6 @@ Description: Test suite for test_cli_headless.
 """
 
 import pytest  # noqa: F401
-
 import os
 import subprocess
 import sys

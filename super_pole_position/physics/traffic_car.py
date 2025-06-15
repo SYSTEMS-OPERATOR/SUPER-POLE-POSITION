@@ -11,8 +11,10 @@ Description: Module for Super Pole Position.
 
 from .car import Car
 
+
 class TrafficCar(Car):
     """Simple AI car that follows a constant speed profile."""
+
     def __init__(self, x=0.0, y=0.0, target_speed=5.0):
         super().__init__(x=x, y=y)
         self.target_speed = target_speed

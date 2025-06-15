@@ -10,3 +10,6 @@ Description: Module for Super Pole Position.
 
 
 """Agent implementations and controller helpers."""
+
+from .keyboard_agent import KeyboardAgent
+

@@ -24,18 +24,41 @@ def run_episode(
 ) -> float:
     """Run one episode and return cumulative reward for agent 0."""
     obs, _ = env.reset()
+    if env.render_mode == "human":
+        try:
+            env.render()
+        except Exception as exc:
+            print(f"render error: {exc}", flush=True)
     done = False
     total = 0.0
     while not done:
-        action0 = agents[0].act(obs)
+        if env.render_mode == "human":
+            try:
+                env.render()
+            except Exception as exc:
+                print(f"render error: {exc}", flush=True)
+        try:
+            action0 = agents[0].act(obs)
+        except Exception as exc:
+            print(f"agent error: {exc}", flush=True)
+            action0 = {}
         action0_tuple = (
             action0.get("throttle", 0),
             action0.get("brake", 0),
             action0.get("steer", 0.0),
             action0.get("gear", 0),
         )
-        obs, reward, done, _, _ = env.step(action0_tuple)
+        try:
+            obs, reward, done, _, _ = env.step(action0_tuple)
+        except Exception as exc:
+            print(f"step error: {exc}", flush=True)
+            break
         total += reward
+        if env.render_mode == "human":
+            try:
+                env.render()
+            except Exception as exc:
+                print(f"render error: {exc}", flush=True)
     env.episode_reward = total
     return total
 

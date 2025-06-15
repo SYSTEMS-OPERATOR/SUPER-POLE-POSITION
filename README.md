@@ -70,6 +70,11 @@ Press **Enter** to begin or **Esc** to quit.
 🖼️ **Retro ASCII sprites** for cars, billboards and explosions.
 🚀 **Hyper Mode** for uncapped speed and obstacle chaos.
 🕹️ **Arcade-accurate mechanics**: slipstream boost, off-road slowdown, crash penalties
+🛞 **Two-speed gearbox with torque kick**
+🪧 **Billboards shatter with time penalty**
+🌱 **Dynamic friction zones**
+🌄 **Horizon sway & sprite scaling**
+📻 **Engine pitch scales with RPM**
 
 ---
 
@@ -77,7 +82,10 @@ Press **Enter** to begin or **Esc** to quit.
 🕹️ **CAR 1:** _(Human or AI)_  
 ⬆️ **Throttle**  
 ⬇️ **Brake**  
-⬅️➡️ **Steer Left / Right**  
+⬅️➡️ **Steer Left / Right**
+**Z/X** **Shift Down / Up**
+
+For more details see [GAMEPLAY_FAQ.md](GAMEPLAY_FAQ.md).
 
 🕹️ **CAR 2:** _(AI-Driven)_  
 🤖 **Automated racing, planning, and learning**  
@@ -91,7 +99,7 @@ Press **Enter** to begin or **Esc** to quit.
 - 🖥️ Python 3.8+  
 - 🏎️ Gymnasium (Reinforcement Learning framework)  
 - 🧠 PyTorch / TensorFlow (for AI models)  
-- 🎵 SimpleAudio (for binaural effects)
+- 🎵 SimpleAudio (or fallback to Pygame's mixer)
 - 🎮 Pygame (for optional graphics)
 - 📡 ZeroMQ / WebSockets (for live AI telemetry)
 
@@ -122,7 +130,17 @@ super-pole-position --episodes 1
 🏎️ **Rank | AI Name | Best Lap Time**  
 1️⃣ 🔥 **TURBO-GPT** - 1:07.32  
 2️⃣ 🏎️ **VELOCITY-VECTOR** - 1:09.84  
-3️⃣ ⚡ **NEURAL-RACER-X** - 1:11.29  
+3️⃣ ⚡ **NEURAL-RACER-X** - 1:11.29
+
+### Scoreboard API
+
+Start a simple server (requires `fastapi`):
+
+```bash
+python -m super_pole_position.server.api
+```
+
+Use `GET /scores` to list results and `POST /scores` to submit new scores.
 
 ---
 

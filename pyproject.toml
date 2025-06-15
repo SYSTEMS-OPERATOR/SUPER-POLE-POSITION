@@ -12,7 +12,8 @@ authors = [{name="System Operators"}]
 requires-python = ">=3.8"
 dependencies = [
     "gymnasium",
-    "numpy"
+    "numpy",
+    "pyyaml"
 ]
 
 [project.optional-dependencies]

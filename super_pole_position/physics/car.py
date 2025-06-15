@@ -32,6 +32,11 @@ class Car:
         # If True speed is not clamped by gear ratios (Hyper mode)
         self.unlimited = False
 
+    def rpm(self) -> float:
+        """Return 0..1 engine RPM based on current gear limit."""
+
+        return min(1.0, self.speed / self.gear_max[self.gear])
+
     def shift(self, change: int) -> None:
         """Change gear by ``change`` amount (e.g. -1, 0, +1)."""
         if change:
@@ -54,9 +59,10 @@ class Car:
         :param dt: Timestep in seconds.
         :param track: Optional track to check for off-road slowdown.
         """
-        # Accelerate / Decelerate
+        # Accelerate / Decelerate with gear torque
+        gear_factor = 1.0 + 0.5 * self.gear
         if throttle:
-            self.speed += self.acceleration * dt
+            self.speed += self.acceleration * gear_factor * dt
         if brake:
             self.speed -= self.acceleration * dt
 
@@ -79,6 +85,10 @@ class Car:
         # Off-road slowdown
         if track and (self.y < 5 or self.y > track.height - 5):
             self.speed *= 0.5
+
+        # Surface friction zones
+        if track:
+            self.speed *= track.surface_friction(self)
 
     def crash(self) -> None:
         """Stop the car and reset gear when a crash occurs."""

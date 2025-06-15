@@ -8,7 +8,6 @@ test_track_namco.py
 Description: Test suite for test_track_namco.
 """
 
-
 import pytest  # noqa: F401
 from super_pole_position.physics.track import Track
 

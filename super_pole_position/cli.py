@@ -18,6 +18,8 @@ from pathlib import Path
 from .agents.base_llm_agent import NullAgent
 from .agents.openai_agent import OpenAIAgent
 from .agents.mistral_agent import MistralAgent
+from .agents.keyboard_agent import KeyboardAgent
+
 from .envs.pole_position import PolePositionEnv
 from .matchmaking.arena import run_episode, update_leaderboard
 from .evaluation.metrics import summary
@@ -27,6 +29,7 @@ AGENT_MAP = {
     "null": NullAgent,
     "openai": OpenAIAgent,
     "mistral": MistralAgent,
+    "keyboard": KeyboardAgent,
 }
 
 
@@ -56,8 +59,8 @@ def main() -> None:
             print(f"{i:2d}. {s['name']} {s['score']}")
         return
     if args.cmd == "reset-scores":
-        ans = input("Reset all scores? [y/N]: ")
-        if ans.lower().startswith("y"):
+        answer = input("Reset all scores? [y/N]: ")
+        if answer.lower().startswith("y"):
             reset_scores(Path(__file__).parent / "evaluation" / "scores.json")
         return
 

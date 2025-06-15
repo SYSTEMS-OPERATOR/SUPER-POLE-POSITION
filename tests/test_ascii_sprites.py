@@ -9,7 +9,7 @@ Description: Test suite for test_ascii_sprites.
 """
 
 import pytest  # noqa: F401
-pygame = pytest.importorskip("pygame")
+pygame = pytest.importorskip("pygame") # noqa: E402
 
 from super_pole_position.ui.sprites import ascii_surface, CAR_ART  # noqa: E402
 

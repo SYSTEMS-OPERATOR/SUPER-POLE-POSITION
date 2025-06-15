@@ -39,11 +39,17 @@ def update_scores(file: Path | None, name: str, score: int) -> None:
     scores = load_scores(file)
     scores.append({"name": name, "score": int(score)})
     scores = sorted(scores, key=lambda s: -s["score"])[:10]
-    file.write_text(json.dumps({"scores": scores}, indent=2))
+    try:
+        file.write_text(json.dumps({"scores": scores}, indent=2))
+    except Exception as exc:  # pragma: no cover - file error
+        print(f"update_scores error: {exc}", flush=True)
 
 
 def reset_scores(file: Path | None = None) -> None:
     """Clear all scores in ``file``."""
 
     file = file or _DEFAULT_FILE
-    file.write_text(json.dumps({"scores": []}, indent=2))
+    try:
+        file.write_text(json.dumps({"scores": []}, indent=2))
+    except Exception as exc:  # pragma: no cover - file error
+        print(f"reset_scores error: {exc}", flush=True)

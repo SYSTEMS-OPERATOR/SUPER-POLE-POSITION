@@ -12,6 +12,48 @@ Description: Module for Super Pole Position.
 
 import os
 from pathlib import Path
+from typing import Dict
+
+
+def _load_config() -> dict:
+    """Return arcade parity config from ``config.arcade_parity.yaml``.
+
+    Falls back to defaults when the file is missing or unreadable. A very
+    small built-in parser handles ``key: value`` pairs to avoid external
+    YAML dependencies.
+    """
+
+    default = {"scanline_spacing": 2, "scanline_alpha": 40}
+    cfg_path = Path(__file__).resolve().parents[1] / "config.arcade_parity.yaml"
+    if not cfg_path.exists():
+        return default
+    try:
+        import yaml  # type: ignore
+
+        data = yaml.safe_load(cfg_path.read_text())
+        if isinstance(data, dict):
+            default.update(data)
+        return default
+    except Exception:
+        try:
+            for line in cfg_path.read_text().splitlines():
+                if ":" in line:
+                    key, val = line.split(":", 1)
+                    val = val.strip().strip("'\"")
+                    if val.replace(".", "", 1).isdigit():
+                        if "." in val:
+                            val = float(val)
+                        else:
+                            val = int(val)
+                    default[key.strip()] = val
+        except Exception:
+            pass
+        return default
+
+
+_PARITY_CFG = _load_config()
+SCANLINE_SPACING = int(_PARITY_CFG.get("scanline_spacing", 2))
+SCANLINE_ALPHA = int(_PARITY_CFG.get("scanline_alpha", 40))
 
 from .sprites import BILLBOARD_ART, CAR_ART, EXPLOSION_FRAMES, ascii_surface
 from ..evaluation.scores import load_scores
@@ -25,6 +67,22 @@ try:
     import pygame  # type: ignore
 except Exception:  # pragma: no cover
     pygame = None
+
+
+def _load_arcade_config() -> Dict[str, int]:
+    """Return scanline configuration from ``config.arcade_parity.yaml``."""
+
+    cfg = {"scanline_step": 2, "scanline_alpha": 255}
+    path = Path(__file__).resolve().parents[2] / "config.arcade_parity.yaml"
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            for line in fh:
+                if ":" in line:
+                    key, val = line.split(":", 1)
+                    cfg[key.strip()] = int(val.strip())
+    except Exception:
+        pass
+    return cfg
 
 
 class Palette:
@@ -49,6 +107,7 @@ class ArcadeRenderer:
 
         self.screen = screen
         self.font = pygame.font.SysFont(None, 24) if pygame else None
+        self.palette = {"white": Palette.white}
         self.scenery = []
         if pygame:
             sc_dir = Path(__file__).resolve().parent.parent / "assets" / "scenery"
@@ -77,16 +136,57 @@ class ArcadeRenderer:
                 self.crash_sound = silent
         else:
             self.channels = []
-        self.explosion = None
+        self.explosion_sheet = None
         if pygame:
             exp_path = (
                 Path(__file__).resolve().parent.parent / "assets" / "explosion_16f.png"
             )
             try:
                 # Sprite sheet not bundled; will be added later.
-                self.explosion = pygame.image.load(str(exp_path))
+                self.explosion_sheet = pygame.image.load(str(exp_path))
             except Exception:
-                self.explosion = None
+                self.explosion_sheet = None
+
+    def draw_explosion(self, env, pos) -> int:
+        """Blit the correct explosion frame at ``pos`` and return its index."""
+
+        if not pygame or not self.explosion_sheet or env.crash_timer <= 0:
+            return -1
+        frame_width = self.explosion_sheet.get_width() // 16
+        frame_height = self.explosion_sheet.get_height()
+        duration = getattr(env, "crash_duration", 2.5)
+        frame_duration = duration / 16
+        frame_index = min(15, int((duration - env.crash_timer) / frame_duration))
+        frame_surface = self.explosion_sheet.subsurface(
+            (frame_index * frame_width, 0, frame_width, frame_height)
+        )
+        self.screen.blit(frame_surface, pos)
+        return frame_index
+
+    def draw_hud(self, env) -> None:
+        """Render HUD elements including score."""
+
+        if not self.font:
+            return
+        if env.score > getattr(env, "high_score", 0):
+            env.high_score = env.score
+        score_text = f"SCORE {int(env.score):05d}  HI {int(getattr(env, 'high_score', 0)):05d}"
+        self.screen.blit(
+            self.font.render(score_text, True, self.palette["white"]),
+            (10, 10),
+        )
+        speed = int(env.cars[0].speed * 2.23694)
+        gear = "H" if env.cars[0].gear else "L"
+        text = self.font.render(f"SPEED {speed} MPH", True, (255, 255, 255))
+        gear_text = self.font.render(f"GEAR {gear}", True, (255, 255, 255))
+        self.screen.blit(text, (10, 30))
+        self.screen.blit(gear_text, (10, 50))
+        time_text = self.font.render(f"TIME {env.remaining_time:05.2f}", True, (255, 255, 0))
+        self.screen.blit(time_text, (10, 70))
+        lap_val = env.lap_timer if env.lap_flash <= 0 else env.last_lap_time
+        if lap_val is not None:
+            lap_time = self.font.render(f"LAP {lap_val:05.2f}", True, (0, 255, 0))
+            self.screen.blit(lap_time, (10, 90))
 
     def draw(self, env) -> None:
         """Render the current environment state."""
@@ -100,19 +200,7 @@ class ArcadeRenderer:
             self.screen.blit(img, (x, 0))
 
         # HUD
-        if self.font:
-            speed = int(env.cars[0].speed * 2.23694)
-            gear = "H" if env.cars[0].gear else "L"
-            text = self.font.render(f"SPEED {speed} MPH", True, (255, 255, 255))
-            gear_text = self.font.render(f"GEAR {gear}", True, (255, 255, 255))
-            self.screen.blit(text, (10, 10))
-            self.screen.blit(gear_text, (10, 30))
-            time_text = self.font.render(f"TIME {env.remaining_time:05.2f}", True, (255, 255, 0))
-            self.screen.blit(time_text, (10, 50))
-            lap_val = env.lap_timer if env.lap_flash <= 0 else env.last_lap_time
-            if lap_val is not None:
-                lap_time = self.font.render(f"LAP {lap_val:05.2f}", True, (0, 255, 0))
-                self.screen.blit(lap_time, (10, 70))
+        self.draw_hud(env)
 
         # audio channels
         if hasattr(self, "channels"):
@@ -139,13 +227,51 @@ class Pseudo3DRenderer:
         self.screen = screen
         if pygame and not pygame.font.get_init():
             pygame.font.init()
-        self.horizon = int(screen.get_height() * 0.4)
+        self.horizon_base = int(screen.get_height() * 0.4)
+        self.horizon = self.horizon_base
         self.sky_color = (100, 150, 255)
         self.ground_color = (40, 40, 40)
         self.car_color = (255, 0, 0)
         self.car_sprite = ascii_surface(CAR_ART)
         self.billboard_sprite = ascii_surface(BILLBOARD_ART)
         self.explosion_frames = [ascii_surface(f) for f in EXPLOSION_FRAMES]
+        self.scanline_spacing = SCANLINE_SPACING
+        self.scanline_alpha = SCANLINE_ALPHA
+
+        cfg = _load_arcade_config()
+        self.scanline_step = cfg["scanline_step"]
+        self.scanline_alpha = cfg["scanline_alpha"]
+        if pygame:
+            self._scanline_row = pygame.Surface((1, 1), pygame.SRCALPHA)
+            self._scanline_row.fill((0, 0, 0, self.scanline_alpha))
+        else:
+            self._scanline_row = None
+
+
+    def road_polygon(self, offset: float) -> list[tuple[float, float]]:
+        """Return trapezoid points for the road given ``offset``."""
+
+        width = self.screen.get_width()
+        height = self.screen.get_height()
+        road_w = width * 0.6
+        road_top = road_w * 0.2
+        return [
+            (width / 2 - road_w / 2, height),
+            (width / 2 + road_w / 2, height),
+            (width / 2 + offset + road_top / 2, self.horizon),
+            (width / 2 + offset - road_top / 2, self.horizon),
+        ]
+
+    def draw_road_polygon(self, env) -> list[tuple[float, float]]:
+        """Draw the road trapezoid and return its points."""
+
+        curvature = getattr(env.cars[0], "steering", env.cars[0].angle)
+        curvature = max(-1.0, min(curvature, 1.0))
+        offset = curvature * (self.screen.get_width() / 4)
+        points = self.road_polygon(offset)
+        if pygame:
+            pygame.draw.polygon(self.screen, (60, 60, 60), points)
+        return points
 
     def draw(self, env) -> None:
         """Draw the environment from a front-facing perspective."""
@@ -164,13 +290,14 @@ class Pseudo3DRenderer:
             (0, self.horizon, width, height - self.horizon),
         )
 
-        # road trapezoid (vanishing point shifts with car angle)
+        # road trapezoid (vanishing point shifts with curvature)
         road_w = width * 0.6
         bottom = height
         player = env.cars[0]
-        # ``curve`` is roughly -1.0..1.0 based on steering angle
-        curve = max(-1.0, min(player.angle / 0.5, 1.0))
-        offset = curve * width * 0.15
+        curvature = getattr(player, "steering", player.angle)
+        curvature = max(-1.0, min(curvature, 1.0))
+        offset = curvature * (width / 4)
+        self.horizon = int(self.horizon_base + offset * 0.1)
 
         slices = 12
         road_top = road_w * 0.2
@@ -238,21 +365,8 @@ class Pseudo3DRenderer:
         else:
             pygame.draw.rect(self.screen, self.car_color, rect)
 
-        if env.crash_timer > 0 and self.explosion_frames:
-            phase = (2.5 - env.crash_timer) / 2.5
-            idx = min(
-                int(phase * (len(self.explosion_frames) - 1)),
-                len(self.explosion_frames) - 1,
-            )
-            exp = pygame.transform.scale(
-                self.explosion_frames[idx], (int(car_w * 2), int(car_h * 2))
-            )
-            self.screen.blit(exp, (int(x - car_w), int(y - car_h * 2)))
-        elif env.crash_timer > 0 and self.explosion:
-            exp = pygame.transform.scale(
-                self.explosion, (int(car_w * 2), int(car_h * 2))
-            )
-            self.screen.blit(exp, (int(x - car_w), int(y - car_h * 2)))
+        if env.crash_timer > 0:
+            self.draw_explosion(env, (int(x - car_w), int(y - car_h * 2)))
 
         # Player HUD text
         if pygame.font:
@@ -323,5 +437,15 @@ class Pseudo3DRenderer:
             pygame.draw.circle(self.screen, (0, 255, 0), (int(ox), int(oy)), 3)
 
         # Scanline effect
-        for y in range(0, height, 2):
-            pygame.draw.line(self.screen, (0, 0, 0), (0, y), (width, y), 1)
+
+        if self.scanline_alpha > 0:
+            row = pygame.Surface((width, 1))
+            row.fill((0, 0, 0))
+            row.set_alpha(self.scanline_alpha)
+            for y in range(0, height, self.scanline_spacing):
+
+        if self._scanline_row:
+            row = pygame.transform.scale(self._scanline_row, (width, 1))
+            for y in range(0, height, self.scanline_step):
+
+                self.screen.blit(row, (0, y))

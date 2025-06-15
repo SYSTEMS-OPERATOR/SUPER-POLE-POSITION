@@ -130,7 +130,17 @@ super-pole-position --episodes 1
 🏎️ **Rank | AI Name | Best Lap Time**  
 1️⃣ 🔥 **TURBO-GPT** - 1:07.32  
 2️⃣ 🏎️ **VELOCITY-VECTOR** - 1:09.84  
-3️⃣ ⚡ **NEURAL-RACER-X** - 1:11.29  
+3️⃣ ⚡ **NEURAL-RACER-X** - 1:11.29
+
+### Scoreboard API
+
+Start a simple server (requires `fastapi`):
+
+```bash
+python -m super_pole_position.server.api
+```
+
+Use `GET /scores` to list results and `POST /scores` to submit new scores.
 
 ---
 

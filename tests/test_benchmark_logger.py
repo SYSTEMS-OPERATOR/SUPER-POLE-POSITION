@@ -1,3 +1,15 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Copyright (c) 2025 MIND INTERFACES, INC. All rights reserved.
+# Licensed under the MIT License.
+
+"""
+test_benchmark_logger.py
+Description: Test suite for test_benchmark_logger.
+"""
+
+import pytest  # noqa: F401
+
 from datetime import datetime, timezone
 from pathlib import Path
 

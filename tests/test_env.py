@@ -1,3 +1,15 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Copyright (c) 2025 MIND INTERFACES, INC. All rights reserved.
+# Licensed under the MIT License.
+
+"""
+test_env.py
+Description: Test suite for test_env.
+"""
+
+import pytest  # noqa: F401
+
 import os
 import sys
 

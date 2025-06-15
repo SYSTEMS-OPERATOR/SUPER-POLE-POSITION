@@ -1,3 +1,15 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Copyright (c) 2025 MIND INTERFACES, INC. All rights reserved.
+# Licensed under the MIT License.
+
+"""
+test_car.py
+Description: Test suite for test_car.
+"""
+
+import pytest  # noqa: F401
+
 import math
 import os
 import sys

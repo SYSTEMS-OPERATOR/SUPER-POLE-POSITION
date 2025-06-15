@@ -1,5 +1,16 @@
-import pytest
-pygame = pytest.importorskip("pygame")  # noqa: E402
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Copyright (c) 2025 MIND INTERFACES, INC. All rights reserved.
+# Licensed under the MIT License.
+
+"""
+test_ascii_sprites.py
+Description: Test suite for test_ascii_sprites.
+"""
+
+import pytest  # noqa: F401
+pygame = pytest.importorskip("pygame") # noqa: E402
+
 from super_pole_position.ui.sprites import ascii_surface, CAR_ART  # noqa: E402
 
 

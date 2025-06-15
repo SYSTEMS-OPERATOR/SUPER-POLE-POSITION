@@ -1,3 +1,14 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Copyright (c) 2025 MIND INTERFACES, INC. All rights reserved.
+# Licensed under the MIT License.
+
+"""
+cli.py
+Description: Module for Super Pole Position.
+"""
+
+
 from __future__ import annotations
 
 import argparse
@@ -45,8 +56,8 @@ def main() -> None:
             print(f"{i:2d}. {s['name']} {s['score']}")
         return
     if args.cmd == "reset-scores":
-        ans = input("Reset all scores? [y/N]: ")
-        if ans.lower().startswith("y"):
+        answer = input("Reset all scores? [y/N]: ")
+        if answer.lower().startswith("y"):
             reset_scores(Path(__file__).parent / "evaluation" / "scores.json")
         return
 

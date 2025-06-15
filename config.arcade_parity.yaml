@@ -1,2 +1,4 @@
+engine_base_freq: 400.0
+engine_pitch_factor: 3100.0
 scanline_step: 2
 scanline_alpha: 64

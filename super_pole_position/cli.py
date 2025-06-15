@@ -45,8 +45,8 @@ def main() -> None:
             print(f"{i:2d}. {s['name']} {s['score']}")
         return
     if args.cmd == "reset-scores":
-        ans = input("Reset all scores? [y/N]: ")
-        if ans.lower().startswith("y"):
+        answer = input("Reset all scores? [y/N]: ")
+        if answer.lower().startswith("y"):
             reset_scores(Path(__file__).parent / "evaluation" / "scores.json")
         return
 

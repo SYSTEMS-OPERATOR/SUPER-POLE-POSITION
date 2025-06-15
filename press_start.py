@@ -16,6 +16,8 @@ INTRO = """
 rrrrr
  rrr
 🚥  READY?
+
+Press 'M' in-game to load the GPT model.
 """
 
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Launch the game with one press. 🕹️"""
+"""Launch the game with one press. 🕹️✨"""
 
 from __future__ import annotations
 
@@ -17,13 +17,20 @@ rrrrr
 
 
 def main() -> None:
-    """Show a tiny intro and jump into the race."""
+    """Show a tiny intro and jump into the race. 🏁"""
 
+    # 🚦 Display the game title
     print("🏎️ SUPER-POLE-POSITION 🏁")
     print(INTRO)
+
+    # ⏱️ Wait for the player to begin
     input("Press Enter to start!")
+
+    # 🎮 Create the environment and keyboard agent
     env = PolePositionEnv(render_mode="human", mode="race", track_name="fuji")
     agent = KeyboardAgent()
+
+    # 🏎️ Run a single race where both cars share the same agent
     run_episode(env, (agent, agent))
     print(summary(env))
     env.close()

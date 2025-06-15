@@ -77,9 +77,14 @@ def _load_arcade_config() -> Dict[str, int]:
     try:
         with open(path, "r", encoding="utf-8") as fh:
             for line in fh:
-                if ":" in line:
-                    key, val = line.split(":", 1)
+                if ":" not in line:
+                    continue
+                key, val = line.split(":", 1)
+                try:
                     cfg[key.strip()] = int(val.strip())
+                except Exception:
+                    # Ignore non-numeric values and keep defaults
+                    continue
     except Exception:
         pass
     return cfg

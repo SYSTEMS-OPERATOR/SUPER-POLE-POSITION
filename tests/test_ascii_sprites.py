@@ -1,4 +1,5 @@
-import pygame
+import pytest
+pygame = pytest.importorskip("pygame")
 from super_pole_position.ui.sprites import ascii_surface, CAR_ART
 
 

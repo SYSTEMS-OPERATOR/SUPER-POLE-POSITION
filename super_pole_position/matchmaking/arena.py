@@ -24,9 +24,13 @@ def run_episode(
 ) -> float:
     """Run one episode and return cumulative reward for agent 0."""
     obs, _ = env.reset()
+    if env.render_mode == "human":
+        env.render()
     done = False
     total = 0.0
     while not done:
+        if env.render_mode == "human":
+            env.render()
         action0 = agents[0].act(obs)
         action0_tuple = (
             action0.get("throttle", 0),
@@ -36,6 +40,8 @@ def run_episode(
         )
         obs, reward, done, _, _ = env.step(action0_tuple)
         total += reward
+        if env.render_mode == "human":
+            env.render()
     env.episode_reward = total
     return total
 

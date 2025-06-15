@@ -77,7 +77,10 @@ Press **Enter** to begin or **Esc** to quit.
 🕹️ **CAR 1:** _(Human or AI)_  
 ⬆️ **Throttle**  
 ⬇️ **Brake**  
-⬅️➡️ **Steer Left / Right**  
+⬅️➡️ **Steer Left / Right**
+**Z/X** **Shift Down / Up**
+
+For more details see [GAMEPLAY_FAQ.md](GAMEPLAY_FAQ.md).
 
 🕹️ **CAR 2:** _(AI-Driven)_  
 🤖 **Automated racing, planning, and learning**  

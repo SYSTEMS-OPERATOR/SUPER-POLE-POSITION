@@ -1,3 +1,4 @@
 benchmarks/*
 !benchmarks/README.md
+!benchmarks/baseline_puddle.txt
 __pycache__/

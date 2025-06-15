@@ -30,8 +30,10 @@ from ..physics.track import Track
 from ..physics.traffic_car import TrafficCar
 from ..agents.controllers import GPTPlanner, LowLevelController, LearningAgent
 from ..ui.arcade import Pseudo3DRenderer
+from ..config import load_parity_config
 
 FAST_TEST = bool(int(os.getenv("FAST_TEST", "0")))
+PARITY_CFG = load_parity_config()
 
 
 class PolePositionEnv(gym.Env):
@@ -415,8 +417,10 @@ class PolePositionEnv(gym.Env):
             self.offroad_frames += 1
 
         if self.track.in_puddle(self.cars[0]):
-            self.cars[0].speed *= 0.7
-            self.cars[0].angle += np.random.uniform(-0.2, 0.2)
+            factor = PARITY_CFG["puddle"].get("speed_factor", 0.7)
+            jitter = PARITY_CFG["puddle"].get("angle_jitter", 0.2)
+            self.cars[0].speed *= factor
+            self.cars[0].angle += np.random.uniform(-jitter, jitter)
 
         if self.track.billboard_hit(self.cars[0]):
             self.remaining_time = max(self.remaining_time - 5.0, 0.0)

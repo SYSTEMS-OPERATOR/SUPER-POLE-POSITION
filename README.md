@@ -27,6 +27,8 @@ rrrrr
 ## Quick Start
 ```bash
 pip install -e .[dev]
+python press_start.py
+# or dive into the CLI
 spp qualify --agent null --track fuji
 ```
 ![](docs.gif)

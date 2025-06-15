@@ -70,6 +70,11 @@ Press **Enter** to begin or **Esc** to quit.
 🖼️ **Retro ASCII sprites** for cars, billboards and explosions.
 🚀 **Hyper Mode** for uncapped speed and obstacle chaos.
 🕹️ **Arcade-accurate mechanics**: slipstream boost, off-road slowdown, crash penalties
+🛞 **Two-speed gearbox with torque kick**
+🪧 **Billboards shatter with time penalty**
+🌱 **Dynamic friction zones**
+🌄 **Horizon sway & sprite scaling**
+📻 **Engine pitch scales with RPM**
 
 ---
 

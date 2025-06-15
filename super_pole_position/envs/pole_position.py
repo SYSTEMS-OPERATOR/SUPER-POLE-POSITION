@@ -377,6 +377,10 @@ class PolePositionEnv(gym.Env):
             self.cars[0].speed *= 0.7
             self.cars[0].angle += np.random.uniform(-0.2, 0.2)
 
+        if self.track.billboard_hit(self.cars[0]):
+            self.remaining_time = max(self.remaining_time - 5.0, 0.0)
+            self._play_crash_audio()
+
         # Slip-angle skid penalty
         if abs(steer) > 0.7 and self.cars[0].speed > 5:
             self.cars[0].speed *= 0.95
@@ -563,7 +567,7 @@ class PolePositionEnv(gym.Env):
             return base + harm2 + harm3 + rumble
 
         def panned_engine(car):
-            freq = 10.0 * car.speed
+            freq = 400.0 + 3000.0 * car.rpm()
             pan = (car.y - self.track.height / 2) / (self.track.height / 2)
             pan = max(-1.0, min(1.0, pan))
             wave = engine_wave(freq)

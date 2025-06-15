@@ -169,7 +169,8 @@ class Pseudo3DRenderer:
         self.screen = screen
         if pygame and not pygame.font.get_init():
             pygame.font.init()
-        self.horizon = int(screen.get_height() * 0.4)
+        self.horizon_base = int(screen.get_height() * 0.4)
+        self.horizon = self.horizon_base
         self.sky_color = (100, 150, 255)
         self.ground_color = (40, 40, 40)
         self.car_color = (255, 0, 0)
@@ -226,6 +227,7 @@ class Pseudo3DRenderer:
         curvature = getattr(player, "steering", player.angle)
         curvature = max(-1.0, min(curvature, 1.0))
         offset = curvature * (width / 4)
+        self.horizon = int(self.horizon_base + offset * 0.1)
 
         slices = 12
         road_top = road_w * 0.2

@@ -1,11 +1,6 @@
 from __future__ import annotations
 
-import os
-from pathlib import Path
-
-"""Configuration utilities for arcade parity tweaks."""
-
-from __future__ import annotations
+"""Configuration utilities for arcade parity tweaks. 🎛️"""
 
 from pathlib import Path
 from typing import Any

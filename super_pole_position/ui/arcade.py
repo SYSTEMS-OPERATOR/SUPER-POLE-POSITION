@@ -443,9 +443,9 @@ class Pseudo3DRenderer:
             row.fill((0, 0, 0))
             row.set_alpha(self.scanline_alpha)
             for y in range(0, height, self.scanline_spacing):
+                self.screen.blit(row, (0, y))
 
         if self._scanline_row:
             row = pygame.transform.scale(self._scanline_row, (width, 1))
             for y in range(0, height, self.scanline_step):
-
                 self.screen.blit(row, (0, y))

@@ -1,9 +1,14 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Copyright (c) 2025 MIND INTERFACES, INC. All rights reserved.
+# Licensed under the MIT License.
+
 """
 track.py
-
-Implements a simple toroidal track or 'infinite' environment.
-Optionally, can be extended with segment-based or procedural generation.
+Description: Module for Super Pole Position.
 """
+
+
 
 import math
 import json

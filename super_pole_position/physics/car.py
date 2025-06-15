@@ -1,11 +1,14 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Copyright (c) 2025 MIND INTERFACES, INC. All rights reserved.
+# Licensed under the MIT License.
+
 """
 car.py
-
-Defines a simple Car class with basic arcade-like physics:
-- x, y coordinates
-- speed, angle
-- apply_controls() method
+Description: Module for Super Pole Position.
 """
+
+
 
 import math
 
@@ -82,4 +85,3 @@ class Car:
 
         self.speed = 0.0
         self.gear = 0
-

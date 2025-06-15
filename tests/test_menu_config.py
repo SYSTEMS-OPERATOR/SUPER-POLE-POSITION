@@ -1,3 +1,15 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Copyright (c) 2025 MIND INTERFACES, INC. All rights reserved.
+# Licensed under the MIT License.
+
+"""
+test_menu_config.py
+Description: Test suite for test_menu_config.
+"""
+
+import pytest  # noqa: F401
+
 from super_pole_position.ui.menu import MenuState
 
 

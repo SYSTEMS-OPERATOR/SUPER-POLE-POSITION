@@ -1,9 +1,11 @@
-"""
-pole_position_env.py
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Copyright (c) 2025 MIND INTERFACES, INC. All rights reserved.
+# Licensed under the MIT License.
 
-Implements a Gym environment for multi-car racing:
-- Two cars: player_car & ai_car, or AI vs AI.
-- Binaural audio: separate left/right channels based on each car's speed or position.
+"""
+pole_position.py
+Description: Module for Super Pole Position.
 """
 
 import os

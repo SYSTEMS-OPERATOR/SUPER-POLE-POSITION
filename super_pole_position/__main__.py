@@ -1,8 +1,13 @@
-"""
-main.py
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Copyright (c) 2025 MIND INTERFACES, INC. All rights reserved.
+# Licensed under the MIT License.
 
-Provides a simple training or demo loop to show usage of the PolePositionEnv.
 """
+__main__.py
+Description: Module for Super Pole Position.
+"""
+
 
 from .cli import main
 

@@ -1,5 +1,18 @@
-import pytest
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Copyright (c) 2025 MIND INTERFACES, INC. All rights reserved.
+# Licensed under the MIT License.
+
+"""
+test_hud_render.py
+Description: Test suite for test_hud_render.
+"""
+
+import pytest  # noqa: F401
+
+import pygame
 pygame = pytest.importorskip("pygame")
+
 from super_pole_position.envs.pole_position import PolePositionEnv
 from super_pole_position.ui.arcade import Pseudo3DRenderer
 

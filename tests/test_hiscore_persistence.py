@@ -1,3 +1,15 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Copyright (c) 2025 MIND INTERFACES, INC. All rights reserved.
+# Licensed under the MIT License.
+
+"""
+test_hiscore_persistence.py
+Description: Test suite for test_hiscore_persistence.
+"""
+
+import pytest  # noqa: F401
+
 from pathlib import Path
 from super_pole_position.evaluation.scores import load_scores, update_scores, reset_scores
 

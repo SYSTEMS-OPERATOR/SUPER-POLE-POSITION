@@ -91,7 +91,7 @@ Press **Enter** to begin or **Esc** to quit.
 - 🖥️ Python 3.8+  
 - 🏎️ Gymnasium (Reinforcement Learning framework)  
 - 🧠 PyTorch / TensorFlow (for AI models)  
-- 🎵 SimpleAudio (for binaural effects)
+- 🎵 SimpleAudio (or fallback to Pygame's mixer)
 - 🎮 Pygame (for optional graphics)
 - 📡 ZeroMQ / WebSockets (for live AI telemetry)
 

@@ -64,7 +64,7 @@ class PolePositionEnv(gym.Env):
         self.hyper = hyper
 
         self.time_limit = 90.0 if self.mode == "race" else 73.0
-        self.traffic_count = 20 if self.mode == "race" else 0
+        self.traffic_count = 7 if self.mode == "race" else 0
         if FAST_TEST:
             self.time_limit = min(self.time_limit, 5.0)
             self.traffic_count = 2
@@ -82,7 +82,10 @@ class PolePositionEnv(gym.Env):
         if self.mode == "race":
             for i in range(self.traffic_count):
                 x = (i * 10) % self.track.width
-                self.traffic.append(TrafficCar(x=x, y=self.track.height / 2))
+                speed = 6.0 + (i % 3)
+                self.traffic.append(
+                    TrafficCar(x=x, y=self.track.height / 2, target_speed=speed)
+                )
         
         # AI components for second car
         self.planner = GPTPlanner()         # High-level
@@ -134,6 +137,7 @@ class PolePositionEnv(gym.Env):
         self.last_lap_time = None
         self.lap_flash = 0.0
         self.lap_times: list[float] = []
+        self.grid_order: list[int] = []
 
         # Performance metrics
         self.plan_durations: list[float] = []
@@ -213,6 +217,7 @@ class PolePositionEnv(gym.Env):
         self.last_lap_time = None
         self.lap_flash = 0.0
         self.lap_times = []
+        self.grid_order = []
 
         # Reset cars to start positions
         self.cars[0].x = 50.0
@@ -354,7 +359,7 @@ class PolePositionEnv(gym.Env):
                 self.ai_offtrack += 1
 
             for t in self.traffic:
-                th, br, steer_ai = t.policy(track=self.track)
+                th, br, steer_ai = t.policy(track=self.track, target=self.cars[0])
                 t.apply_controls(th, br, steer_ai, dt=1.0, track=self.track)
                 self.track.wrap_position(t)
 
@@ -367,6 +372,10 @@ class PolePositionEnv(gym.Env):
         if offroad:
             self.cars[0].speed *= 0.5
             self.offroad_frames += 1
+
+        if self.track.in_puddle(self.cars[0]):
+            self.cars[0].speed *= 0.7
+            self.cars[0].angle += np.random.uniform(-0.2, 0.2)
 
         # Slip-angle skid penalty
         if abs(steer) > 0.7 and self.cars[0].speed > 5:
@@ -429,6 +438,14 @@ class PolePositionEnv(gym.Env):
             self.lap_times.append(self.lap_timer)
             self.lap_timer = 0.0
             self.lap_flash = 2.0
+            self.remaining_time += 30.0
+            if self.mode == "qualify":
+                self.grid_order = sorted(
+                    range(len(self.cars)),
+                    key=lambda i: self.lap_times[i]
+                    if i < len(self.lap_times)
+                    else float("inf"),
+                )
             if self.lap == 3:
                 self._play_final_lap_voice()
         self.prev_progress = progress
@@ -445,9 +462,6 @@ class PolePositionEnv(gym.Env):
                 done = True
         else:  # race
             reward = self.cars[0].speed * 0.05
-            while progress >= self.next_checkpoint:
-                self.remaining_time += 30.0
-                self.next_checkpoint += 0.25
 
         if self.mode == "race":
             dist = self.track.distance(self.cars[0], self.cars[1])
@@ -481,6 +495,7 @@ class PolePositionEnv(gym.Env):
                 log_episode(self)
             except Exception:
                 pass
+            self.score += int(self.remaining_time * 5)
 
         experience = (prev_obs, action, reward, self._get_obs())
         self.learning_agent.update_on_experience([experience])

@@ -8,8 +8,6 @@ pole_position.py
 Description: Module for Super Pole Position.
 """
 
-
-
 import os
 import numpy as np
 import gymnasium as gym

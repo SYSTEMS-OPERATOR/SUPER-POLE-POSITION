@@ -8,11 +8,9 @@ test_cli_render_skip.py
 Description: Test suite for test_cli_render_skip.
 """
 
-
 import sys
 import pytest  # noqa: F401
 from super_pole_position import cli
-
 
 def test_cli_render_skip(monkeypatch):
     monkeypatch.setitem(sys.modules, "pygame", None)

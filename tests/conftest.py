@@ -9,7 +9,6 @@ Description: Test suite for conftest.
 """
 
 import pytest  # noqa: F401
-
 import os
 import sys
 import types

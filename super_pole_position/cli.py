@@ -65,6 +65,8 @@ def main() -> None:
 
     if args.cmd == "qualify":
         if args.render:
+            if os.name != "nt" and "DISPLAY" not in os.environ:
+                os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
             try:
                 import pygame
                 from .ui import menu
@@ -104,6 +106,8 @@ def main() -> None:
         print(metrics)
     else:
         if args.render:
+            if os.name != "nt" and "DISPLAY" not in os.environ:
+                os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
             try:
                 import pygame
                 from .ui import menu

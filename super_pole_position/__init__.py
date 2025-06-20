@@ -8,6 +8,12 @@ __init__.py
 Description: Module for Super Pole Position.
 """
 
+import os
+
+# Ensure pygame can initialise even without a display
+if os.name != "nt" and "DISPLAY" not in os.environ:
+    os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
+
 
 
 from .physics.car import Car

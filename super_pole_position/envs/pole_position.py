@@ -616,10 +616,25 @@ class PolePositionEnv(gym.Env):
                 self.clock = pygame.time.Clock()
                 self.renderer = Pseudo3DRenderer(self.screen)
             except Exception as exc:  # pragma: no cover - init error
-                print(f"pygame init failed: {exc}", flush=True)
-                self.screen = None
-                pygame = None
-                return
+                if os.name != "nt" and "DISPLAY" not in os.environ:
+                    os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
+                    try:
+                        pygame.init()
+                        size = (640, 480)
+                        self.screen = pygame.display.set_mode(size)
+                        pygame.display.set_caption("Super Pole Position")
+                        self.clock = pygame.time.Clock()
+                        self.renderer = Pseudo3DRenderer(self.screen)
+                    except Exception as exc2:
+                        print(f"pygame init failed: {exc2}", flush=True)
+                        self.screen = None
+                        pygame = None
+                        return
+                else:
+                    print(f"pygame init failed: {exc}", flush=True)
+                    self.screen = None
+                    pygame = None
+                    return
 
         try:
             for event in pygame.event.get():

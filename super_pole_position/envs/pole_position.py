@@ -3,6 +3,7 @@
 # Copyright (c) 2025 MIND INTERFACES, INC. All rights reserved.
 # Licensed under the MIT License.
 
+
 """
 pole_position.py
 Description: Module for Super Pole Position.
@@ -47,6 +48,8 @@ def engine_pitch(rpm: float) -> float:
 FAST_TEST = bool(int(os.getenv("FAST_TEST", "0")))
 PARITY_CFG = load_parity_config()
 
+
+FAST_TEST = bool(int(os.getenv("FAST_TEST", "0")))
 
 class PolePositionEnv(gym.Env):
     """
@@ -138,9 +141,8 @@ class PolePositionEnv(gym.Env):
         )
         low = np.array([0.0] * (7 + 10), dtype=np.float32)
         self.k_traffic = 5
-        self.observation_space = gym.spaces.Box(
-            low, high, shape=(7 + 10,), dtype=np.float32
-        )
+        self.observation_space = gym.spaces.Box(low, high, shape=(7 + 10,), dtype=np.float32)
+
         self.remaining_time = self.time_limit
         self.next_checkpoint = 0.25
         self.qualifying_time = None
@@ -542,7 +544,7 @@ class PolePositionEnv(gym.Env):
         self.prev_y = self.cars[0].y
         done = False
         if self.mode == "qualify":
-            elapsed = self.time_limit - self.remaining_time
+            elapsed = (self.time_limit - self.remaining_time)
             reward = progress - 0.1 * elapsed
             if progress >= 1.0:
                 self.qualifying_time = elapsed

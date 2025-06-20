@@ -9,6 +9,8 @@ Description: Module for Super Pole Position.
 """
 
 import os
+
+os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
 import numpy as np
 import gymnasium as gym
 import time
@@ -593,7 +595,7 @@ class PolePositionEnv(gym.Env):
 
     def render(self):
         """Render the environment."""
-        global pygame
+        global pygame, pg_mixer
         if self.render_mode != "human":
             return
 
@@ -616,10 +618,30 @@ class PolePositionEnv(gym.Env):
                 self.clock = pygame.time.Clock()
                 self.renderer = Pseudo3DRenderer(self.screen)
             except Exception as exc:  # pragma: no cover - init error
-                print(f"pygame init failed: {exc}", flush=True)
-                self.screen = None
-                pygame = None
-                return
+                if (
+                    "video" in str(exc).lower()
+                    and not os.environ.get("SDL_VIDEODRIVER")
+                ):
+                    os.environ["SDL_VIDEODRIVER"] = "dummy"
+                    try:
+                        pygame.display.init()
+                        size = (640, 480)
+                        self.screen = pygame.display.set_mode(size)
+                        pygame.display.set_caption("Super Pole Position")
+                        self.clock = pygame.time.Clock()
+                        self.renderer = Pseudo3DRenderer(self.screen)
+                    except Exception as exc2:
+                        print(f"pygame init failed: {exc2}", flush=True)
+                        self.screen = None
+                        pygame = None
+                        pg_mixer = None
+                        return
+                else:
+                    print(f"pygame init failed: {exc}", flush=True)
+                    self.screen = None
+                    pygame = None
+                    pg_mixer = None
+                    return
 
         try:
             for event in pygame.event.get():

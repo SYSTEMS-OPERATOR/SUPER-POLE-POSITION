@@ -72,6 +72,7 @@ Press **Enter** to begin or **Esc** to quit.
 💡 **Autonomous Learning Mode:** Let AIs race, improve, and adapt without human intervention.  
 🌀 **Toroidal Racing Physics:** No edges, no limits—just infinite speed.
 🖼️ **Retro ASCII sprites** for cars, billboards and explosions.
+🎨 **Placeholder PNGs** stored in `assets/sprites` for arcade-faithful builds.
 🚀 **Hyper Mode** for uncapped speed and obstacle chaos.
 🕹️ **Arcade-accurate mechanics**: slipstream boost, off-road slowdown, crash penalties
 🛞 **Two-speed gearbox with torque kick**
@@ -80,6 +81,7 @@ Press **Enter** to begin or **Esc** to quit.
 🚗 **CPUCar opponents with blocking behaviour**
 🌄 **Horizon sway & sprite scaling**
 📻 **Engine pitch scales with RPM**
+🎵 **Audio stubs** in `assets/audio` ready for replacement.
 
 ---
 
@@ -125,6 +127,11 @@ If CUDA support is unavailable, skip the AI extras:
 pip install -e .[graphics,audio]
 ```
 This avoids importing heavy GPU libraries until you explicitly load the GPT planner.
+
+### Assets
+Placeholder PNG and WAV files live under `assets/sprites` and `assets/audio`.
+See `assets/sprites/SPRITES.md` and `assets/audio/AUDIO.md` for the full list.
+Replace them with real graphics and samples for a fully authentic experience.
 
 🚀 **Run a Test Race**
 ```bash

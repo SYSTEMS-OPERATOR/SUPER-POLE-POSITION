@@ -11,6 +11,7 @@ Description: Module for Super Pole Position.
 
 
 import os
+import math
 
 # Hide pygame's greeting for cleaner logs
 os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
@@ -274,8 +275,8 @@ class Pseudo3DRenderer:
     def draw_road_polygon(self, env) -> list[tuple[float, float]]:
         """Draw the road trapezoid and return its points."""
 
-        curvature = getattr(env.cars[0], "steering", env.cars[0].angle)
-        curvature = max(-1.0, min(curvature, 1.0))
+        angle = env.track.angle_at(env.cars[0].x)
+        curvature = max(-1.0, min(angle / (math.pi / 4), 1.0))
         offset = curvature * (self.screen.get_width() / 4)
         points = self.road_polygon(offset)
         if pygame:
@@ -303,8 +304,8 @@ class Pseudo3DRenderer:
         road_w = width * 0.6
         bottom = height
         player = env.cars[0]
-        curvature = getattr(player, "steering", player.angle)
-        curvature = max(-1.0, min(curvature, 1.0))
+        angle = env.track.angle_at(player.x)
+        curvature = max(-1.0, min(angle / (math.pi / 4), 1.0))
         offset = curvature * (width / 4)
         self.horizon = int(self.horizon_base + offset * 0.1)
 

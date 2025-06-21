@@ -276,14 +276,14 @@ class PolePositionEnv(gym.Env):
 
         # Reset cars to start positions
         self.cars[0].x = 50.0
-        self.cars[0].y = 50.0
+        self.cars[0].y = self.track.y_at(self.cars[0].x)
         self.cars[0].angle = 0.0
         self.cars[0].speed = 0.0
         self.track.start_x = self.cars[0].x
         self.safe_point = (self.cars[0].x, self.cars[0].y)
 
         self.cars[1].x = 150.0
-        self.cars[1].y = 150.0
+        self.cars[1].y = self.track.y_at(self.cars[1].x)
         self.cars[1].angle = 0.0
         self.cars[1].speed = 0.0
 
@@ -446,7 +446,8 @@ class PolePositionEnv(gym.Env):
             self.track.wrap_position(c)
 
         # Off-road slowdown near track edges
-        offroad = self.cars[0].y < 5 or self.cars[0].y > self.track.height - 5
+        center_y = self.track.y_at(self.cars[0].x)
+        offroad = abs(self.cars[0].y - center_y) > self.track.height / 2 - 5
         if offroad:
             self.cars[0].speed *= 0.5
             self.offroad_frames += 1

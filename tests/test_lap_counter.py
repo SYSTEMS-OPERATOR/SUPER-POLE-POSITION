@@ -21,10 +21,10 @@ def test_lap_counter():
     env = PolePositionEnv(render_mode="human", mode="race")
     env.reset()
     env.start_timer = 0
-    for i in range(4):
-        env.cars[0].x = env.track.start_x - 1
+    for _ in range(5):
+        env.cars[0].x = env.track.start_x + env.track.width - 1
         env.step((False, False, 0.0))
-        env.cars[0].x = env.track.start_x + 1
+        env.cars[0].x = env.track.start_x + env.track.width + 1
         env.step((False, False, 0.0))
     assert env.lap >= 4
     env.close()

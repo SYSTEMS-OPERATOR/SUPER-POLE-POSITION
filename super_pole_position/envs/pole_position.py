@@ -148,7 +148,6 @@ class PolePositionEnv(gym.Env):
         self.observation_space = gym.spaces.Box(low, high, shape=(7 + 10,), dtype=np.float32)
 
         self.remaining_time = self.time_limit
-        self.next_checkpoint = 0.25
         self.qualifying_time = None
         self.passes = 0
         self.crashes = 0
@@ -170,6 +169,7 @@ class PolePositionEnv(gym.Env):
         self.lap_timer = 0.0
         self.last_lap_time = None
         self.lap_flash = 0.0
+        self.time_extend_flash = 0.0
         self.lap_times: list[float] = []
         self.grid_order: list[int] = []
 
@@ -252,7 +252,6 @@ class PolePositionEnv(gym.Env):
         print("[ENV] Resetting environment", flush=True)
         self.current_step = 0
         self.remaining_time = self.time_limit
-        self.next_checkpoint = 0.25
         self.qualifying_time = None
         self.crash_timer = 0.0
         self.offroad_frames = 0
@@ -271,6 +270,7 @@ class PolePositionEnv(gym.Env):
         self.lap_timer = 0.0
         self.last_lap_time = None
         self.lap_flash = 0.0
+        self.time_extend_flash = 0.0
         self.lap_times = []
         self.grid_order = []
 
@@ -324,12 +324,12 @@ class PolePositionEnv(gym.Env):
             if len(self.traffic) > self.traffic_count:
                 self.traffic = self.traffic[: self.traffic_count]
         self.current_step += 1
-        if self.current_step == 1:
-            self.next_checkpoint = self.track.progress(self.cars[0]) + 0.25
         self.remaining_time = max(self.remaining_time - 1.0, 0.0)
         self.lap_timer += 1.0
         if self.lap_flash > 0.0:
             self.lap_flash = max(self.lap_flash - 1.0, 0.0)
+        if self.time_extend_flash > 0.0:
+            self.time_extend_flash = max(self.time_extend_flash - 1.0, 0.0)
         if self.skid_timer > 0:
             self.skid_timer = max(self.skid_timer - 1.0, 0.0)
         prev_obs = self._get_obs()
@@ -534,6 +534,7 @@ class PolePositionEnv(gym.Env):
             self.lap_timer = 0.0
             self.lap_flash = 2.0
             self.remaining_time += 30.0
+            self.time_extend_flash = 2.0
             print(f"[ENV] Completed lap {self.lap} in {self.last_lap_time:.2f}s", flush=True)
             try:
                 submit_score_http("lap", int(self.last_lap_time * 1000))
@@ -548,10 +549,6 @@ class PolePositionEnv(gym.Env):
                 )
             if self.lap == 3:
                 self._play_final_lap_voice()
-        if self.mode == "race":
-            while progress >= self.next_checkpoint:
-                self.remaining_time += 30.0
-                self.next_checkpoint += 0.25
         self.prev_progress = progress
         self.prev_x = self.cars[0].x
         self.prev_y = self.cars[0].y

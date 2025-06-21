@@ -35,6 +35,7 @@ def measure_puddle_ratio() -> float:
     env = PolePositionEnv(render_mode="human")
     env.track = Track(width=200.0, height=200.0, puddles=[Puddle(x=50, y=50, radius=10)])
     env.reset()
+    env.cars[0].y = 50
     env.step({"throttle": True, "brake": False, "steer": 0.0})
     pre = env.cars[0].speed
     env.step({"throttle": False, "brake": False, "steer": 0.0})

@@ -50,6 +50,10 @@ def main() -> None:
 
     sub.add_parser("hiscore")
     sub.add_parser("reset-scores")
+    s = sub.add_parser("scoreboard-sync")
+    s.add_argument("--host", default="127.0.0.1")
+    s.add_argument("--port", type=int, default=8000)
+    s.add_argument("--interval", type=float, default=60.0)
     args = parser.parse_args()
 
     if args.cmd == "hiscore":
@@ -62,6 +66,11 @@ def main() -> None:
         answer = input("Reset all scores? [y/N]: ")
         if answer.lower().startswith("y"):
             reset_scores(Path(__file__).parent / "evaluation" / "scores.json")
+        return
+    if args.cmd == "scoreboard-sync":
+        from .server import sync
+
+        sync.start_service(args.host, args.port, args.interval)
         return
 
     if args.cmd == "qualify":

@@ -17,3 +17,11 @@ def test_prepare_voice_on_reset():
     env = PolePositionEnv(render_mode="human")
     env.reset()
     assert env.start_phase == "READY"
+
+
+def test_step_with_audio_no_exception():
+    env = PolePositionEnv(render_mode="human")
+    env.reset()
+    env.cars[0].speed = 6.0
+    env.step((True, False, 1.0))
+    env.close()

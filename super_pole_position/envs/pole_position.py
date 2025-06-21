@@ -716,7 +716,7 @@ class PolePositionEnv(gym.Env):
 
         waveform = np.vstack((left, right)).T
         waveform = np.clip(waveform, -1.0, 1.0)
-        waveform_int16 = np.int16(waveform * 32767)
+        waveform_int16 = np.ascontiguousarray(waveform * 32767, dtype=np.int16)
 
         if self.audio_stream is not None:
             try:
@@ -856,7 +856,7 @@ class PolePositionEnv(gym.Env):
         left = 0.3 * noise * (1.0 - max(0.0, pan))
         right = 0.3 * noise * (1.0 + min(0.0, pan))
         waveform = np.vstack((left, right)).T
-        waveform_int16 = np.int16(waveform * 32767)
+        waveform_int16 = np.ascontiguousarray(waveform * 32767, dtype=np.int16)
         if self.audio_stream is not None:
             try:
                 self.audio_stream.stop()

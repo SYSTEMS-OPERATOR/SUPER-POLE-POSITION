@@ -26,7 +26,7 @@ rrrrr
 
 ## Quick Start
 ```bash
-pip install -e .[dev]
+pip install -r requirements.txt
 python press_start.py
 # or dive into the CLI
 spp qualify --agent null --track fuji
@@ -107,7 +107,8 @@ For more details see [GAMEPLAY_FAQ.md](GAMEPLAY_FAQ.md).
 
 🔽 **Install**
 ```bash
-pip install super-pole-position[graphics,audio,ai]
+pip install -r requirements.txt
+pip install -e .
 ```
 
 🚀 **Run a Test Race**

@@ -1,0 +1,11 @@
+gymnasium
+numpy
+pyyaml
+pygame
+simpleaudio
+torch
+transformers
+pytest
+pytest-cov
+coverage
+pytest-timeout

@@ -7,3 +7,4 @@
 - Parameterized scanline effect intensity via `config.arcade_parity.yaml`.
 - Reduced default scanline darkness for a softer CRT vibe.
 - Lap times now sent to the scoreboard API at each lap and race end.
+- Added `audio_volume` setting in `config.py` controlling pygame mixer volume.

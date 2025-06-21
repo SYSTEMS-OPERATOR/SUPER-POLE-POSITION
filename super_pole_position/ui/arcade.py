@@ -19,6 +19,12 @@ from pathlib import Path
 from typing import Dict
 
 
+from ..config import load_parity_config
+
+
+_AUDIO_CFG = load_parity_config()
+AUDIO_VOLUME = float(_AUDIO_CFG.get("audio_volume", 0.8))
+
 def _load_config() -> dict:
     """Return arcade parity config from ``config.arcade_parity.yaml``.
 
@@ -128,7 +134,10 @@ class ArcadeRenderer:
         if pygame and os.environ.get("AUDIO", "1") != "0":
             pygame.mixer.init()
             self.channels = [pygame.mixer.Channel(i) for i in range(3)]
+            for ch in self.channels:
+                ch.set_volume(AUDIO_VOLUME)
             silent = pygame.mixer.Sound(buffer=b"\0\0")
+            silent.set_volume(AUDIO_VOLUME)
             self.engine_sound = silent
             self.skid_sound = silent
             crash_path = (
@@ -141,6 +150,7 @@ class ArcadeRenderer:
                 # ``crash.wav`` is not included in this repository. A silent
                 # placeholder sound avoids load errors during tests.
                 self.crash_sound = pygame.mixer.Sound(str(crash_path))
+                self.crash_sound.set_volume(AUDIO_VOLUME)
             except Exception:  # pragma: no cover - missing audio
                 self.crash_sound = silent
         else:

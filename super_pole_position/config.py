@@ -11,7 +11,8 @@ except Exception:  # pragma: no cover - PyYAML optional
     yaml = None
 
 DEFAULTS = {
-    "puddle": {"speed_factor": 0.65, "angle_jitter": 0.2}
+    "puddle": {"speed_factor": 0.65, "angle_jitter": 0.2},
+    "audio_volume": 0.8,
 }
 
 CONFIG_PATH = Path(__file__).resolve().parent.parent / "config.arcade_parity.yaml"
@@ -31,6 +32,11 @@ def load_parity_config() -> dict[str, Any]:
     cfg = DEFAULTS | data
     if "puddle" in data:
         cfg["puddle"] = DEFAULTS["puddle"] | data.get("puddle", {})
+    if "audio_volume" in data:
+        try:
+            cfg["audio_volume"] = float(data["audio_volume"])
+        except (TypeError, ValueError):
+            cfg["audio_volume"] = DEFAULTS["audio_volume"]
     return cfg
 
 def load_arcade_parity() -> dict[str, float]:

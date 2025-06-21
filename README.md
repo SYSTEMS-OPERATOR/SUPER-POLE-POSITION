@@ -110,6 +110,11 @@ For more details see [GAMEPLAY_FAQ.md](GAMEPLAY_FAQ.md).
 pip install -r requirements.txt
 pip install -e .
 ```
+If CUDA support is unavailable, skip the AI extras:
+```bash
+pip install -e .[graphics,audio]
+```
+This avoids importing heavy GPU libraries until you explicitly load the GPT planner.
 
 🚀 **Run a Test Race**
 ```bash

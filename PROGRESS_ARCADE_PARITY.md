@@ -18,3 +18,4 @@
 - [x] Cabinet-style color palette & scanline effect
 - [x] Test suite for each new feature
 - [x] Stereo engine audio panned by car position
+- [x] Lap times posted to scoreboard API

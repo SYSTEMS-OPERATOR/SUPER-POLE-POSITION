@@ -118,6 +118,7 @@ class PolePositionEnv(gym.Env):
         self.planner = GPTPlanner(autoload=False)  # High-level
         self.low_level = LowLevelController()
         self.learning_agent = LearningAgent()
+        self.audio_volume = float(PARITY_CFG.get("audio_volume", 0.8))
 
         # Action space for Car 0 when controlled by a human or AI.
         # throttle: {0,1}, brake: {0,1}, steer: [-1,1]
@@ -210,11 +211,17 @@ class PolePositionEnv(gym.Env):
         elif pg_mixer is not None:
             try:
                 pg_mixer.init()
+                pg_mixer.music.set_volume(self.audio_volume)
                 self.crash_wave = pg_mixer.Sound(str(base / "crash.wav"))
+                self.crash_wave.set_volume(self.audio_volume)
                 self.prepare_wave = pg_mixer.Sound(str(base / "prepare.wav"))
+                self.prepare_wave.set_volume(self.audio_volume)
                 self.final_lap_wave = pg_mixer.Sound(str(base / "final_lap.wav"))
+                self.final_lap_wave.set_volume(self.audio_volume)
                 self.goal_wave = pg_mixer.Sound(str(base / "goal.wav"))
+                self.goal_wave.set_volume(self.audio_volume)
                 self.bgm_wave = pg_mixer.Sound(str(base / "namco_theme.wav"))
+                self.bgm_wave.set_volume(self.audio_volume)
             except Exception:  # pragma: no cover - file missing or mixer error
                 self.crash_wave = None
                 self.prepare_wave = None
@@ -779,7 +786,10 @@ class PolePositionEnv(gym.Env):
                 except Exception:
                     return
             sound = pygame.sndarray.make_sound(waveform_int16)
-            self.audio_stream = sound.play()
+            channel = sound.play()
+            if channel:
+                channel.set_volume(self.audio_volume, self.audio_volume)
+            self.audio_stream = channel
 
     def _play_crash_audio(self) -> None:
         """Play crash sound effect once."""
@@ -875,7 +885,10 @@ class PolePositionEnv(gym.Env):
                 pan = max(-1.0, min(1.0, pan))
                 channel = wave_obj.play()
                 if channel:
-                    channel.set_volume(1.0 - max(0.0, pan), 1.0 + min(0.0, pan))
+                    channel.set_volume(
+                        self.audio_volume * (1.0 - max(0.0, pan)),
+                        self.audio_volume * (1.0 + min(0.0, pan)),
+                    )
                 self.audio_stream = channel
         except Exception:  # pragma: no cover
             try:

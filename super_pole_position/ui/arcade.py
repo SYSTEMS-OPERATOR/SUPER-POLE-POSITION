@@ -254,6 +254,7 @@ class Pseudo3DRenderer:
             self._scanline_row.fill((0, 0, 0, self.scanline_alpha))
         else:
             self._scanline_row = None
+        self.dash_offset = 0.0
 
 
     def road_polygon(self, offset: float) -> list[tuple[float, float]]:
@@ -326,21 +327,34 @@ class Pseudo3DRenderer:
             pygame.draw.polygon(self.screen, (60, 60, 60), points)
             prev_center, prev_width, prev_y = center, w, y
 
-        # center line segmented along the curve
+        # center dashed line following car speed
         prev_center = width / 2
         prev_y = bottom
+        self.dash_offset = (self.dash_offset + player.speed * 0.1) % 2
         for i in range(slices):
             t = (i + 1) / slices
             y = bottom - (bottom - self.horizon) * t
             center = width / 2 + offset * t
-            pygame.draw.line(
-                self.screen,
-                (255, 255, 255),
-                (prev_center, prev_y),
-                (center, y),
-                2,
-            )
+            if int(i + self.dash_offset) % 2 == 0:
+                pygame.draw.line(
+                    self.screen,
+                    (255, 255, 255),
+                    (prev_center, prev_y),
+                    (center, y),
+                    2,
+                )
             prev_center, prev_y = center, y
+
+        # draw finish line when near the start point
+        progress_to_start = (player.x - env.track.start_x) % env.track.width
+        if progress_to_start < player.speed * 1.5 + 2:
+            step = road_w / 10
+            y0 = bottom - 12
+            for i in range(10):
+                color = (255, 255, 255) if i % 2 else (0, 0, 0)
+                x0 = width / 2 - road_w / 2 + i * step
+                rect = pygame.Rect(int(x0), int(y0), int(step), 12)
+                pygame.draw.rect(self.screen, color, rect)
 
         # Obstacles rendered as roadside billboards
         player = env.cars[0]

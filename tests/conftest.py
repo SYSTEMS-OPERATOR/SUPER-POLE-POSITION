@@ -11,7 +11,6 @@ Description: Test suite for conftest.
 import pytest  # noqa: F401
 
 import os
-os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
 import sys
 import types
 try:

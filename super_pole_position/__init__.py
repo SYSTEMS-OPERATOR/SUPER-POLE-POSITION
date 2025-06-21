@@ -9,7 +9,6 @@ Description: Module for Super Pole Position.
 """
 
 import os
-os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
 
 # Ensure pygame can initialise even without a display
 if os.name != "nt" and "DISPLAY" not in os.environ:

@@ -42,11 +42,13 @@ def main() -> None:
     q.add_argument("--agent", choices=list(AGENT_MAP.keys()), default="null")
     q.add_argument("--track", default="fuji")
     q.add_argument("--render", action="store_true")
+    q.add_argument("--mute-bgm", action="store_true", help="Disable background music")
 
     r = sub.add_parser("race")
     r.add_argument("--agent", choices=list(AGENT_MAP.keys()), default="null")
     r.add_argument("--track", default="fuji")
     r.add_argument("--render", action="store_true")
+    r.add_argument("--mute-bgm", action="store_true", help="Disable background music")
 
     sub.add_parser("hiscore")
     sub.add_parser("reset-scores")
@@ -55,6 +57,10 @@ def main() -> None:
     s.add_argument("--port", type=int, default=8000)
     s.add_argument("--interval", type=float, default=60.0)
     args = parser.parse_args()
+    if getattr(args, "mute_bgm", False):
+        os.environ["MUTE_BGM"] = "1"
+    else:
+        os.environ.setdefault("MUTE_BGM", "0")
 
     if args.cmd == "hiscore":
         file = Path(__file__).parent / "evaluation" / "scores.json"

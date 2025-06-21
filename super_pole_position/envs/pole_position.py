@@ -816,6 +816,8 @@ class PolePositionEnv(gym.Env):
     def _play_bgm_loop(self) -> None:
         """Start background music playback once."""
 
+        if os.environ.get("MUTE_BGM", "0") == "1":
+            return
         if sa is None and pg_mixer is None:
             return
         if self.bgm_wave is None:

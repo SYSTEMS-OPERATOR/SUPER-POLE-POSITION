@@ -21,6 +21,7 @@ if os.name != "nt" and "DISPLAY" not in os.environ:
 
 from .physics.car import Car
 from .physics.track import Track
+from .physics.track_curve import TrackCurve
 from .envs.pole_position import PolePositionEnv
 from .agents.controllers import (
     GPTPlanner,
@@ -32,6 +33,7 @@ from .agents.base_llm_agent import BaseLLMAgent, NullAgent
 __all__ = [
     "Car",
     "Track",
+    "TrackCurve",
     "PolePositionEnv",
     "GPTPlanner",
     "LowLevelController",

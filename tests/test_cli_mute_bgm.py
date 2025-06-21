@@ -13,7 +13,5 @@ def test_cli_mute_bgm(monkeypatch):
     monkeypatch.setattr(cli, "run_episode", fake_run_episode)
     monkeypatch.setattr(sys, "argv", ["spp", "qualify", "--mute-bgm"])
     monkeypatch.setenv("FAST_TEST", "1")
-    monkeypatch.dict(os.environ, {"FAST_TEST": "1"}, clear=False)
-
     cli.main()
     assert os.environ.get("MUTE_BGM") == "1"

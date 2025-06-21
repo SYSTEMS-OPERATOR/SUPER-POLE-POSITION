@@ -8,6 +8,9 @@ sprites.py
 Description: Module for Super Pole Position.
 """
 
+import os
+
+os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
 
 try:
     import pygame  # type: ignore

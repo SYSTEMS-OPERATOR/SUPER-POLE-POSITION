@@ -27,7 +27,7 @@ class TrafficCar(Car):
 
         steer = 0.0
         if track is not None:
-            target_y = track.height / 2
+            target_y = track.y_at(self.x)
             offset = target_y - self.y
             steer = max(-1.0, min(1.0, offset * 0.1))
 

@@ -47,22 +47,64 @@ class Obstacle:
 
 
 class Track:
-    """A toroidal track with a defined length or 2D bounding box."""
+    """A toroidal track with optional centerline segments."""
 
     def __init__(
-        self, width=200.0, height=200.0, obstacles=None, puddles=None, surfaces=None
-    ):
+        self,
+        width: float = 200.0,
+        height: float = 200.0,
+        obstacles: list[Obstacle] | None = None,
+        puddles: list[Puddle] | None = None,
+        surfaces: list[SurfaceZone] | None = None,
+        segments: list[tuple[float, float]] | None = None,
+    ) -> None:
+        """Create a simple wraparound track.
+
+        Parameters
+        ----------
+        width:
+            Horizontal span of the track.
+        height:
+            Vertical span of the track.
         """
-        For a 2D track: we treat the space as a wraparound.
-        :param width: Width of the track space.
-        :param height: Height of the track space.
-        """
+
         self.width = width
         self.height = height
         self.start_x = 0.0
-        self.obstacles: list[Obstacle] = obstacles or []
-        self.puddles: list[Puddle] = puddles or []
-        self.surfaces: list[SurfaceZone] = surfaces or []
+        self.obstacles = obstacles or []
+        self.puddles = puddles or []
+        self.surfaces = surfaces or []
+        self.segments = segments or [(0.0, height / 2), (width, height / 2)]
+
+    # ------------------------------------------------------------------
+    # Geometry helpers
+    # ------------------------------------------------------------------
+    def y_at(self, x: float) -> float:
+        """Return centerline ``y`` position for ``x``."""
+
+        if not self.segments:
+            return self.height / 2
+        t = (x % self.width) / self.width
+        seg_pos = t * (len(self.segments) - 1)
+        i = int(seg_pos)
+        frac = seg_pos - i
+        p0 = self.segments[i]
+        p1 = self.segments[(i + 1) % len(self.segments)]
+        return p0[1] + (p1[1] - p0[1]) * frac
+
+    def angle_at(self, x: float) -> float:
+        """Return road angle in radians at ``x``."""
+
+        if not self.segments:
+            return 0.0
+        t = (x % self.width) / self.width
+        seg_pos = t * (len(self.segments) - 1)
+        i = int(seg_pos)
+        p0 = self.segments[i]
+        p1 = self.segments[(i + 1) % len(self.segments)]
+        dy = p1[1] - p0[1]
+        dx = p1[0] - p0[0]
+        return math.atan2(dy, dx)
 
     @classmethod
     def load(cls, name: str) -> "Track":
@@ -90,9 +132,14 @@ class Track:
                     obstacles=obstacles,
                     puddles=puddles,
                     surfaces=surfaces,
+                    segments=[tuple(p) for p in seg],
                 )
             if obstacles or puddles or surfaces:
-                return cls(obstacles=obstacles, puddles=puddles, surfaces=surfaces)
+                return cls(
+                    obstacles=obstacles,
+                    puddles=puddles,
+                    surfaces=surfaces,
+                )
         return cls()
 
     @classmethod
@@ -123,9 +170,14 @@ class Track:
                     obstacles=obstacles,
                     puddles=puddles,
                     surfaces=surfaces,
+                    segments=[tuple(p) for p in seg],
                 )
             if obstacles or puddles or surfaces:
-                return cls(obstacles=obstacles, puddles=puddles, surfaces=surfaces)
+                return cls(
+                    obstacles=obstacles,
+                    puddles=puddles,
+                    surfaces=surfaces,
+                )
         raise FileNotFoundError(name)
 
     def wrap_position(self, car):

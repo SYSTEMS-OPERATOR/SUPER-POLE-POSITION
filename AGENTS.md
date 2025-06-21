@@ -35,6 +35,16 @@ Position parity.
 - Include a high-score table via the scoreboard API.
 - Ensure tracks match Fuji Speedway and other classics.
 
+## Game Design Goals
+- Aim for high fidelity to Pole Position’s pseudo-3D look.
+- Keep the 256×224 raster resolution and 60 FPS timing.
+- Implement smooth sprite scaling with horizon sway.
+- Include authentic audio: engine pitch, explosions and voice cues.
+- Log lap times to the scoreboard endpoints in `SCOREBOARD_ENDPOINTS.md`.
+- Track progress with `PROGRESS_ARCADE_PARITY.md`.
+- Document major additions in `CHANGELOG.md`.
+
+
 ## Commit Guidelines
 - Write commit messages in present-tense imperative.
 - Keep each commit focused on a single topic with a clear

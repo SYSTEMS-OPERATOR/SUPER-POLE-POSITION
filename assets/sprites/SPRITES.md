@@ -9,4 +9,4 @@ This file lists placeholder sprite images used in the arcade-faithful build.
 - `mt_fuji.png` – Mount Fuji background layer
 - `clouds.png` – parallax cloud layer
 
-All images are distributed as empty placeholders.
+All PNG files are zero-byte placeholders provided only to reserve the filenames.

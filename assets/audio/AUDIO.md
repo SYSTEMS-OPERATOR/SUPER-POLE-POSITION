@@ -10,4 +10,4 @@ Placeholder WAV files for sound effects and music.
 - `goal.wav` – finish line voice
 - `bgm.wav` – attract mode background music
 
-These files contain 100 ms of silence and are meant to be replaced with real samples.
+These files are zero-byte placeholders. Replace them with real samples for sound to work.

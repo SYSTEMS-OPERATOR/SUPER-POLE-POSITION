@@ -9,4 +9,5 @@
 - Lap times now sent to the scoreboard API at each lap and race end.
 - Added `audio_volume` setting in `config.py` controlling pygame mixer volume.
 - Added `scoreboard-sync` command to mirror scores from a remote server.
+- Introduced `TrackCurve` helper and new `fuji_curve` track data.
 

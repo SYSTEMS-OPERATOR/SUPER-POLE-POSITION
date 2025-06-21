@@ -629,7 +629,7 @@ class PolePositionEnv(gym.Env):
         if self.screen is None:
             try:
                 pygame.init()
-                size = (640, 480)
+                size = (256, 224)
                 self.screen = pygame.display.set_mode(size)
                 pygame.display.set_caption("Super Pole Position")
                 self.clock = pygame.time.Clock()
@@ -639,7 +639,7 @@ class PolePositionEnv(gym.Env):
                     os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
                     try:
                         pygame.init()
-                        size = (640, 480)
+                        size = (256, 224)
                         self.screen = pygame.display.set_mode(size)
                         pygame.display.set_caption("Super Pole Position")
                         self.clock = pygame.time.Clock()

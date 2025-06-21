@@ -311,7 +311,7 @@ class Pseudo3DRenderer:
         offset = curvature * (width / 4)
         self.horizon = int(self.horizon_base + offset * 0.1)
 
-        slices = 12
+        slices = 32
         road_top = road_w * 0.2
         prev_center = width / 2
         prev_width = road_w
@@ -328,6 +328,21 @@ class Pseudo3DRenderer:
                 (center - w / 2, y),
             ]
             pygame.draw.polygon(self.screen, (60, 60, 60), points)
+            stripe_color = (255, 0, 0) if i % 2 == 0 else (255, 255, 255)
+            pygame.draw.line(
+                self.screen,
+                stripe_color,
+                (points[0][0], points[0][1]),
+                (points[3][0], points[3][1]),
+                2,
+            )
+            pygame.draw.line(
+                self.screen,
+                stripe_color,
+                (points[1][0], points[1][1]),
+                (points[2][0], points[2][1]),
+                2,
+            )
             prev_center, prev_width, prev_y = center, w, y
 
         # center dashed line following car speed

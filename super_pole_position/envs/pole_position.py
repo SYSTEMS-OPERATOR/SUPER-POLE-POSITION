@@ -456,12 +456,16 @@ class PolePositionEnv(gym.Env):
                 self.crash_timer = 2.5
                 self.cars[0].crash()
 
-        # Off-road slowdown near track edges
-        center_y = self.track.y_at(self.cars[0].x)
-        offroad = abs(self.cars[0].y - center_y) > self.track.height / 2 - 5
-        if offroad:
+        # Off-road penalty when leaving paved surface
+        if not self.track.on_road(self.cars[0]):
             self.cars[0].speed *= 0.5
             self.offroad_frames += 1
+            if self.offroad_frames > 30 and self.crash_timer <= 0:
+                self.crashes += 1
+                self.crash_timer = 2.5
+                self.cars[0].crash()
+        else:
+            self.offroad_frames = 0
 
         if self.track.in_puddle(self.cars[0]):
             factor = PARITY_CFG["puddle"].get("speed_factor", 0.7)

@@ -94,8 +94,15 @@ Press **Enter** to begin or **Esc** to quit.
 
 For more details see [GAMEPLAY_FAQ.md](GAMEPLAY_FAQ.md).
 
-🕹️ **CAR 2:** _(AI-Driven)_  
-🤖 **Automated racing, planning, and learning**  
+### 🖐️ Virtual Joystick
+Install the `pygame-virtual-joystick` library to control the car on touchscreens.
+Enable it with `--virtual-joystick` when launching a race or qualifying run:
+```bash
+spp race --render --virtual-joystick
+```
+
+🕹️ **CAR 2:** _(AI-Driven)_
+🤖 **Automated racing, planning, and learning**
 
 📡 **Live Monitoring Mode** – Track AI behavior in real-time, with zero-latency logging.
 
@@ -193,3 +200,18 @@ spp scoreboard-sync --host 127.0.0.1 --port 8000 --interval 30
 - Try `--hyper` for a *next-gen AI challenge*
 - Display performance metrics by setting `PERF_HUD=1`
 - Mute background music via `--mute-bgm`
+
+## 🎞️ Animated Sprite Demo
+A small example using **Pygame 2** can be found in `examples/animated_sprite.py`.
+Run it with:
+
+```bash
+python examples/animated_sprite.py
+```
+
+**Controls**
+
+- Arrow keys – Move the sprite
+- Esc – Quit the demo
+- Use `--virtual-joystick` for touchscreen controls
+

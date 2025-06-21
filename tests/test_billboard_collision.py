@@ -23,5 +23,6 @@ def test_billboard_collision_time_bleed():
     before = env.remaining_time
     env.step((True, False, 0.0))
     assert env.remaining_time < before
+    assert env.crash_timer > 0
     assert not env.track.obstacles
     env.close()

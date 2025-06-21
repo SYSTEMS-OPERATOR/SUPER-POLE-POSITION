@@ -23,7 +23,7 @@ def test_wrap_position():
     car = Car(x=110.0, y=-5.0)
     track.wrap_position(car)
     assert 0.0 <= car.x < track.width
-    assert 0.0 <= car.y < track.height
+    assert car.y == -5.0
 
 
 def test_distance():

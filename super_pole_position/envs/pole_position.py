@@ -10,6 +10,9 @@ Description: Module for Super Pole Position.
 """
 
 import os
+
+# Hide pygame's greeting for cleaner logs
+os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
 import numpy as np
 import gymnasium as gym
 import time

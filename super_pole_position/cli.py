@@ -76,7 +76,7 @@ def main() -> None:
                 raise SystemExit(1)
 
             pygame.init()
-            screen = pygame.display.set_mode((640, 480))
+            screen = pygame.display.set_mode((256, 224))
             try:
                 cfg = menu.main_loop(screen)
             except Exception:
@@ -117,7 +117,7 @@ def main() -> None:
                 raise SystemExit(1)
 
             pygame.init()
-            screen = pygame.display.set_mode((640, 480))
+            screen = pygame.display.set_mode((256, 224))
             try:
                 cfg = menu.main_loop(screen)
             except Exception:

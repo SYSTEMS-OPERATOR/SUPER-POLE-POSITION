@@ -23,9 +23,16 @@ def test_checkpoint_timer_rollover():
     env.start_timer = 0
     env.cars[0].gear = 1
     before = env.remaining_time
+
     env.cars[0].x = env.track.start_x - 1
     env.step((False, False, 0.0))
     env.cars[0].x = env.track.start_x + 1
     env.step((False, False, 0.0))
+
+    env.cars[0].gear = 1
+    while env.lap == 0:
+        env.cars[0].apply_controls(True, False, 0.0)
+        env.step((False, False, 0.0))
+
     assert env.remaining_time > before
     env.close()

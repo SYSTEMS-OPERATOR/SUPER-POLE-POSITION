@@ -172,6 +172,8 @@ class PolePositionEnv(gym.Env):
         self.time_extend_flash = 0.0
         self.lap_times: list[float] = []
         self.grid_order: list[int] = []
+        self.game_message = ""
+        self.message_timer = 0.0
 
         # Performance metrics
         self.plan_durations: list[float] = []
@@ -273,6 +275,8 @@ class PolePositionEnv(gym.Env):
         self.time_extend_flash = 0.0
         self.lap_times = []
         self.grid_order = []
+        self.game_message = ""
+        self.message_timer = 0.0
 
         # Reset cars to start positions
         self.cars[0].x = 50.0
@@ -358,6 +362,8 @@ class PolePositionEnv(gym.Env):
             else:
                 self.start_phase = "GO"
                 print("[ENV] GO!", flush=True)
+        if self.message_timer > 0:
+            self.message_timer -= 1.0
 
         # ---- Car 0 (Player / Random) ----
         throttle, brake, steer, gear_cmd = False, False, 0.0, 0
@@ -444,6 +450,11 @@ class PolePositionEnv(gym.Env):
         # Wrap positions on the track
         for c in self.cars:
             self.track.wrap_position(c)
+        if self.cars[0].y < 0.0 or self.cars[0].y > self.track.height:
+            if self.crash_timer <= 0:
+                self.crashes += 1
+                self.crash_timer = 2.5
+                self.cars[0].crash()
 
         # Off-road slowdown near track edges
         center_y = self.track.y_at(self.cars[0].x)
@@ -461,6 +472,10 @@ class PolePositionEnv(gym.Env):
         if self.track.billboard_hit(self.cars[0]):
             self.remaining_time = max(self.remaining_time - 5.0, 0.0)
             self._play_crash_audio()
+            if self.crash_timer <= 0:
+                self.crashes += 1
+                self.crash_timer = 2.5
+                self.cars[0].crash()
 
         # Slip-angle skid penalty
         if abs(steer) > 0.7 and self.cars[0].speed > 5:
@@ -549,6 +564,10 @@ class PolePositionEnv(gym.Env):
                 )
             if self.lap == 3:
                 self._play_final_lap_voice()
+
+        if self.mode == "race":
+            pass
+
         self.prev_progress = progress
         self.prev_x = self.cars[0].x
         self.prev_y = self.cars[0].y
@@ -572,7 +591,13 @@ class PolePositionEnv(gym.Env):
         if self.mode == "race" and self.lap >= 4:
             done = True
             self._play_goal_voice()
-        done = done or self.remaining_time <= 0 or (self.current_step >= self.max_steps)
+            self.game_message = "FINISHED!"
+            self.message_timer = 90.0
+        if self.remaining_time <= 0:
+            done = True
+            self.game_message = "TIME UP!"
+            self.message_timer = 90.0
+        done = done or (self.current_step >= self.max_steps)
 
         # Record per-step metrics
         self.step_log.append(

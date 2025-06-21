@@ -18,13 +18,27 @@ Houses:
 - LearningAgent: Placeholder for real-time learning / RL logic.
 """
 
-try:
-    import torch  # noqa: F401 - optional dependency
-    from transformers import AutoTokenizer, AutoModelForCausalLM
-except Exception:  # pragma: no cover - optional dependency may be missing
-    torch = None
-    AutoTokenizer = None
-    AutoModelForCausalLM = None
+torch = None
+AutoTokenizer = None
+AutoModelForCausalLM = None
+
+
+def _import_llm_deps() -> None:
+    """Attempt to import optional LLM dependencies lazily."""
+
+    global torch, AutoTokenizer, AutoModelForCausalLM
+    if AutoTokenizer is not None and AutoModelForCausalLM is not None:
+        return
+    try:  # pragma: no cover - optional dependency may be missing
+        import torch  # noqa: F401
+        from transformers import AutoTokenizer as _AutoTokenizer
+        from transformers import AutoModelForCausalLM as _AutoModel
+        AutoTokenizer = _AutoTokenizer
+        AutoModelForCausalLM = _AutoModel
+    except Exception:
+        torch = None
+        AutoTokenizer = None
+        AutoModelForCausalLM = None
 
 class GPTPlanner:
     """High-level planner that can optionally use a GPT model."""
@@ -39,12 +53,13 @@ class GPTPlanner:
         self.model_name = model_name
         self.tokenizer = None
         self.model = None
-        if autoload and AutoTokenizer is not None:
+        if autoload:
             self.load_model()
 
     def load_model(self) -> None:
         """Load the tokenizer and model when dependencies are available."""
 
+        _import_llm_deps()
         if AutoTokenizer is None:
             return
         if self.tokenizer is None or self.model is None:

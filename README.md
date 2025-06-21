@@ -30,6 +30,8 @@ pip install -r requirements.txt
 python press_start.py
 # or dive into the CLI
 spp qualify --agent null --track fuji
+# try the new curved Fuji circuit
+spp qualify --agent null --track fuji_curve
 ```
 ![](docs.gif)
 

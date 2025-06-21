@@ -13,6 +13,7 @@ import math
 import json
 from pathlib import Path
 from dataclasses import dataclass
+from .track_curve import TrackCurve
 
 
 @dataclass
@@ -58,6 +59,7 @@ class Track:
         puddles: list[Puddle] | None = None,
         surfaces: list[SurfaceZone] | None = None,
         segments: list[tuple[float, float]] | None = None,
+        curve: TrackCurve | None = None,
     ) -> None:
         """Create a simple wraparound track.
 
@@ -77,13 +79,20 @@ class Track:
         self.puddles = puddles or []
         self.surfaces = surfaces or []
         self.segments = segments or [(0.0, height / 2), (width, height / 2)]
+        self.curve = curve
+        self._curve_lengths: list[float] = []
+        if self.curve:
+            self._curve_lengths = list(self.curve._lengths)
 
     # ------------------------------------------------------------------
     # Geometry helpers
     # ------------------------------------------------------------------
     def y_at(self, x: float) -> float:
-        """Return centerline ``y`` position for ``x``."""
+        """Return centerline ``y`` position for ``x`` (legacy)."""
 
+        if self.curve:
+            pos = self.curve.point_at(x)
+            return pos[1]
         if not self.segments:
             return self.height / 2
         t = (x % self.width) / self.width
@@ -95,8 +104,11 @@ class Track:
         return p0[1] + (p1[1] - p0[1]) * frac
 
     def angle_at(self, x: float) -> float:
-        """Return road angle in radians at ``x``."""
+        """Return road angle in radians at ``x`` or distance ``x``."""
 
+        if self.curve:
+            tx, ty = self.curve.tangent_at(x)
+            return math.atan2(ty, tx)
         if not self.segments:
             return 0.0
         t = (x % self.width) / self.width
@@ -110,7 +122,14 @@ class Track:
 
     def on_road(self, car) -> bool:
         """Return ``True`` if ``car`` is within the paved road bounds."""
-
+        if self.curve:
+            prog = self.progress(car) * self.curve.total_length
+            cx, cy = self.curve.point_at(prog)
+            tx, ty = self.curve.normal_at(prog)
+            dx = car.x - cx
+            dy = car.y - cy
+            offset = abs(dx * tx + dy * ty)
+            return offset <= self.road_width / 2
         center_y = self.y_at(car.x)
         return abs(car.y - center_y) <= self.road_width / 2
 
@@ -133,17 +152,32 @@ class Track:
             surfaces = [SurfaceZone(**s) for s in data.get("surfaces", [])]
             road_w = float(data.get("road_width", 10.0))
             if seg:
-                width = max(p[0] for p in seg)
-                height = max(p[1] for p in seg)
-                return cls(
-                    width=width,
-                    height=height,
-                    obstacles=obstacles,
-                    puddles=puddles,
-                    surfaces=surfaces,
-                    segments=[tuple(p) for p in seg],
-                    road_width=road_w,
-                )
+                if len(seg[0]) == 4:
+                    curve = TrackCurve.from_tuples([tuple(p) for p in seg])
+                    width = int(max(p[0] for p in curve._points)) + 1
+                    height = int(max(p[1] for p in curve._points)) + 1
+                    return cls(
+                        width=width,
+                        height=height,
+                        obstacles=obstacles,
+                        puddles=puddles,
+                        surfaces=surfaces,
+                        segments=None,
+                        curve=curve,
+                        road_width=road_w,
+                    )
+                else:
+                    width = max(p[0] for p in seg)
+                    height = max(p[1] for p in seg)
+                    return cls(
+                        width=width,
+                        height=height,
+                        obstacles=obstacles,
+                        puddles=puddles,
+                        surfaces=surfaces,
+                        segments=[tuple(p) for p in seg],
+                        road_width=road_w,
+                    )
             if obstacles or puddles or surfaces:
                 return cls(
                     obstacles=obstacles,
@@ -174,17 +208,32 @@ class Track:
             surfaces = [SurfaceZone(**s) for s in data.get("surfaces", [])]
             road_w = float(data.get("road_width", 10.0))
             if seg:
-                width = max(p[0] for p in seg)
-                height = max(p[1] for p in seg)
-                return cls(
-                    width=width,
-                    height=height,
-                    obstacles=obstacles,
-                    puddles=puddles,
-                    surfaces=surfaces,
-                    segments=[tuple(p) for p in seg],
-                    road_width=road_w,
-                )
+                if len(seg[0]) == 4:
+                    curve = TrackCurve.from_tuples([tuple(p) for p in seg])
+                    width = int(max(p[0] for p in curve._points)) + 1
+                    height = int(max(p[1] for p in curve._points)) + 1
+                    return cls(
+                        width=width,
+                        height=height,
+                        obstacles=obstacles,
+                        puddles=puddles,
+                        surfaces=surfaces,
+                        segments=None,
+                        curve=curve,
+                        road_width=road_w,
+                    )
+                else:
+                    width = max(p[0] for p in seg)
+                    height = max(p[1] for p in seg)
+                    return cls(
+                        width=width,
+                        height=height,
+                        obstacles=obstacles,
+                        puddles=puddles,
+                        surfaces=surfaces,
+                        segments=[tuple(p) for p in seg],
+                        road_width=road_w,
+                    )
             if obstacles or puddles or surfaces:
                 return cls(
                     obstacles=obstacles,
@@ -196,11 +245,14 @@ class Track:
 
     def wrap_position(self, car) -> None:
         """Wrap ``car.x`` around track width while leaving ``y`` unclamped."""
-
-        if car.x < 0.0:
-            car.x += self.width
-        elif car.x >= self.width:
-            car.x -= self.width
+        if self.curve:
+            car.x = max(0.0, min(car.x, self.width))
+            car.y = max(0.0, min(car.y, self.height))
+        else:
+            if car.x < 0.0:
+                car.x += self.width
+            elif car.x >= self.width:
+                car.x -= self.width
 
     def distance(self, car1, car2):
         """
@@ -209,18 +261,32 @@ class Track:
         """
         dx = abs(car1.x - car2.x)
         dy = abs(car1.y - car2.y)
-
-        dx = min(dx, self.width - dx)
-
+        if not self.curve:
+            dx = min(dx, self.width - dx)
         return math.sqrt(dx * dx + dy * dy)
 
     def progress(self, car) -> float:
-        """Return lap progress 0..1 based on x position."""
+        """Return lap progress 0..1 based on arc length or x position."""
+        if self.curve:
+            x = car.x if hasattr(car, "x") else car[0]
+            y = car.y if hasattr(car, "y") else car[1]
+            best = 0.0
+            best_dist = float("inf")
+            for d, p in zip(self._curve_lengths, self.curve._points[1:]):
+                dx = x - p[0]
+                dy = y - p[1]
+                dist = dx * dx + dy * dy
+                if dist < best_dist:
+                    best_dist = dist
+                    best = d
+            return best / self.curve.total_length
         delta = (car.x - self.start_x) % self.width
         return delta / self.width
 
     def distance_along_track(self, pos) -> float:
         """Return normalized distance 0..1 along track from ``start_x``."""
+        if self.curve:
+            return self.progress(pos)
         x = pos.x if hasattr(pos, "x") else pos[0]
         delta = (x - self.start_x) % self.width
         return delta / self.width

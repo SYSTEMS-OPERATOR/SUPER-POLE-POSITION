@@ -180,20 +180,13 @@ class Track:
                 )
         raise FileNotFoundError(name)
 
-    def wrap_position(self, car):
-        """
-        Wraps the car's position if it goes beyond track boundaries.
-        This simulates a toroidal environment (like Pac-Man).
-        """
+    def wrap_position(self, car) -> None:
+        """Wrap ``car.x`` around track width while leaving ``y`` unclamped."""
+
         if car.x < 0.0:
             car.x += self.width
         elif car.x >= self.width:
             car.x -= self.width
-
-        if car.y < 0.0:
-            car.y += self.height
-        elif car.y >= self.height:
-            car.y -= self.height
 
     def distance(self, car1, car2):
         """
@@ -203,9 +196,7 @@ class Track:
         dx = abs(car1.x - car2.x)
         dy = abs(car1.y - car2.y)
 
-        # On a torus, distance wraps around
         dx = min(dx, self.width - dx)
-        dy = min(dy, self.height - dy)
 
         return math.sqrt(dx * dx + dy * dy)
 

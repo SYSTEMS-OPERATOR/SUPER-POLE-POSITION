@@ -37,6 +37,7 @@ from ..ui.arcade import Pseudo3DRenderer
 
 from ..config import load_parity_config
 from ..config import load_arcade_parity
+from ..evaluation import submit_score_http
 
 _PARITY_CONFIG = load_arcade_parity()
 ENGINE_BASE_FREQ = _PARITY_CONFIG.get("engine_base_freq", 400.0)
@@ -533,6 +534,10 @@ class PolePositionEnv(gym.Env):
             self.lap_flash = 2.0
             self.remaining_time += 30.0
             print(f"[ENV] Completed lap {self.lap} in {self.last_lap_time:.2f}s", flush=True)
+            try:
+                submit_score_http("lap", int(self.last_lap_time * 1000))
+            except Exception:
+                pass
             if self.mode == "qualify":
                 self.grid_order = sorted(
                     range(len(self.cars)),
@@ -594,6 +599,10 @@ class PolePositionEnv(gym.Env):
             except Exception:
                 pass
             self.score += int(self.remaining_time * 5)
+            try:
+                submit_score_http("final", int(self.score))
+            except Exception:
+                pass
             print("[ENV] Race finished", flush=True)
 
         experience = (prev_obs, action, reward, self._get_obs())

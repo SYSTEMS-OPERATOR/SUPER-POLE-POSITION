@@ -248,6 +248,7 @@ class PolePositionEnv(gym.Env):
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
+        print("[ENV] Resetting environment", flush=True)
         self.current_step = 0
         self.remaining_time = self.time_limit
         self.next_checkpoint = 0.25
@@ -343,6 +344,7 @@ class PolePositionEnv(gym.Env):
                     self.crash_timer = 2.5
                     self._play_crash_audio()
                     self.cars[0].crash()
+                    print("[ENV] Crash!", flush=True)
                     return self._get_obs(), -10.0, False, False, {}
 
         # Start light sequence (does not block motion in tests)
@@ -354,6 +356,7 @@ class PolePositionEnv(gym.Env):
                 self.start_phase = "SET"
             else:
                 self.start_phase = "GO"
+                print("[ENV] GO!", flush=True)
 
         # ---- Car 0 (Player / Random) ----
         throttle, brake, steer, gear_cmd = False, False, 0.0, 0
@@ -529,6 +532,7 @@ class PolePositionEnv(gym.Env):
             self.lap_timer = 0.0
             self.lap_flash = 2.0
             self.remaining_time += 30.0
+            print(f"[ENV] Completed lap {self.lap} in {self.last_lap_time:.2f}s", flush=True)
             if self.mode == "qualify":
                 self.grid_order = sorted(
                     range(len(self.cars)),
@@ -590,6 +594,7 @@ class PolePositionEnv(gym.Env):
             except Exception:
                 pass
             self.score += int(self.remaining_time * 5)
+            print("[ENV] Race finished", flush=True)
 
         experience = (prev_obs, action, reward, self._get_obs())
         self.learning_agent.update_on_experience([experience])

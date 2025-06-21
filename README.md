@@ -184,3 +184,4 @@ spp scoreboard-sync --host 127.0.0.1 --port 8000 --interval 30
 - All original arcade mechanics recreated: slipstreaming, off-road slowdown, and timed checkpoints
 - Try `--hyper` for a *next-gen AI challenge*
 - Display performance metrics by setting `PERF_HUD=1`
+- Mute background music via `--mute-bgm`

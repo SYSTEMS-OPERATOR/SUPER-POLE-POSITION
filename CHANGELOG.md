@@ -10,4 +10,5 @@
 - Added `audio_volume` setting in `config.py` controlling pygame mixer volume.
 - Added `scoreboard-sync` command to mirror scores from a remote server.
 - Introduced `TrackCurve` helper and new `fuji_curve` track data.
+- Added `--mute-bgm` CLI flag to disable background music.
 

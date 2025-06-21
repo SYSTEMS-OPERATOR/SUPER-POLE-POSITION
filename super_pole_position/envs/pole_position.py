@@ -10,7 +10,6 @@ Description: Module for Super Pole Position.
 """
 
 import os
-os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
 import numpy as np
 import gymnasium as gym
 import time
@@ -612,8 +611,6 @@ class PolePositionEnv(gym.Env):
 
         if self.screen is None:
             try:
-                if os.name != "nt" and "DISPLAY" not in os.environ:
-                    os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
                 pygame.init()
                 size = (640, 480)
                 self.screen = pygame.display.set_mode(size)
@@ -621,15 +618,22 @@ class PolePositionEnv(gym.Env):
                 self.clock = pygame.time.Clock()
                 self.renderer = Pseudo3DRenderer(self.screen)
             except Exception as exc:  # pragma: no cover - init error
-                try:
-                    pygame.init()
-                    size = (640, 480)
-                    self.screen = pygame.display.set_mode(size)
-                    pygame.display.set_caption("Super Pole Position")
-                    self.clock = pygame.time.Clock()
-                    self.renderer = Pseudo3DRenderer(self.screen)
-                except Exception as exc2:
-                    print(f"pygame init failed: {exc2}", flush=True)
+                if os.name != "nt" and "DISPLAY" not in os.environ:
+                    os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
+                    try:
+                        pygame.init()
+                        size = (640, 480)
+                        self.screen = pygame.display.set_mode(size)
+                        pygame.display.set_caption("Super Pole Position")
+                        self.clock = pygame.time.Clock()
+                        self.renderer = Pseudo3DRenderer(self.screen)
+                    except Exception as exc2:
+                        print(f"pygame init failed: {exc2}", flush=True)
+                        self.screen = None
+                        pygame = None
+                        return
+                else:
+                    print(f"pygame init failed: {exc}", flush=True)
                     self.screen = None
                     pygame = None
                     return

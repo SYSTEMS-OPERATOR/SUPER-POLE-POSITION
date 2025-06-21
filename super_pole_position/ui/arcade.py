@@ -252,8 +252,10 @@ class Pseudo3DRenderer:
         if pygame:
             self._scanline_row = pygame.Surface((1, 1), pygame.SRCALPHA)
             self._scanline_row.fill((0, 0, 0, self.scanline_alpha))
+            self.start_font = pygame.font.SysFont(None, 48)
         else:
             self._scanline_row = None
+            self.start_font = None
         self.dash_offset = 0.0
 
 
@@ -438,11 +440,11 @@ class Pseudo3DRenderer:
                     perf_lines.append(
                         f"tok {env.plan_tokens[-1]}"
                     )
-            for i, line in enumerate(perf_lines):
-                t = font.render(line, True, (255, 255, 255))
-                self.screen.blit(t, (width - 160, 30 + 20 * i))
+        for i, line in enumerate(perf_lines):
+            t = font.render(line, True, (255, 255, 255))
+            self.screen.blit(t, (width - 160, 30 + 20 * i))
 
-            # mini-map simple dot positions
+        # mini-map simple dot positions
             map_h = 80
             map_w = 80
             pygame.draw.rect(
@@ -457,6 +459,16 @@ class Pseudo3DRenderer:
             oy = 10 + (other.y / env.track.height) * map_h
             pygame.draw.circle(self.screen, (255, 0, 0), (int(px), int(py)), 3)
             pygame.draw.circle(self.screen, (0, 255, 0), (int(ox), int(oy)), 3)
+
+        # Starting lights / ready-set-go text
+        if self.start_font and env.current_step < 30:
+            phase = env.start_phase
+            if phase:
+                color = (255, 255, 0) if phase != "GO" else (0, 255, 0)
+                text = self.start_font.render(phase, True, color)
+                tx = width // 2 - text.get_width() // 2
+                ty = height // 2 - text.get_height() // 2
+                self.screen.blit(text, (tx, ty))
 
         # Scanline effect
 

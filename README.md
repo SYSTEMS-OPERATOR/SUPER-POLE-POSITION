@@ -217,3 +217,5 @@ python examples/animated_sprite.py
 - Esc – Quit the demo
 - Use `--virtual-joystick` for touchscreen controls
 
+🚗 Happy racing! 🏁
+

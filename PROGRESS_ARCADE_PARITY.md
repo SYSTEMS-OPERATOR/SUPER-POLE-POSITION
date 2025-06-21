@@ -19,3 +19,5 @@
 - [x] Test suite for each new feature
 - [x] Stereo engine audio panned by car position
 - [x] Lap times posted to scoreboard API
+
+🎉 All core arcade mechanics implemented! 🏁

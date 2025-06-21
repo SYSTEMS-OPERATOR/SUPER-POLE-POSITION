@@ -10,3 +10,11 @@ For each completed episode two files are written:
 
 These files are produced automatically by `super_pole_position.evaluation.logger`
 and are useful for tracking historical performance.
+
+Run a quick race to generate logs:
+
+```bash
+spp race --agent null --track fuji
+```
+
+Logs will appear under `benchmarks/YYYY-MM-DD/` 📊

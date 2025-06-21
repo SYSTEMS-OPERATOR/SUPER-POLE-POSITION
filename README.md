@@ -77,6 +77,7 @@ Press **Enter** to begin or **Esc** to quit.
 🛞 **Two-speed gearbox with torque kick**
 🪧 **Billboards shatter with time penalty**
 🌱 **Dynamic friction zones**
+🚗 **CPUCar opponents with blocking behaviour**
 🌄 **Horizon sway & sprite scaling**
 📻 **Engine pitch scales with RPM**
 

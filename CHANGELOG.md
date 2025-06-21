@@ -11,4 +11,5 @@
 - Added `scoreboard-sync` command to mirror scores from a remote server.
 - Introduced `TrackCurve` helper and new `fuji_curve` track data.
 - Added `--mute-bgm` CLI flag to disable background music.
+- Added `CPUCar` AI with blocking behaviour and `Track.is_on_road` helper.
 

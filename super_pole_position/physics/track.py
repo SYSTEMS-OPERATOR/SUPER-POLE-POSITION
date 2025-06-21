@@ -120,18 +120,25 @@ class Track:
         dx = p1[0] - p0[0]
         return math.atan2(dy, dx)
 
-    def on_road(self, car) -> bool:
-        """Return ``True`` if ``car`` is within the paved road bounds."""
+    def is_on_road(self, x: float, y: float) -> bool:
+        """Return ``True`` if coordinates are within the paved bounds."""
+
         if self.curve:
-            prog = self.progress(car) * self.curve.total_length
+            prog = self.progress((x, y)) * self.curve.total_length
             cx, cy = self.curve.point_at(prog)
             tx, ty = self.curve.normal_at(prog)
-            dx = car.x - cx
-            dy = car.y - cy
+            dx = x - cx
+            dy = y - cy
             offset = abs(dx * tx + dy * ty)
             return offset <= self.road_width / 2
-        center_y = self.y_at(car.x)
-        return abs(car.y - center_y) <= self.road_width / 2
+
+        center_y = self.y_at(x)
+        return abs(y - center_y) <= self.road_width / 2
+
+    def on_road(self, car) -> bool:
+        """Return ``True`` if ``car`` is within the paved road bounds."""
+
+        return self.is_on_road(car.x, car.y)
 
     @classmethod
     def load(cls, name: str) -> "Track":

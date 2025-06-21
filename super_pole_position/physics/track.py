@@ -47,12 +47,13 @@ class Obstacle:
 
 
 class Track:
-    """A toroidal track with optional centerline segments."""
+    """A toroidal track with optional centerline segments and road width."""
 
     def __init__(
         self,
         width: float = 200.0,
         height: float = 200.0,
+        road_width: float = 10.0,
         obstacles: list[Obstacle] | None = None,
         puddles: list[Puddle] | None = None,
         surfaces: list[SurfaceZone] | None = None,
@@ -71,6 +72,7 @@ class Track:
         self.width = width
         self.height = height
         self.start_x = 0.0
+        self.road_width = road_width
         self.obstacles = obstacles or []
         self.puddles = puddles or []
         self.surfaces = surfaces or []
@@ -106,6 +108,12 @@ class Track:
         dx = p1[0] - p0[0]
         return math.atan2(dy, dx)
 
+    def on_road(self, car) -> bool:
+        """Return ``True`` if ``car`` is within the paved road bounds."""
+
+        center_y = self.y_at(car.x)
+        return abs(car.y - center_y) <= self.road_width / 2
+
     @classmethod
     def load(cls, name: str) -> "Track":
         path = (
@@ -123,6 +131,7 @@ class Track:
             obstacles = [Obstacle(**o) for o in data.get("obstacles", [])]
             puddles = [Puddle(**p) for p in data.get("puddles", [])]
             surfaces = [SurfaceZone(**s) for s in data.get("surfaces", [])]
+            road_w = float(data.get("road_width", 10.0))
             if seg:
                 width = max(p[0] for p in seg)
                 height = max(p[1] for p in seg)
@@ -133,12 +142,14 @@ class Track:
                     puddles=puddles,
                     surfaces=surfaces,
                     segments=[tuple(p) for p in seg],
+                    road_width=road_w,
                 )
             if obstacles or puddles or surfaces:
                 return cls(
                     obstacles=obstacles,
                     puddles=puddles,
                     surfaces=surfaces,
+                    road_width=road_w,
                 )
         return cls()
 
@@ -161,6 +172,7 @@ class Track:
             obstacles = [Obstacle(**o) for o in data.get("obstacles", [])]
             puddles = [Puddle(**p) for p in data.get("puddles", [])]
             surfaces = [SurfaceZone(**s) for s in data.get("surfaces", [])]
+            road_w = float(data.get("road_width", 10.0))
             if seg:
                 width = max(p[0] for p in seg)
                 height = max(p[1] for p in seg)
@@ -171,12 +183,14 @@ class Track:
                     puddles=puddles,
                     surfaces=surfaces,
                     segments=[tuple(p) for p in seg],
+                    road_width=road_w,
                 )
             if obstacles or puddles or surfaces:
                 return cls(
                     obstacles=obstacles,
                     puddles=puddles,
                     surfaces=surfaces,
+                    road_width=road_w,
                 )
         raise FileNotFoundError(name)
 

@@ -12,5 +12,6 @@
 - Stay on the road to maintain speed – off-road driving slows you down!
 - Use gentle steering to avoid skids.
 - Finish four laps as fast as possible to top the leaderboard.
+- For touchscreens try `--virtual-joystick`.
 
 Enjoy the ride! 🏁

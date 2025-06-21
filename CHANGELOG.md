@@ -16,3 +16,5 @@
 - Placeholder sprite and audio files are now committed as zero-byte stubs.
 - Engine pitch now factors in current gear for smoother shifts.
 
+📌 Keep racing for the next update! 🏁
+

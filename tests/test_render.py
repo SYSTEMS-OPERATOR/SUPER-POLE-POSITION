@@ -1,4 +1,5 @@
 import types
+import math
 import pytest
 pygame = pytest.importorskip("pygame")  # noqa: E402
 from super_pole_position.ui.arcade import Pseudo3DRenderer  # noqa: E402
@@ -9,8 +10,8 @@ def test_draw_road_polygon_offset():
     screen = pygame.display.set_mode((320, 240))
     renderer = Pseudo3DRenderer(screen)
     env = types.SimpleNamespace(
-        cars=[types.SimpleNamespace(angle=0.0, steering=0.5)],
-        track=types.SimpleNamespace(),
+        cars=[types.SimpleNamespace(angle=0.0, steering=0.5, x=0.0)],
+        track=types.SimpleNamespace(angle_at=lambda x: math.pi / 8),
     )
     poly = renderer.draw_road_polygon(env)
     width = screen.get_width()

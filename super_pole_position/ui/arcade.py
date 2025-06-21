@@ -476,6 +476,12 @@ class Pseudo3DRenderer:
             my = height // 2 - msg.get_height() // 2
             self.screen.blit(msg, (mx, my))
 
+        if self.start_font and getattr(env, "time_extend_flash", 0) > 0:
+            text = self.start_font.render("EXTENDED TIME", True, (255, 255, 0))
+            tx = width // 2 - text.get_width() // 2
+            ty = height // 2 + 40
+            self.screen.blit(text, (tx, ty))
+
         # Scanline effect
 
         if self.scanline_alpha > 0:

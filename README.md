@@ -150,6 +150,14 @@ python -m super_pole_position.server.api
 
 Use `GET /scores` to list results and `POST /scores` to submit new scores.
 
+### Scoreboard Sync Service
+
+Keep your local scoreboard fresh with:
+
+```bash
+spp scoreboard-sync --host 127.0.0.1 --port 8000 --interval 30
+```
+
 ---
 
 ## 🎶 **CREDITS & INSPIRATION**

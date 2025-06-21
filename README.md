@@ -73,6 +73,7 @@ Press **Enter** to begin or **Esc** to quit.
 🌀 **Toroidal Racing Physics:** No edges, no limits—just infinite speed.
 🖼️ **Retro ASCII sprites** for cars, billboards and explosions.
 🎨 **Placeholder PNGs** stored in `assets/sprites` for arcade-faithful builds.
+These are zero-byte stubs included only so the file paths exist.
 🚀 **Hyper Mode** for uncapped speed and obstacle chaos.
 🕹️ **Arcade-accurate mechanics**: slipstream boost, off-road slowdown, crash penalties
 🛞 **Two-speed gearbox with torque kick**
@@ -130,6 +131,7 @@ This avoids importing heavy GPU libraries until you explicitly load the GPT plan
 
 ### Assets
 Placeholder PNG and WAV files live under `assets/sprites` and `assets/audio`.
+These files are empty stubs so the project contains no binary data.
 See `assets/sprites/SPRITES.md` and `assets/audio/AUDIO.md` for the full list.
 Replace them with real graphics and samples for a fully authentic experience.
 

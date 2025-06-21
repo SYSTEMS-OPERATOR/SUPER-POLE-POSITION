@@ -13,5 +13,6 @@
 - Added `--mute-bgm` CLI flag to disable background music.
 - Added `CPUCar` AI with blocking behaviour and `Track.is_on_road` helper.
 - Added placeholder sprite and audio asset directories.
+- Placeholder sprite and audio files are now committed as zero-byte stubs.
 - Engine pitch now factors in current gear for smoother shifts.
 

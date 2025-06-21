@@ -43,12 +43,22 @@ def main() -> None:
     q.add_argument("--track", default="fuji")
     q.add_argument("--render", action="store_true")
     q.add_argument("--mute-bgm", action="store_true", help="Disable background music")
+    q.add_argument(
+        "--virtual-joystick",
+        action="store_true",
+        help="Enable on-screen controls for touch devices",
+    )
 
     r = sub.add_parser("race")
     r.add_argument("--agent", choices=list(AGENT_MAP.keys()), default="null")
     r.add_argument("--track", default="fuji")
     r.add_argument("--render", action="store_true")
     r.add_argument("--mute-bgm", action="store_true", help="Disable background music")
+    r.add_argument(
+        "--virtual-joystick",
+        action="store_true",
+        help="Enable on-screen controls for touch devices",
+    )
 
     sub.add_parser("hiscore")
     sub.add_parser("reset-scores")
@@ -61,6 +71,10 @@ def main() -> None:
         os.environ["MUTE_BGM"] = "1"
     else:
         os.environ.setdefault("MUTE_BGM", "0")
+    if getattr(args, "virtual_joystick", False):
+        os.environ["VIRTUAL_JOYSTICK"] = "1"
+    else:
+        os.environ.setdefault("VIRTUAL_JOYSTICK", "0")
 
     if args.cmd == "hiscore":
         file = Path(__file__).parent / "evaluation" / "scores.json"

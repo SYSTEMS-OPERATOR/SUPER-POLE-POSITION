@@ -44,10 +44,11 @@ ENGINE_BASE_FREQ = _PARITY_CONFIG.get("engine_base_freq", 400.0)
 ENGINE_PITCH_FACTOR = _PARITY_CONFIG.get("engine_pitch_factor", 3000.0)
 
 
-def engine_pitch(rpm: float) -> float:
-    """Return engine frequency in Hz for ``rpm`` (0..1)."""
+def engine_pitch(rpm: float, gear: int = 0) -> float:
+    """Return engine frequency in Hz for ``rpm`` and ``gear``."""
 
-    return ENGINE_BASE_FREQ + ENGINE_PITCH_FACTOR * rpm
+    gear_factor = 1.0 + 0.1 * max(0, gear)
+    return ENGINE_BASE_FREQ + ENGINE_PITCH_FACTOR * rpm * gear_factor
 
 FAST_TEST = bool(int(os.getenv("FAST_TEST", "0")))
 PARITY_CFG = load_parity_config()
@@ -748,7 +749,7 @@ class PolePositionEnv(gym.Env):
             return base + harm2 + harm3 + rumble
 
         def panned_engine(car):
-            freq = engine_pitch(car.rpm())
+            freq = engine_pitch(car.rpm(), car.gear)
             pan = (car.y - self.track.height / 2) / (self.track.height / 2)
             pan = max(-1.0, min(1.0, pan))
             wave = engine_wave(freq)

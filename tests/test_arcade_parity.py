@@ -52,7 +52,7 @@ def test_puddle_slowdown_improved():
 def test_engine_pitch_improved():
     baseline_path = Path('benchmarks/baseline_engine_pitch.txt')
     baseline_val = float(baseline_path.read_text().split('=')[1])
-    new_val = engine_pitch(0.5)
+    new_val = engine_pitch(0.5, 0)
     assert new_val - baseline_val >= 49.9
 
 def _read_baseline() -> int:

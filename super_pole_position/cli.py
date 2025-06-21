@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import os
+os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
 from pathlib import Path
 
 from .agents.base_llm_agent import NullAgent

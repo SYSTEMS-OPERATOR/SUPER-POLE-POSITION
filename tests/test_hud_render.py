@@ -10,6 +10,9 @@ Description: Test suite for test_hud_render.
 
 import pytest  # noqa: F401
 
+import os
+os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
+
 import pygame
 pygame = pytest.importorskip("pygame")  # noqa: E402
 

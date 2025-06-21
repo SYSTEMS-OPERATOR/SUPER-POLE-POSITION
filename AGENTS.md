@@ -44,6 +44,7 @@ Position parity.
 - Track progress with `PROGRESS_ARCADE_PARITY.md`.
 - Document major additions in `CHANGELOG.md`.
 
+
 ## Commit Guidelines
 - Write commit messages in present-tense imperative.
 - Keep each commit focused on a single topic with a clear

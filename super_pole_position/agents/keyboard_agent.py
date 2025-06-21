@@ -4,6 +4,11 @@
 
 from __future__ import annotations
 
+import os
+
+# Hide pygame's greeting for cleaner logs
+os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
+
 try:
     import pygame  # type: ignore
 except Exception:  # pragma: no cover - optional dependency

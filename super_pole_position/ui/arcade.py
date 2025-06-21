@@ -11,6 +11,9 @@ Description: Module for Super Pole Position.
 
 
 import os
+
+# Hide pygame's greeting for cleaner logs
+os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
 from pathlib import Path
 from typing import Dict
 

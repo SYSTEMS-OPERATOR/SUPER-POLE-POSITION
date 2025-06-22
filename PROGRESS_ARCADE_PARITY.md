@@ -20,5 +20,6 @@
 - [x] Stereo engine audio panned by car position
 - [x] Minimal SFX manager with chiptune placeholders
 - [x] Lap times posted to scoreboard API
+- [x] Post-race scoreboard overlay displays top five scores
 
 🎉 All core arcade mechanics implemented! 🏁

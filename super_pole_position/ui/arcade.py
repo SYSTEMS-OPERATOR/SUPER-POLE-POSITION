@@ -611,6 +611,17 @@ class Pseudo3DRenderer:
             mx = width // 2 - msg.get_width() // 2
             my = height // 2 - msg.get_height() // 2
             surface.blit(msg, (mx, my))
+            if env.game_message in {"FINISHED!", "TIME UP!"}:
+                try:
+                    table = load_scores(None)
+                except Exception:
+                    table = []
+                for i, entry in enumerate(table[:5]):
+                    line = f"{i+1}. {entry['name']} {entry['score']:05d}"
+                    txt = self.start_font.render(line, True, (255, 255, 255))
+                    tx = width // 2 - txt.get_width() // 2
+                    ty = my + 40 + i * 20
+                    surface.blit(txt, (tx, ty))
 
         if self.start_font and getattr(env, "time_extend_flash", 0) > 0:
             text = self.start_font.render("EXTENDED TIME", True, (255, 255, 0))

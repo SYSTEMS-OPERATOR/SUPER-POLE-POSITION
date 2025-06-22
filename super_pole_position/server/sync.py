@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Background scoreboard sync service."""
+
+from __future__ import annotations
 
 import json
 import os

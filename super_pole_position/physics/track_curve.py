@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Helpers for centerline curve interpolation."""
+
+from __future__ import annotations
 
 from dataclasses import dataclass
 import math

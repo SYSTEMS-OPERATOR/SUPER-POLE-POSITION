@@ -14,7 +14,6 @@ import pytest  # noqa: F401
 pytest.importorskip("gymnasium")
 
 import os
-import sys
 import types
 try:
     import pygame  # type: ignore

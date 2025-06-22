@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Track information utilities."""
+
+from __future__ import annotations
 
 from dataclasses import dataclass
 import json

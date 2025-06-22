@@ -24,8 +24,8 @@ class Car:
         self.speed = speed
         self.acceleration = 2.0
         # Two gear ratios: index 0=LOW, 1=HIGH
-        # Adjusted top speed for closer arcade feel
-        self.gear_max = [8.0, 22.0]
+        # Adjusted top speeds for closer arcade feel (~190 MPH)
+        self.gear_max = [32.0, 85.0]
         self.gear = 0
         self.max_speed = self.gear_max[-1]
         # Slightly quicker steering for responsive handling
@@ -75,8 +75,10 @@ class Car:
         elif not self.unlimited and self.speed > max_speed:
             self.speed = max_speed
 
-        # Steering
-        self.angle += steering * self.turn_rate * dt
+        # Steering with speed sensitivity
+        speed_limit = self.gear_max[self.gear]
+        steer_factor = max(0.4, 1.0 - self.speed / (speed_limit * 1.2))
+        self.angle += steering * self.turn_rate * steer_factor * dt
 
         # Update position
         dx = self.speed * math.cos(self.angle) * dt

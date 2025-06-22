@@ -489,7 +489,7 @@ class PolePositionEnv(gym.Env):
             self.skid_timer = 1.0
             self._play_skid_audio()
 
-        # Slipstream boost behind another car
+        # Slipstream boost behind another car requires staying close
         slip = False
         for other in [self.cars[1]] + self.traffic:
             dx = (other.x - self.cars[0].x + self.track.width) % self.track.width
@@ -499,12 +499,13 @@ class PolePositionEnv(gym.Env):
                 break
         if slip:
             self.slipstream_timer += dt
-            if self.slipstream_timer >= (1.0 / self.metadata.get("render_fps", 60)):
+            if self.slipstream_timer >= 0.5:
                 self.cars[0].speed = min(
-                    self.cars[0].speed * 1.1,
-                    self.cars[0].gear_max[self.cars[0].gear],
+                    self.cars[0].speed * 1.05,
+                    self.cars[0].gear_max[self.cars[0].gear] + 5,
                 )
                 self.slipstream_frames += 1
+                self.slipstream_timer = 0.0
         else:
             self.slipstream_timer = 0.0
 

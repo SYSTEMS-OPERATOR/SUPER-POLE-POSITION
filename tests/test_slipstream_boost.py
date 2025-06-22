@@ -22,10 +22,14 @@ def test_slipstream_boost():
     env.reset()
     env.start_timer = 0
     lead = env.traffic[0]
+    from super_pole_position.physics.traffic_car import TrafficCar
+    env.traffic[0] = TrafficCar(x=lead.x, y=lead.y, target_speed=5.0)
+    lead = env.traffic[0]
     env.cars[0].y = lead.y
     env.cars[0].x = lead.x - 2
     env.cars[0].speed = lead.speed = 5.0
     env.cars[0].gear = 1
-    env.step((False, False, 0.0))
+    for _ in range(40):
+        env.step((False, False, 0.0))
     assert env.cars[0].speed > 5.0
     env.close()

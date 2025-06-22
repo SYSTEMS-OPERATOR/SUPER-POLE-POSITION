@@ -174,8 +174,11 @@ class PolePositionEnv(gym.Env):
         self.time_extend_flash = 0.0
         self.lap_times: list[float] = []
         self.grid_order: list[int] = []
-        self.game_message = ""
-        self.message_timer = 0.0
+        if self.mode == "qualify":
+            self.game_message = "PREPARE TO QUALIFY"
+        else:
+            self.game_message = "PREPARE TO RACE"
+        self.message_timer = 60.0
 
         # Performance metrics
         self.plan_durations: list[float] = []

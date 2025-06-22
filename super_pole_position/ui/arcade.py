@@ -79,6 +79,19 @@ except Exception:  # pragma: no cover
     pygame = None
 
 
+def _load_sprite(name: str) -> "pygame.Surface | None":
+    """Return image surface from ``assets/sprites`` or ``None`` if missing."""
+
+    if not pygame:
+        return None
+    path = Path(__file__).resolve().parents[2] / "assets" / "sprites" / name
+    try:
+        surf = pygame.image.load(str(path))
+        return surf.convert_alpha()
+    except Exception:
+        return None
+
+
 def _load_arcade_config() -> Dict[str, int]:
     """Return scanline configuration from ``config.arcade_parity.yaml``."""
 
@@ -104,8 +117,13 @@ class Palette:
     """Arcade cabinet palette with basic NTSC gamma approximation."""
 
     black = (0, 0, 0)
-    green = (0, 255, 0)
     white = (255, 255, 255)
+    red = (255, 48, 48)
+    green = (0, 184, 0)
+    blue = (80, 112, 255)
+    yellow = (255, 216, 0)
+    grey = (60, 60, 60)
+    sky_blue = (116, 204, 221)
 
 
 def available() -> bool:
@@ -248,12 +266,22 @@ class Pseudo3DRenderer:
             pygame.font.init()
         self.horizon_base = int(screen.get_height() * 0.4)
         self.horizon = self.horizon_base
-        self.sky_color = (100, 150, 255)
-        self.ground_color = (40, 40, 40)
-        self.car_color = (255, 0, 0)
-        self.car_sprite = ascii_surface(CAR_ART)
-        self.billboard_sprite = ascii_surface(BILLBOARD_ART)
-        self.explosion_frames = [ascii_surface(f) for f in EXPLOSION_FRAMES]
+        self.sky_color = Palette.sky_blue
+        self.ground_color = Palette.grey
+        self.car_color = Palette.red
+        self.car_sprite = _load_sprite("player_car.png") or ascii_surface(CAR_ART)
+        self.billboard_sprite = _load_sprite("billboard_1.png") or ascii_surface(
+            BILLBOARD_ART
+        )
+        sheet = _load_sprite("explosion_16f.png")
+        if sheet:
+            frame_w = sheet.get_width() // 16
+            self.explosion_frames = [
+                sheet.subsurface((i * frame_w, 0, frame_w, sheet.get_height()))
+                for i in range(16)
+            ]
+        else:
+            self.explosion_frames = [ascii_surface(f) for f in EXPLOSION_FRAMES]
         self.scanline_spacing = SCANLINE_SPACING
         self.scanline_alpha = SCANLINE_ALPHA
 

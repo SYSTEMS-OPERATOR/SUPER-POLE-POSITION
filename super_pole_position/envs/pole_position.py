@@ -88,7 +88,7 @@ class PolePositionEnv(gym.Env):
         self.time_limit = 90.0 if self.mode == "race" else 73.0
         self.traffic_count = 7 if self.mode == "race" else 0
         if FAST_TEST:
-            self.time_limit = min(self.time_limit, 5.0)
+            self.time_limit = min(self.time_limit, 20.0)
             self.traffic_count = 2
 
         # Track & cars
@@ -105,7 +105,7 @@ class PolePositionEnv(gym.Env):
         self.traffic: list[Car] = []
         if self.mode == "race":
             for i in range(self.traffic_count):
-                x = (i * 10) % self.track.width
+                x = (100 + (i + 1) * 10) % self.track.width
                 speed = 5.0 + (i % 3)
                 if i == 0:
                     self.traffic.append(
@@ -289,7 +289,7 @@ class PolePositionEnv(gym.Env):
 
         if self.mode == "race":
             for i, t in enumerate(self.traffic):
-                t.x = (i * 10) % self.track.width
+                t.x = (100 + (i + 1) * 10) % self.track.width
                 t.y = self.track.height / 2
                 t.speed = 0.0
                 t.prev_x = t.x
@@ -319,7 +319,7 @@ class PolePositionEnv(gym.Env):
         """
         step_start = time.perf_counter()
         if FAST_TEST:
-            self.time_limit = min(self.time_limit, 5.0)
+            self.time_limit = min(self.time_limit, 20.0)
             self.traffic_count = 2
             if len(self.traffic) > self.traffic_count:
                 self.traffic = self.traffic[: self.traffic_count]
@@ -346,10 +346,12 @@ class PolePositionEnv(gym.Env):
 
         if self.crash_timer <= 0:
             for t in self.traffic:
-                if (
-                    abs(t.x - self.cars[0].x) < Car.length
-                    and abs(t.y - self.cars[0].y) < Car.width / 2
-                ):
+                dx = (
+                    (t.x - self.cars[0].x + self.track.width / 2) % self.track.width
+                    - self.track.width / 2
+                )
+                dx = abs(dx)
+                if dx < Car.length * 0.1 and abs(t.y - self.cars[0].y) < Car.width / 2:
                     self.crashes += 1
                     self.crash_timer = 2.5
                     self._play_crash_audio()
@@ -518,7 +520,7 @@ class PolePositionEnv(gym.Env):
             self.safe_point = (self.cars[0].x, self.cars[0].y)
             for t in self.traffic:
                 if (
-                    abs(t.x - self.cars[0].x) < Car.length
+                    abs(t.x - self.cars[0].x) < Car.length * 0.1
                     and abs(t.y - self.cars[0].y) < Car.width / 2
                 ):
                     self.crashes += 1

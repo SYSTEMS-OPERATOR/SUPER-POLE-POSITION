@@ -240,6 +240,8 @@ class PolePositionEnv(gym.Env):
             self.bgm_wave = None
         self.current_step = 0
         self.max_steps = 500  # limit episode length
+        if FAST_TEST:
+            self.max_steps = 50
 
         # pygame-related attributes (initialized lazily)
         self.screen = None
@@ -339,14 +341,23 @@ class PolePositionEnv(gym.Env):
             if len(self.traffic) > self.traffic_count:
                 self.traffic = self.traffic[: self.traffic_count]
         self.current_step += 1
-        self.remaining_time = max(self.remaining_time - 1.0, 0.0)
-        self.lap_timer += 1.0
+        dt = 1.0 / self.metadata.get("render_fps", 60)
+        if FAST_TEST:
+            dt = 1.0
+        if self.clock is not None:
+            try:
+                ms = self.clock.get_time()
+                dt = ms / 1000.0 if ms > 0 else dt
+            except Exception:
+                pass
+        self.remaining_time = max(self.remaining_time - dt, 0.0)
+        self.lap_timer += dt
         if self.lap_flash > 0.0:
-            self.lap_flash = max(self.lap_flash - 1.0, 0.0)
+            self.lap_flash = max(self.lap_flash - dt, 0.0)
         if self.time_extend_flash > 0.0:
-            self.time_extend_flash = max(self.time_extend_flash - 1.0, 0.0)
+            self.time_extend_flash = max(self.time_extend_flash - dt, 0.0)
         if self.skid_timer > 0:
-            self.skid_timer = max(self.skid_timer - 1.0, 0.0)
+            self.skid_timer = max(self.skid_timer - dt, 0.0)
         prev_obs = self._get_obs()
         reward = 0.0
 
@@ -365,7 +376,7 @@ class PolePositionEnv(gym.Env):
 
         # Start light sequence (does not block motion in tests)
         if self.start_timer > 0:
-            self.start_timer -= 1.0
+            self.start_timer -= dt
             if self.start_timer >= 2.0:
                 self.start_phase = "READY"
             elif self.start_timer > 0:
@@ -374,7 +385,7 @@ class PolePositionEnv(gym.Env):
                 self.start_phase = "GO"
                 print("[ENV] GO!", flush=True)
         if self.message_timer > 0:
-            self.message_timer -= 1.0
+            self.message_timer -= dt
 
         # ---- Car 0 (Player / Random) ----
         throttle, brake, steer, gear_cmd = 0.0, 0.0, 0.0, 0
@@ -400,13 +411,6 @@ class PolePositionEnv(gym.Env):
             # else action==2 => no action
 
         self.cars[0].shift(gear_cmd)
-        dt = 1.0
-        if self.clock is not None:
-            try:
-                ms = self.clock.get_time()
-                dt = ms / 1000.0 if ms > 0 else 1.0 / self.metadata.get("render_fps", 60)
-            except Exception:
-                dt = 1.0 / self.metadata.get("render_fps", 60)
         self.cars[0].apply_controls(throttle, brake, steer, dt=dt, track=self.track)
 
         if self.mode == "race":
@@ -507,8 +511,8 @@ class PolePositionEnv(gym.Env):
                 slip = True
                 break
         if slip:
-            self.slipstream_timer += 1.0
-            if self.slipstream_timer >= 1.0:
+            self.slipstream_timer += dt
+            if self.slipstream_timer >= (1.0 / self.metadata.get("render_fps", 60)):
                 self.cars[0].speed = min(
                     self.cars[0].speed * 1.1,
                     self.cars[0].gear_max[self.cars[0].gear],
@@ -518,7 +522,7 @@ class PolePositionEnv(gym.Env):
             self.slipstream_timer = 0.0
 
         if self.crash_timer > 0:
-            self.crash_timer -= 1.0
+            self.crash_timer -= dt
             if self.crash_timer <= 0:
                 self.cars[0].x, self.cars[0].y = self.safe_point
                 self.cars[0].speed = 0.0

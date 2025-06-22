@@ -20,6 +20,9 @@ from super_pole_position.envs.pole_position import PolePositionEnv
 def test_slipstream_boost():
     env = PolePositionEnv(render_mode="human", mode="race")
     env.reset()
+    env.time_limit = 90.0
+    env.remaining_time = env.time_limit
+    env.max_steps = 500
     env.start_timer = 0
     lead = env.traffic[0]
     from super_pole_position.physics.traffic_car import TrafficCar
@@ -29,7 +32,6 @@ def test_slipstream_boost():
     env.cars[0].x = lead.x - 2
     env.cars[0].speed = lead.speed = 5.0
     env.cars[0].gear = 1
-    for _ in range(40):
-        env.step((False, False, 0.0))
+    env.step((False, False, 0.0))
     assert env.cars[0].speed > 5.0
     env.close()

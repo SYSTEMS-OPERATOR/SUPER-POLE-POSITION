@@ -113,4 +113,29 @@ def load_sprite(name: str, ascii_art: list[str] | None = None) -> "pygame.Surfac
             return pygame.image.load(str(path))
         except Exception:
             return ascii_surface(ascii_art or [])
+    else:
+        # attempt to generate placeholder sprite on the fly
+        gen = path.parent / "generate_placeholders.py"
+        if gen.exists():
+            try:
+                import importlib.util
+
+                spec = importlib.util.spec_from_file_location("placeholder_gen", gen)
+                if spec and spec.loader:
+                    mod = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(mod)
+                    if hasattr(mod, "generate_all"):
+                        mod.generate_all(path.parent)
+                    elif hasattr(mod, "generate_sprite"):
+                        size_map = getattr(mod, "_parse_sprite_specs", lambda _: {})(
+                            path.parent / "SPRITES.md"
+                        )
+                        mod.generate_sprite(name, path, size_map)
+            except Exception:
+                pass
+            if path.exists() and path.stat().st_size > 0:
+                try:
+                    return pygame.image.load(str(path))
+                except Exception:
+                    pass
     return ascii_surface(ascii_art or [])

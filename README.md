@@ -169,6 +169,12 @@ python -m super_pole_position.server.api
 
 Use `GET /scores` to list results and `POST /scores` to submit new scores.
 
+To clear your local high-score table run:
+
+```bash
+python examples/reset_high_scores.py
+```
+
 ### Scoreboard Sync Service
 
 Keep your local scoreboard fresh with:

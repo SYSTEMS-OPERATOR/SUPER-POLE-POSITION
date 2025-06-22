@@ -27,6 +27,30 @@ except Exception:  # pragma: no cover - optional dependency
 from ..evaluation.scores import load_scores
 
 
+def _show_high_scores(screen, font) -> None:
+    """Display the top five scores until a key is pressed."""
+
+    scores = load_scores(None)[:5]
+    clock = pygame.time.Clock()
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type in {pygame.KEYDOWN, pygame.QUIT}:
+                running = False
+        screen.fill((0, 0, 0))
+        title = font.render("HIGH SCORES", True, (255, 255, 0))
+        screen.blit(title, (50, 30))
+        y = 70
+        for i, s in enumerate(scores, 1):
+            line = font.render(f"{i}. {s['name']} {s['score']}", True, (255, 255, 255))
+            screen.blit(line, (50, y))
+            y += 30
+        press = font.render("PRESS ANY KEY", True, (255, 255, 0))
+        screen.blit(press, (50, y + 20))
+        pygame.display.flip()
+        clock.tick(30)
+
+
 class MenuState:
     """Headless-friendly menu state machine."""
 
@@ -135,10 +159,7 @@ def main_loop(screen, seed: int | None = None) -> dict | None:
                 if result is None or isinstance(result, dict):
                     return result
                 if name == "H":
-                    scores = load_scores(None)
-                    print("=== HI-SCORES ===")
-                    for i, s in enumerate(scores, 1):
-                        print(f"{i:2d}. {s['name']} {s['score']}")
+                    _show_high_scores(screen, font)
         if backdrop:
             w = backdrop.get_width()
             screen.blit(backdrop, (-x_offset % w, 0))

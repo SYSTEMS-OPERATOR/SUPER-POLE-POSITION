@@ -10,6 +10,7 @@ Description: Module for Super Pole Position.
 
 import os
 from pathlib import Path
+import importlib.util
 
 # Hide pygame's greeting for cleaner logs
 os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
@@ -94,6 +95,19 @@ def load_sprite(name: str, ascii_art: list[str] | None = None) -> "pygame.Surfac
         path = Path(base) / f"{name}.png"
     else:
         path = Path(__file__).resolve().parents[1] / "assets" / "sprites" / f"{name}.png"
+
+    if not path.exists() or path.stat().st_size == 0:
+        gen_path = Path(__file__).resolve().parents[1] / "assets" / "sprites" / "generate_placeholders.py"
+        if gen_path.exists():
+            spec = importlib.util.spec_from_file_location("generate_placeholders", gen_path)
+            if spec and spec.loader:
+                mod = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(mod)
+                try:
+                    mod.generate_sprite(name, path)
+                except Exception:
+                    pass
+
     if path.exists() and path.stat().st_size > 0:
         try:
             return pygame.image.load(str(path))

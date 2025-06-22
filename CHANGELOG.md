@@ -16,6 +16,7 @@
 - Placeholder sprite and audio files are now committed as zero-byte stubs.
 - Added `load_sprite` helper to load PNGs when available with ASCII fallback.
 - Engine pitch now factors in current gear for smoother shifts.
+- Added on-screen high-score display and `examples/reset_high_scores.py` utility.
 
 📌 Keep racing for the next update! 🏁
 

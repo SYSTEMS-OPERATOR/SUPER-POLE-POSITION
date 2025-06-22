@@ -23,7 +23,7 @@ def test_null_agent_completes_lap():
     env.start_timer = 0
     agent = NullAgent()
     steps = 0
-    while env.lap < 1 and steps < 200:
+    while env.lap < 1 and steps < 400:
         obs = env._get_obs()
         action = agent.act(obs)
         env.step(action)

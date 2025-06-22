@@ -66,7 +66,7 @@ class PolePositionEnv(gym.Env):
     - Optional hyper mode for uncapped speed
     """
 
-    metadata = {"render_modes": ["human"], "render_fps": 30}
+    metadata = {"render_modes": ["human"], "render_fps": 60}
 
     def __init__(
         self,
@@ -122,11 +122,11 @@ class PolePositionEnv(gym.Env):
         self.audio_volume = float(PARITY_CFG.get("audio_volume", 0.8))
 
         # Action space for Car 0 when controlled by a human or AI.
-        # throttle: {0,1}, brake: {0,1}, steer: [-1,1]
+        # throttle: 0..1, brake: 0..1, steer: [-1,1]
         self.action_space = gym.spaces.Dict(
             {
-                "throttle": gym.spaces.Discrete(2),
-                "brake": gym.spaces.Discrete(2),
+                "throttle": gym.spaces.Box(low=0.0, high=1.0, shape=()),
+                "brake": gym.spaces.Box(low=0.0, high=1.0, shape=()),
                 "steer": gym.spaces.Box(low=-1.0, high=1.0, shape=()),
             }
         )
@@ -377,19 +377,19 @@ class PolePositionEnv(gym.Env):
             self.message_timer -= 1.0
 
         # ---- Car 0 (Player / Random) ----
-        throttle, brake, steer, gear_cmd = False, False, 0.0, 0
+        throttle, brake, steer, gear_cmd = 0.0, 0.0, 0.0, 0
         if isinstance(action, (tuple, list)):
             if len(action) >= 3:
                 throttle, brake, steer = (
-                    bool(action[0]),
-                    bool(action[1]),
+                    float(action[0]),
+                    float(action[1]),
                     float(action[2]),
                 )
             if len(action) >= 4:
                 gear_cmd = int(action[3])
         elif isinstance(action, dict):
-            throttle = bool(action.get("throttle", False))
-            brake = bool(action.get("brake", False))
+            throttle = float(action.get("throttle", 0.0))
+            brake = float(action.get("brake", 0.0))
             steer = float(action.get("steer", 0.0))
             gear_cmd = int(action.get("gear", 0))
         else:
@@ -404,9 +404,9 @@ class PolePositionEnv(gym.Env):
         if self.clock is not None:
             try:
                 ms = self.clock.get_time()
-                dt = ms / 1000.0 if ms > 0 else 1.0 / self.metadata.get("render_fps", 30)
+                dt = ms / 1000.0 if ms > 0 else 1.0 / self.metadata.get("render_fps", 60)
             except Exception:
-                dt = 1.0 / self.metadata.get("render_fps", 30)
+                dt = 1.0 / self.metadata.get("render_fps", 60)
         self.cars[0].apply_controls(throttle, brake, steer, dt=dt, track=self.track)
 
         if self.mode == "race":

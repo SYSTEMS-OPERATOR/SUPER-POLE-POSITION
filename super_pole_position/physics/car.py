@@ -24,7 +24,7 @@ class Car:
         self.speed = speed
         self.acceleration = 2.0
         # Two gear ratios: index 0=LOW, 1=HIGH
-        self.gear_max = [8.0, 15.0]
+        self.gear_max = [8.0, 19.0]
         self.gear = 0
         self.max_speed = self.gear_max[-1]
         self.turn_rate = 2.0  # rad/sec
@@ -45,26 +45,26 @@ class Car:
 
     def apply_controls(
         self,
-        throttle: bool,
-        brake: bool,
+        throttle: float,
+        brake: float,
         steering: float,
         dt: float = 1.0,
         track=None,
     ):
         """
         Updates the car's speed and angle based on throttle/brake/steering inputs.
-        :param throttle: If True, accelerate.
-        :param brake: If True, decelerate.
+        :param throttle: 0..1 amount of acceleration.
+        :param brake: 0..1 braking intensity.
         :param steering: Negative => turn left, Positive => turn right.
         :param dt: Timestep in seconds.
         :param track: Optional track to check for off-road slowdown.
         """
         # Accelerate / Decelerate with gear torque
         gear_factor = 1.0 + 0.5 * self.gear
-        if throttle:
-            self.speed += self.acceleration * gear_factor * dt
-        if brake:
-            self.speed -= self.acceleration * dt
+        if throttle > 0.0:
+            self.speed += self.acceleration * gear_factor * throttle * dt
+        if brake > 0.0:
+            self.speed -= self.acceleration * brake * dt
 
         # Clamp speed by current gear unless unlimited is enabled
         max_speed = self.gear_max[self.gear]

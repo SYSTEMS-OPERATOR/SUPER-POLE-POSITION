@@ -20,5 +20,6 @@
 - [x] Stereo engine audio panned by car position
 - [x] Minimal SFX manager with chiptune placeholders
 - [x] Lap times posted to scoreboard API
+- [x] Player name recorded in high-score table
 
 🎉 All core arcade mechanics implemented! 🏁

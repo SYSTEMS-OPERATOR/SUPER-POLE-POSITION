@@ -96,10 +96,10 @@ def _load_sprite(name: str) -> "pygame.Surface | None":
         return None
 
 
-def _load_arcade_config() -> Dict[str, int]:
+def _load_arcade_config() -> Dict[str, float]:
     """Return scanline configuration from ``config.arcade_parity.yaml``."""
 
-    cfg = {"scanline_step": 2, "scanline_alpha": 255}
+    cfg: Dict[str, float] = {"scanline_step": 2, "scanline_alpha": 255, "horizon_sway": 0.1}
     path = Path(__file__).resolve().parents[2] / "config.arcade_parity.yaml"
     try:
         with open(path, "r", encoding="utf-8") as fh:
@@ -108,13 +108,17 @@ def _load_arcade_config() -> Dict[str, int]:
                     continue
                 key, val = line.split(":", 1)
                 try:
-                    cfg[key.strip()] = int(val.strip())
+                    val = val.strip()
+                    cfg[key.strip()] = float(val) if "." in val else int(val)
                 except Exception:
                     # Ignore non-numeric values and keep defaults
                     continue
     except Exception:
         pass
     return cfg
+
+
+HORIZON_SWAY = float(_load_arcade_config().get("horizon_sway", 0.1))
 
 
 class Palette:
@@ -260,14 +264,19 @@ class Pseudo3DRenderer:
     """Renderer that simulates a pseudo-3D road with sprite scaling.
 
     The projection is a very rough approximation of the arcade original.
-    Objects are drawn with a simple 1/z perspective relative to the player's car
-    along the x-axis.  The road converges toward a vanishing point on the
+    Objects are drawn with a simple 1/z perspective relative to the player's
+    car along the x-axis.  The road converges toward a vanishing point on the
     horizon using linear interpolation.  The horizon shifts based on the
-    player's steering angle to mimic curves.
+    player's steering angle to mimic curves. ``horizon_sway`` controls this
+    shift for finer arcade parity tuning.
     """
 
     def __init__(self, screen):
-        """Create the renderer bound to ``screen`` with an optional high-res buffer."""
+        """Create the renderer bound to ``screen`` with an optional high-res buffer.
+
+        ``horizon_sway`` is loaded from :mod:`config.arcade_parity.yaml` and
+        controls how dramatically the vanishing point shifts on curves.
+        """
 
         self.screen = screen
         if pygame and not pygame.font.get_init():
@@ -319,6 +328,7 @@ class Pseudo3DRenderer:
         cfg = _load_arcade_config()
         self.scanline_step = cfg["scanline_step"]
         self.scanline_alpha = cfg["scanline_alpha"]
+        self.horizon_sway = float(cfg.get("horizon_sway", HORIZON_SWAY))
         if pygame:
             self._scanline_row = pygame.Surface((1, 1), pygame.SRCALPHA)
             self._scanline_row.fill((0, 0, 0, self.scanline_alpha))
@@ -416,7 +426,7 @@ class Pseudo3DRenderer:
         angle = env.track.angle_at(player.x)
         curvature = max(-1.0, min(angle / (math.pi / 4), 1.0))
         offset = curvature * (width / 4)
-        self.horizon = int(self.horizon_base + offset * 0.1)
+        self.horizon = int(self.horizon_base + offset * self.horizon_sway)
 
         slices = 64
         road_top = road_w * 0.2

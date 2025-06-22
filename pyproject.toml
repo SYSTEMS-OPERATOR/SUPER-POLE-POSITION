@@ -18,7 +18,6 @@ dependencies = [
 
 [project.optional-dependencies]
 graphics = ["pygame"]
-audio = ["simpleaudio"]
 ai = ["torch", "transformers"]
 dev = ["pytest", "pytest-cov", "coverage", "pytest-timeout"]
 

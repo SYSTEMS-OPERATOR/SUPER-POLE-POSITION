@@ -9,6 +9,7 @@ Description: Module for Super Pole Position.
 """
 
 import os
+from pathlib import Path
 
 # Hide pygame's greeting for cleaner logs
 os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
@@ -60,6 +61,8 @@ def ascii_surface(ascii_art: list[str], scale: int = 1) -> "pygame.Surface | Non
     """Return a pygame surface from ASCII art or ``None`` if pygame missing."""
     if not pygame:
         return None
+    if not ascii_art:
+        return pygame.Surface((1, 1), pygame.SRCALPHA)
     height = len(ascii_art)
     width = max(len(line) for line in ascii_art)
     surf = pygame.Surface((width, height), pygame.SRCALPHA)
@@ -71,3 +74,29 @@ def ascii_surface(ascii_art: list[str], scale: int = 1) -> "pygame.Surface | Non
     if scale > 1:
         surf = pygame.transform.scale(surf, (width * scale, height * scale))
     return surf
+
+
+def load_sprite(name: str, ascii_art: list[str] | None = None) -> "pygame.Surface | None":
+    """Return a sprite loaded from ``assets/sprites`` or fallback to ASCII.
+
+    Parameters
+    ----------
+    name:
+        File name without extension.
+    ascii_art:
+        Optional ASCII art fallback.
+    """
+
+    if not pygame:
+        return ascii_surface(ascii_art or [])
+    base = os.getenv("SPRITE_DIR")
+    if base:
+        path = Path(base) / f"{name}.png"
+    else:
+        path = Path(__file__).resolve().parents[1] / "assets" / "sprites" / f"{name}.png"
+    if path.exists() and path.stat().st_size > 0:
+        try:
+            return pygame.image.load(str(path))
+        except Exception:
+            return ascii_surface(ascii_art or [])
+    return ascii_surface(ascii_art or [])

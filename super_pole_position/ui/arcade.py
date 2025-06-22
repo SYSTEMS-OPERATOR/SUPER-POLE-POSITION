@@ -65,7 +65,13 @@ _PARITY_CFG = _load_config()
 SCANLINE_SPACING = int(_PARITY_CFG.get("scanline_spacing", 2))
 SCANLINE_ALPHA = int(_PARITY_CFG.get("scanline_alpha", 40))
 
-from .sprites import BILLBOARD_ART, CAR_ART, EXPLOSION_FRAMES, ascii_surface
+from .sprites import (
+    BILLBOARD_ART,
+    CAR_ART,
+    EXPLOSION_FRAMES,
+    ascii_surface,
+    load_sprite,
+)
 from ..evaluation.scores import load_scores
 
 try:
@@ -251,9 +257,15 @@ class Pseudo3DRenderer:
         self.sky_color = (100, 150, 255)
         self.ground_color = (40, 40, 40)
         self.car_color = (255, 0, 0)
-        self.car_sprite = ascii_surface(CAR_ART)
-        self.billboard_sprite = ascii_surface(BILLBOARD_ART)
-        self.explosion_frames = [ascii_surface(f) for f in EXPLOSION_FRAMES]
+        self.car_sprite = load_sprite("player_car", CAR_ART)
+        self.billboard_sprite = load_sprite("billboard_1", BILLBOARD_ART)
+        sheet = load_sprite("explosion_16f")
+        if sheet:
+            w = sheet.get_width() // 16
+            h = sheet.get_height()
+            self.explosion_frames = [sheet.subsurface((i * w, 0, w, h)) for i in range(16)]
+        else:
+            self.explosion_frames = [ascii_surface(f) for f in EXPLOSION_FRAMES]
         self.scanline_spacing = SCANLINE_SPACING
         self.scanline_alpha = SCANLINE_ALPHA
 

@@ -122,6 +122,7 @@ class PolePositionEnv(gym.Env):
         self.low_level = LowLevelController()
         self.learning_agent = LearningAgent()
         self.audio_volume = float(PARITY_CFG.get("audio_volume", 0.8))
+        self.engine_pan_spread = float(PARITY_CFG.get("engine_pan_spread", 0.8))
 
         # Action space for Car 0 when controlled by a human or AI.
         # throttle: 0..1, brake: 0..1, steer: [-1,1]
@@ -191,6 +192,7 @@ class PolePositionEnv(gym.Env):
         self.step_log: list[dict] = []
 
         self.audio_stream = None
+        self.engine_channel = None
         base = Path(__file__).resolve().parent.parent / "assets" / "audio"
         if pg_mixer is not None:
             try:
@@ -727,7 +729,7 @@ class PolePositionEnv(gym.Env):
             pygame.draw.circle(self.screen, color, (x, y), 5)
 
     def _play_binaural_audio(self, duration=0.1, sample_rate=44100):
-        """Generate stereo engine audio with basic position-based panning."""
+        """Generate stereo engine audio with per-player panning."""
         if pg_mixer is None:
             return
 
@@ -740,28 +742,28 @@ class PolePositionEnv(gym.Env):
             rumble = 0.05 * np.random.uniform(-1.0, 1.0, len(t))
             return base + harm2 + harm3 + rumble
 
-        def panned_engine(car):
-            freq = engine_pitch(car.rpm(), car.gear)
-            pan = (car.y - self.track.height / 2) / (self.track.height / 2)
-            pan = max(-1.0, min(1.0, pan))
-            wave = engine_wave(freq)
-            left_gain = 1.0 - max(0.0, pan)
-            right_gain = 1.0 + min(0.0, pan)
-            return wave * left_gain, wave * right_gain
+        freq0 = engine_pitch(self.cars[0].rpm(), self.cars[0].gear)
+        freq1 = engine_pitch(self.cars[1].rpm(), self.cars[1].gear)
 
-        left0, right0 = panned_engine(self.cars[0])
-        left1, right1 = panned_engine(self.cars[1])
+        wave0 = engine_wave(freq0)
+        wave1 = engine_wave(freq1)
 
-        left = left0 + left1
-        right = right0 + right1
+        spread = max(0.0, min(1.0, self.engine_pan_spread))
+        left0_gain = 0.5 + 0.5 * spread
+        right0_gain = 0.5 - 0.5 * spread
+        left1_gain = 0.5 - 0.5 * spread
+        right1_gain = 0.5 + 0.5 * spread
+
+        left = wave0 * left0_gain + wave1 * left1_gain
+        right = wave0 * right0_gain + wave1 * right1_gain
 
         waveform = np.vstack((left, right)).T
         waveform = np.clip(waveform, -1.0, 1.0)
         waveform_int16 = np.ascontiguousarray(waveform * 32767, dtype=np.int16)
 
-        if self.audio_stream is not None:
+        if self.engine_channel is not None:
             try:
-                self.audio_stream.stop()
+                self.engine_channel.stop()
             except Exception:
                 pass
 
@@ -774,7 +776,7 @@ class PolePositionEnv(gym.Env):
         channel = sound.play()
         if channel:
             channel.set_volume(self.audio_volume, self.audio_volume)
-        self.audio_stream = channel
+        self.engine_channel = channel
 
     def _play_crash_audio(self) -> None:
         """Play crash sound effect once."""
@@ -897,6 +899,12 @@ class PolePositionEnv(gym.Env):
             except Exception:
                 pass
             self.audio_stream = None
+        if self.engine_channel is not None:
+            try:
+                self.engine_channel.stop()
+            except Exception:
+                pass
+            self.engine_channel = None
 
         if pg_mixer is not None:
             try:

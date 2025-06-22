@@ -17,6 +17,8 @@
 - Added `load_sprite` helper to load PNGs when available with ASCII fallback.
 - Engine pitch now factors in current gear for smoother shifts.
 - Added on-screen high-score display and `examples/reset_high_scores.py` utility.
+- Stereo engine audio now pans per player with `engine_pan_spread` and mixes
+  alongside skid and crash effects.
 
 📌 Keep racing for the next update! 🏁
 

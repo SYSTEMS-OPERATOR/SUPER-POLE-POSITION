@@ -10,6 +10,9 @@ Description: Test suite for conftest.
 
 import pytest  # noqa: F401
 
+# Skip the entire suite if gymnasium is unavailable
+pytest.importorskip("gymnasium")
+
 import os
 import sys
 import types

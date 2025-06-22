@@ -6,6 +6,8 @@ generating sprites programmatically.
 
 - `player_car.png` – rear-view Formula 1 car. Size 32×32. Color hints: red body,
   white cockpit.
+- `player_car_bankL.png` – banked left frame, 64×64.
+- `player_car_bankR.png` – banked right frame, 64×64.
 - `cpu_car.png` – other racers. Also 32×32. Provide both front and rear
   perspectives for overtaking scenes.
 - `billboard_*.png` – eight road-side sign boards, each 32×32. These can share a

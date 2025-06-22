@@ -28,33 +28,36 @@ HEIGHT = 224
 BASE_ROAD_HALF = 77.0
 ROAD_GRAY = (60, 60, 60)
 HORIZON_GAIN = 120
+STRIPE_COLOR = (250, 250, 250)
 
 
 class Renderer:
     """Pseudo-3D road renderer using pygame."""
 
-    def __init__(self, display: pygame.Surface | None) -> None:
+    def __init__(self, display: pygame.Surface | None, *, enable_fade: bool = True, enable_bloom: bool = False) -> None:
         self.display = display
         self.surface = pygame.Surface((WIDTH, HEIGHT))
         self.scanline = pygame.Surface((WIDTH, 2), pygame.SRCALPHA)
         self.scanline.fill((0, 0, 0, 38))
         self.horizon = 90
         self.sprites: dict[str, pygame.Surface] = {}
-        self.dash_offset = 0.0
+        self.enable_fade = enable_fade
+        self.enable_bloom = enable_bloom
+        self.frame_no = 0
 
     # ------------------------------------------------------------------
-    def _apply_horizon_fade(self, img: pygame.Surface, depth: float) -> pygame.Surface:
-        """Return ``img`` with alpha applied based on ``depth``."""
+    def _apply_horizon_fade(self, img: pygame.Surface, depth_ratio: float) -> pygame.Surface:
+        """Return ``img`` faded toward the horizon."""
 
-        fade_start = 56 / 64.0
-        if depth <= fade_start:
-            return img
-        factor = max(0.0, 1.0 - (depth - fade_start) * 4.0)
-        if factor >= 1.0:
-            return img
-        faded = img.copy()
-        faded.set_alpha(int(255 * factor))
-        return faded
+        start = pygame.time.get_ticks()
+        if depth_ratio > 0.85:
+            alpha = int(255 * (1 - depth_ratio) * 6)
+            faded = img.copy()
+            faded.set_alpha(max(0, alpha))
+            img = faded
+        if pygame.time.get_ticks() - start > 2:
+            self.enable_fade = False
+        return img
 
     # ------------------------------------------------------------------
     def _draw_center_stripe(
@@ -69,13 +72,14 @@ class Renderer:
     ) -> None:
         """Draw one dashed center stripe segment."""
 
-        if int(index + self.dash_offset) % 2 != 0:
+        if index > 50 or index & 1:
             return
-        stripe_prev = max(1.0, road_half_prev * 0.02)
-        stripe_curr = max(1.0, road_half_curr * 0.02)
+        stripe_prev = max(1.0, road_half_prev * 0.04)
+        stripe_curr = max(1.0, road_half_curr * 0.04)
+        color = STRIPE_COLOR if self.frame_no == 0 else (210, 210, 210)
         pygame.draw.polygon(
             self.surface,
-            (255, 255, 255),
+            color,
             [
                 (cx_prev - stripe_prev, y_prev),
                 (cx_prev + stripe_prev, y_prev),
@@ -105,7 +109,6 @@ class Renderer:
         if pygame is None:
             return
         player = env.cars[0]
-        self.dash_offset = (self.dash_offset + player.speed * 0.05) % 2
         base_x = WIDTH // 2
         bottom = HEIGHT
         road_half_prev = BASE_ROAD_HALF
@@ -186,7 +189,11 @@ class Renderer:
         sprites = getattr(env, "sprites", [])
         sprites_sorted = sorted(sprites, key=lambda s: s[1], reverse=True)
         for name, depth, lateral in sprites_sorted:
-            img = self.sprites.get(name)
+            frame = name
+            steer = getattr(env, "last_steer", 0.0)
+            if name == "player_car" and abs(steer) > 0.5:
+                frame = "player_car_bankR" if steer > 0 else "player_car_bankL"
+            img = self.sprites.get(frame)
             if not img:
                 continue
             scale = self.perspective_scale(depth)
@@ -208,10 +215,19 @@ class Renderer:
 
         for y in range(0, HEIGHT, 2):
             self.surface.blit(self.scanline, (0, y))
+        output = self.surface
+        if self.enable_bloom:
+            try:
+                from .post_effects import bloom
+
+                output = bloom(output)
+            except Exception:
+                pass
 
         if self.display:
             if self.display.get_width() != WIDTH or self.display.get_height() != HEIGHT:
-                scaled = pygame.transform.scale(self.surface, self.display.get_size())
+                scaled = pygame.transform.scale(output, self.display.get_size())
                 self.display.blit(scaled, (0, 0))
             else:
-                self.display.blit(self.surface, (0, 0))
+                self.display.blit(output, (0, 0))
+        self.frame_no = (self.frame_no + 1) & 1

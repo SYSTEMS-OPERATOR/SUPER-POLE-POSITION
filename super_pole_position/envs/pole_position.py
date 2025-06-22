@@ -259,6 +259,7 @@ class PolePositionEnv(gym.Env):
         self.slipstream_frames = 0
         self.slipstream_timer = 0.0
         self.skid_timer = 0.0
+        self.last_steer = 0.0
         self.start_timer = 5.0 if self.mode == "race" else 0.0
         self.start_phase = "READY"
         self.lap = 0
@@ -405,6 +406,7 @@ class PolePositionEnv(gym.Env):
 
         self.cars[0].shift(gear_cmd)
         self.cars[0].apply_controls(throttle, brake, steer, dt=dt, track=self.track)
+        self.last_steer = steer
 
         if self.mode == "race":
             # ---- Car 1 (AI) ----

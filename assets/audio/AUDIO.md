@@ -1,13 +1,16 @@
 # Audio Assets
 
-Placeholder WAV files for sound effects and music.
+This directory stores small WAV files for sound effects and voice lines.
+No binary files are tracked. Run `generate_placeholders.py` to create
+simple chiptune-style samples if real audio is unavailable.
 
 - `engine_loop.wav` – looping engine sound
 - `skid.wav` – tire skid effect
 - `crash.wav` – crash explosion
+- `checkpoint.wav` – checkpoint chime
 - `prepare.wav` – "Prepare to qualify" voice
 - `final_lap.wav` – "Final lap" call
 - `goal.wav` – finish line voice
 - `bgm.wav` – attract mode background music
 
-These files are zero-byte placeholders. Replace them with real samples for sound to work.
+Generated WAVs use a 32 kHz sample rate and remain under 50 kB each.

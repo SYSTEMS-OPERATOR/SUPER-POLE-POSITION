@@ -18,6 +18,7 @@
 - [x] Cabinet-style color palette & scanline effect
 - [x] Test suite for each new feature
 - [x] Stereo engine audio panned by car position
+- [x] Minimal SFX manager with chiptune placeholders
 - [x] Lap times posted to scoreboard API
 
 🎉 All core arcade mechanics implemented! 🏁

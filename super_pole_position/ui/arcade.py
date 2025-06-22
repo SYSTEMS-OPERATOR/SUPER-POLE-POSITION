@@ -280,6 +280,9 @@ class Pseudo3DRenderer:
             self.offscreen = None
         self.horizon_base = int(screen.get_height() * 0.4)
         self.horizon = self.horizon_base
+        # Sky gradient colors roughly matching the arcade palette
+        self.sky_top = Palette.sky_blue
+        self.sky_bottom = (80, 160, 208)
         self.sky_color = Palette.sky_blue
         self.ground_color = Palette.grey
         self.car_color = Palette.red
@@ -355,6 +358,16 @@ class Pseudo3DRenderer:
             pygame.draw.polygon(self.canvas, (60, 60, 60), scaled)
         return points
 
+    def _draw_sky(self, surface: "pygame.Surface") -> None:
+        """Render a vertical sky gradient above the horizon."""
+
+        for y in range(self.horizon):
+            t = y / max(1, self.horizon - 1)
+            r = int(self.sky_top[0] * (1 - t) + self.sky_bottom[0] * t)
+            g = int(self.sky_top[1] * (1 - t) + self.sky_bottom[1] * t)
+            b = int(self.sky_top[2] * (1 - t) + self.sky_bottom[2] * t)
+            pygame.draw.line(surface, (r, g, b), (0, y), (surface.get_width(), y))
+
     def draw(self, env) -> None:
         """Draw the environment from a front-facing perspective."""
 
@@ -365,8 +378,8 @@ class Pseudo3DRenderer:
         width = surface.get_width()
         height = surface.get_height()
 
-        # sky gradient
-        surface.fill(self.sky_color)
+        # sky gradient and ground fill
+        self._draw_sky(surface)
         pygame.draw.rect(
             surface,
             self.ground_color,
@@ -390,7 +403,7 @@ class Pseudo3DRenderer:
         offset = curvature * (width / 4)
         self.horizon = int(self.horizon_base + offset * 0.1)
 
-        slices = 32
+        slices = 64
         road_top = road_w * 0.2
         prev_center = width / 2
         prev_width = road_w

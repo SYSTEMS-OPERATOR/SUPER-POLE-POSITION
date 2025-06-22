@@ -78,17 +78,27 @@ class Renderer:
             road_half_prev = scale_prev * (1 + curv_prev * i) * BASE_ROAD_HALF
             y = self.depth_to_y(depth)
             y_prev = self.depth_to_y(depth_prev)
-            cx = base_x + sum(
-                env.track.curvature_at(player.x + d * 100) * (d ** 2)
-                for d in (0.0, depth)
-            ) * HORIZON_GAIN
-            cx_prev = base_x + sum(
-                env.track.curvature_at(player.x + d * 100) * (d ** 2)
-                for d in (0.0, depth_prev)
-            ) * HORIZON_GAIN
+            cx = (
+                base_x
+                + sum(
+                    env.track.curvature_at(player.x + d * 100) * (d**2)
+                    for d in (0.0, depth)
+                )
+                * HORIZON_GAIN
+            )
+            cx_prev = (
+                base_x
+                + sum(
+                    env.track.curvature_at(player.x + d * 100) * (d**2)
+                    for d in (0.0, depth_prev)
+                )
+                * HORIZON_GAIN
+            )
+            shade = int(60 + 70 * depth)
+            road_color = (shade, shade, shade)
             pygame.draw.polygon(
                 self.surface,
-                ROAD_GRAY,
+                road_color,
                 [
                     (cx_prev - road_half_prev, y_prev),
                     (cx_prev + road_half_prev, y_prev),
@@ -96,7 +106,9 @@ class Renderer:
                     (cx - road_half_curr, y),
                 ],
             )
-            stripe_color = (255, 0, 0) if (i // 4) % 2 == 0 else (255, 255, 255)
+            stripe_base = (255, 0, 0) if (i // 4) % 2 == 0 else (255, 255, 255)
+            shade_factor = 1.0 - depth * 0.3
+            stripe_color = tuple(int(c * shade_factor) for c in stripe_base)
             pygame.draw.polygon(
                 self.surface,
                 stripe_color,
@@ -126,13 +138,15 @@ class Renderer:
                 continue
             scale = self.perspective_scale(depth)
             w, h = img.get_size()
-            img_scaled = pygame.transform.scale(
-                img, (int(w * scale), int(h * scale))
+            img_scaled = pygame.transform.scale(img, (int(w * scale), int(h * scale)))
+            cx = (
+                base_x
+                + sum(
+                    env.track.curvature_at(player.x + d * 100) * (d**2)
+                    for d in (0.0, depth)
+                )
+                * HORIZON_GAIN
             )
-            cx = base_x + sum(
-                env.track.curvature_at(player.x + d * 100) * (d ** 2)
-                for d in (0.0, depth)
-            ) * HORIZON_GAIN
             slice_y = self.depth_to_y(depth)
             screen_x = int(cx + lateral - img_scaled.get_width() // 2)
             screen_y = int(slice_y - img_scaled.get_height())
@@ -142,14 +156,8 @@ class Renderer:
             self.surface.blit(self.scanline, (0, y))
 
         if self.display:
-            if (
-                self.display.get_width() != WIDTH
-                or self.display.get_height() != HEIGHT
-            ):
-                scaled = pygame.transform.scale(
-                    self.surface, self.display.get_size()
-                )
+            if self.display.get_width() != WIDTH or self.display.get_height() != HEIGHT:
+                scaled = pygame.transform.scale(self.surface, self.display.get_size())
                 self.display.blit(scaled, (0, 0))
             else:
                 self.display.blit(self.surface, (0, 0))
-

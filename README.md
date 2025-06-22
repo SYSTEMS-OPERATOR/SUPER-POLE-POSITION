@@ -123,6 +123,11 @@ spp race --render --virtual-joystick
 pip install -r requirements.txt
 pip install -e .
 ```
+
+For automated testing you can install the lighter CI requirements:
+```bash
+pip install -r requirements-ci.txt
+```
 If CUDA support is unavailable, skip the AI extras:
 ```bash
 pip install -e .[graphics,audio]

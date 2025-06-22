@@ -26,19 +26,17 @@ class CPUCar(Car):
         self.preferred_lane = self.y
         self._lane_timer = random.uniform(2.0, 4.0)
 
-    def blocking(self, player: Car) -> bool:
-        """Return ``True`` if player is close enough to trigger blocking."""
+    def blocking(self, player: Car, track: Track) -> bool:
+        """Return ``True`` if player is close enough behind to block."""
 
-        behind = self.x - player.x
-        if behind < 0:
-            behind +=  self.max_speed * 2  # track wrap approx
+        behind = (self.x - player.x) % track.width
         same_lane = abs(self.y - player.y) < 0.5
-        return behind <= 7.0 and same_lane
+        return 0 < behind <= 7.0 and same_lane
 
     def update(self, dt: float, track: Track, player: Car) -> None:
         """Advance AI state machine."""
 
-        if self.state == "CRUISE" and self.blocking(player):
+        if self.state == "CRUISE" and self.blocking(player, track):
             self.state = "BLOCK"
             self._block_time = 1.0
 

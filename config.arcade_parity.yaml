@@ -9,4 +9,5 @@ scanline_step: 2
 scanline_spacing: 2
 scanline_alpha: 60
 audio_volume: 0.8
+engine_pan_spread: 0.8
 

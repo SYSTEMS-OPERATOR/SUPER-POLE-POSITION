@@ -37,7 +37,20 @@ class Background:
                 surface.blit(self.clouds, (x, 20))
 
         if self.mt:
-            mt_x = 128 - self.mt.get_width() // 2 + int(curvature * 30)
+            bucket = round(curvature, 3)
+            shift = {
+                -0.02: -24,
+                -0.015: -18,
+                -0.01: -12,
+                -0.005: -6,
+                0: 0,
+                0.005: 6,
+                0.01: 12,
+                0.015: 18,
+                0.02: 24,
+            }.get(bucket, 0)
+            mt_w = self.mt.get_width()
+            mt_x = 128 - mt_w // 2 + shift
             surface.blit(self.mt, (mt_x, 40))
 
 """

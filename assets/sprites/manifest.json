@@ -1,0 +1,19 @@
+{
+  "sprites": [
+    "billboard_1.png",
+    "billboard_2.png",
+    "billboard_3.png",
+    "billboard_4.png",
+    "billboard_5.png",
+    "billboard_6.png",
+    "billboard_7.png",
+    "billboard_8.png",
+    "clouds.png",
+    "cpu_car.png",
+    "explosion_16f.png",
+    "mt_fuji.png",
+    "player_car.png",
+    "player_car_bankL.png",
+    "player_car_bankR.png"
+  ]
+}

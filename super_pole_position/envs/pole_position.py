@@ -71,6 +71,7 @@ class PolePositionEnv(gym.Env):
         mode: str = "race",
         track_name: str | None = None,
         hyper: bool = False,
+        player_name: str = "PLAYER",
     ) -> None:
         """Create a Pole Position environment.
 
@@ -78,12 +79,14 @@ class PolePositionEnv(gym.Env):
         :param mode: ``race`` or ``qualify``.
         :param track_name: Optional track to load.
         :param hyper: If ``True`` doubles gear limits for extreme speed.
+        :param player_name: Name recorded in the high-score table.
         """
 
         super().__init__()
         self.render_mode = render_mode
         self.mode = mode
         self.hyper = hyper
+        self.player_name = player_name
 
         self.time_limit = 90.0 if self.mode == "race" else 73.0
         self.traffic_count = 7 if self.mode == "race" else 0
@@ -572,7 +575,9 @@ class PolePositionEnv(gym.Env):
             self.time_extend_flash = 2.0
             print(f"[ENV] Completed lap {self.lap} in {self.last_lap_time:.2f}s", flush=True)
             try:
-                submit_score_http("lap", int(self.last_lap_time * 1000))
+                submit_score_http(
+                    f"{self.player_name}_lap", int(self.last_lap_time * 1000)
+                )
             except Exception:
                 pass
             if self.mode == "qualify":
@@ -643,7 +648,7 @@ class PolePositionEnv(gym.Env):
                 pass
             self.score += int(self.remaining_time * 5)
             try:
-                submit_score_http("final", int(self.score))
+                submit_score_http(self.player_name, int(self.score))
             except Exception:
                 pass
             print("[ENV] Race finished", flush=True)

@@ -43,6 +43,7 @@ def main() -> None:
     q.add_argument("--track", default="fuji")
     q.add_argument("--render", action="store_true")
     q.add_argument("--mute-bgm", action="store_true", help="Disable background music")
+    q.add_argument("--player", default="PLAYER", help="Name for score entry")
     q.add_argument(
         "--virtual-joystick",
         action="store_true",
@@ -54,6 +55,7 @@ def main() -> None:
     r.add_argument("--track", default="fuji")
     r.add_argument("--render", action="store_true")
     r.add_argument("--mute-bgm", action="store_true", help="Disable background music")
+    r.add_argument("--player", default="PLAYER", help="Name for score entry")
     r.add_argument(
         "--virtual-joystick",
         action="store_true",
@@ -116,7 +118,10 @@ def main() -> None:
             args.track = cfg.get("track", args.track)
             os.environ["AUDIO"] = "1" if cfg.get("audio", True) else "0"
         env = PolePositionEnv(
-            render_mode="human", mode="qualify", track_name=args.track
+            render_mode="human",
+            mode="qualify",
+            track_name=args.track,
+            player_name=args.player,
         )
         agent_cls = AGENT_MAP.get(args.agent, NullAgent)
         agent = agent_cls()
@@ -129,7 +134,7 @@ def main() -> None:
         )
         update_scores(
             Path(__file__).parent / "evaluation" / "scores.json",
-            args.agent,
+            args.player,
             int(env.score),
         )
         env.close()
@@ -156,7 +161,12 @@ def main() -> None:
                 return
             args.track = cfg.get("track", args.track)
             os.environ["AUDIO"] = "1" if cfg.get("audio", True) else "0"
-        env = PolePositionEnv(render_mode="human", mode="race", track_name=args.track)
+        env = PolePositionEnv(
+            render_mode="human",
+            mode="race",
+            track_name=args.track,
+            player_name=args.player,
+        )
         agent_cls = AGENT_MAP.get(args.agent, NullAgent)
         agent = agent_cls()
         run_episode(env, (agent, agent))
@@ -168,7 +178,7 @@ def main() -> None:
         )
         update_scores(
             Path(__file__).parent / "evaluation" / "scores.json",
-            args.agent,
+            args.player,
             int(env.score),
         )
         env.close()

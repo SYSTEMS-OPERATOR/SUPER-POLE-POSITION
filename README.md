@@ -32,6 +32,8 @@ python press_start.py
 spp qualify --agent null --track fuji
 # try the new curved Fuji circuit
 spp qualify --agent null --track fuji_curve
+# record scores under your initials
+spp race --player AAA
 ```
 ![](docs.gif)
 
@@ -174,6 +176,7 @@ python -m super_pole_position.server.api
 ```
 
 Use `GET /scores` to list results and `POST /scores` to submit new scores.
+Set `--player AAA` when racing to record your initials.
 
 To clear your local high-score table run:
 

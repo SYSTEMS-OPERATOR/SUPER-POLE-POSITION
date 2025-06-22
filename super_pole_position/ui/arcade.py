@@ -9,7 +9,6 @@ Description: Module for Super Pole Position.
 """
 
 
-
 import os
 import math
 
@@ -31,6 +30,7 @@ from ..evaluation.scores import load_scores
 
 _AUDIO_CFG = load_parity_config()
 AUDIO_VOLUME = float(_AUDIO_CFG.get("audio_volume", 0.8))
+
 
 def _load_config() -> dict:
     """Return arcade parity config from ``config.arcade_parity.yaml``.
@@ -211,7 +211,9 @@ class ArcadeRenderer:
             return
         if env.score > getattr(env, "high_score", 0):
             env.high_score = env.score
-        score_text = f"SCORE {int(env.score):05d}  HI {int(getattr(env, 'high_score', 0)):05d}"
+        score_text = (
+            f"SCORE {int(env.score):05d}  HI {int(getattr(env, 'high_score', 0)):05d}"
+        )
         self.screen.blit(
             self.font.render(score_text, True, self.palette["white"]),
             (10, 10),
@@ -222,7 +224,9 @@ class ArcadeRenderer:
         gear_text = self.font.render(f"GEAR {gear}", True, (255, 255, 255))
         self.screen.blit(text, (10, 30))
         self.screen.blit(gear_text, (10, 50))
-        time_text = self.font.render(f"TIME {env.remaining_time:05.2f}", True, (255, 255, 0))
+        time_text = self.font.render(
+            f"TIME {env.remaining_time:05.2f}", True, (255, 255, 0)
+        )
         self.screen.blit(time_text, (10, 70))
         lap_val = env.lap_timer if env.lap_flash <= 0 else env.last_lap_time
         if lap_val is not None:
@@ -323,7 +327,6 @@ class Pseudo3DRenderer:
             self.canvas = screen
         self.dash_offset = 0.0
 
-
     def road_polygon(self, offset: float) -> list[tuple[float, float]]:
         """Return trapezoid points for the road given ``offset``."""
 
@@ -339,9 +342,7 @@ class Pseudo3DRenderer:
             (width / 2 + offset + road_top / 2, self.horizon),
             (width / 2 + offset - road_top / 2, self.horizon),
         ]
-        return [
-            (x / scale, y / scale) for x, y in points
-        ]
+        return [(x / scale, y / scale) for x, y in points]
 
     def draw_road_polygon(self, env) -> list[tuple[float, float]]:
         """Draw the road trapezoid and return its points."""
@@ -351,7 +352,13 @@ class Pseudo3DRenderer:
         offset = curvature * (self.canvas.get_width() / 4)
         points = self.road_polygon(offset)
         if pygame:
-            scaled = [(x * (self.render_scale if self.offscreen else 1), y * (self.render_scale if self.offscreen else 1)) for x, y in points]
+            scaled = [
+                (
+                    x * (self.render_scale if self.offscreen else 1),
+                    y * (self.render_scale if self.offscreen else 1),
+                )
+                for x, y in points
+            ]
             pygame.draw.polygon(self.canvas, (60, 60, 60), scaled)
         return points
 
@@ -377,9 +384,17 @@ class Pseudo3DRenderer:
             my = self.horizon - self.mt_fuji.get_height()
             surface.blit(self.mt_fuji, (mx, my))
         if self.clouds:
-            self.cloud_offset = (self.cloud_offset + env.cars[0].x * 0.02) % self.clouds.get_width()
-            for off in (-self.cloud_offset, -self.cloud_offset + self.clouds.get_width()):
-                surface.blit(self.clouds, (int(off), self.horizon - self.clouds.get_height() - 10))
+            self.cloud_offset = (
+                self.cloud_offset + env.cars[0].x * 0.02
+            ) % self.clouds.get_width()
+            for off in (
+                -self.cloud_offset,
+                -self.cloud_offset + self.clouds.get_width(),
+            ):
+                surface.blit(
+                    self.clouds,
+                    (int(off), self.horizon - self.clouds.get_height() - 10),
+                )
 
         # road trapezoid (vanishing point shifts with curvature)
         road_w = width * 0.6
@@ -406,8 +421,12 @@ class Pseudo3DRenderer:
                 (center + w / 2, y),
                 (center - w / 2, y),
             ]
-            pygame.draw.polygon(surface, (60, 60, 60), points)
-            stripe_color = (255, 0, 0) if i % 2 == 0 else (255, 255, 255)
+            shade = int(60 + 70 * t1)
+            road_color = (shade, shade, shade)
+            pygame.draw.polygon(surface, road_color, points)
+            stripe_base = (255, 0, 0) if i % 2 == 0 else (255, 255, 255)
+            shade_factor = 1.0 - t1 * 0.3
+            stripe_color = tuple(int(c * shade_factor) for c in stripe_base)
             pygame.draw.line(
                 surface,
                 stripe_color,
@@ -501,7 +520,9 @@ class Pseudo3DRenderer:
             surface.blit(score_text, (10, 30))
 
             # center timer & lap timer
-            time_text = font.render(f"TIME {env.remaining_time:05.2f}", True, (255, 255, 0))
+            time_text = font.render(
+                f"TIME {env.remaining_time:05.2f}", True, (255, 255, 0)
+            )
             tx = width // 2 - time_text.get_width() // 2
             surface.blit(time_text, (tx, 10))
             lap_val = env.lap_timer if env.lap_flash <= 0 else env.last_lap_time
@@ -528,22 +549,16 @@ class Pseudo3DRenderer:
             perf_lines = []
             if os.environ.get("PERF_HUD", "0") != "0":
                 if getattr(env, "step_durations", []):
-                    perf_lines.append(
-                        f"step {env.step_durations[-1]*1000:.1f} ms"
-                    )
+                    perf_lines.append(f"step {env.step_durations[-1]*1000:.1f} ms")
                 if getattr(env, "plan_durations", []):
-                    perf_lines.append(
-                        f"plan {env.plan_durations[-1]*1000:.1f} ms"
-                    )
+                    perf_lines.append(f"plan {env.plan_durations[-1]*1000:.1f} ms")
                 if getattr(env, "plan_tokens", []):
-                    perf_lines.append(
-                        f"tok {env.plan_tokens[-1]}"
-                    )
+                    perf_lines.append(f"tok {env.plan_tokens[-1]}")
         for i, line in enumerate(perf_lines):
             t = font.render(line, True, (255, 255, 255))
             surface.blit(t, (width - 160, 30 + 20 * i))
 
-        # mini-map simple dot positions
+            # mini-map simple dot positions
             map_h = 80
             map_w = 80
             pygame.draw.rect(

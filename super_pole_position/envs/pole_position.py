@@ -32,6 +32,7 @@ except Exception:  # pragma: no cover - optional dependency
 from ..physics.car import Car
 from ..physics.track import Track
 from ..physics.traffic_car import TrafficCar
+from ..ai_cpu import CPUCar
 from ..agents.controllers import GPTPlanner, LowLevelController, LearningAgent
 from ..ui.arcade import Pseudo3DRenderer
 
@@ -105,14 +106,19 @@ class PolePositionEnv(gym.Env):
                 car.max_speed = car.gear_max[-1]
                 # Remove speed clamp for Hyper mode
                 car.unlimited = True
-        self.traffic: list[TrafficCar] = []
+        self.traffic: list[Car] = []
         if self.mode == "race":
             for i in range(self.traffic_count):
                 x = (i * 10) % self.track.width
                 speed = 5.0 + (i % 3)
-                self.traffic.append(
-                    TrafficCar(x=x, y=self.track.height / 2, target_speed=speed)
-                )
+                if i == 0:
+                    self.traffic.append(
+                        CPUCar(x=x, y=self.track.height / 2, target_speed=speed)
+                    )
+                else:
+                    self.traffic.append(
+                        TrafficCar(x=x, y=self.track.height / 2, target_speed=speed)
+                    )
 
         # AI components for second car
         # Load GPT model lazily to avoid startup hiccups
@@ -458,7 +464,11 @@ class PolePositionEnv(gym.Env):
                 self.ai_offtrack += 1
 
             for t in self.traffic:
-                th, br, steer_ai = t.policy(track=self.track)
+                if isinstance(t, CPUCar):
+                    t.update(dt, self.track, self.cars[0])
+                    th, br, steer_ai = t.policy(track=self.track)
+                else:
+                    th, br, steer_ai = t.policy(track=self.track)
                 t.apply_controls(th, br, steer_ai, dt=dt, track=self.track)
                 self.track.wrap_position(t)
 

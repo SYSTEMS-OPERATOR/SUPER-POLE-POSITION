@@ -21,5 +21,7 @@
 - [x] Minimal SFX manager with chiptune placeholders
 - [x] Lap times posted to scoreboard API
 - [x] Post-race scoreboard overlay displays top five scores
+- [x] Player name recorded in high-score table
+
 
 🎉 All core arcade mechanics implemented! 🏁

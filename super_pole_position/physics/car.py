@@ -24,10 +24,12 @@ class Car:
         self.speed = speed
         self.acceleration = 2.0
         # Two gear ratios: index 0=LOW, 1=HIGH
-        self.gear_max = [8.0, 19.0]
+        # Adjusted top speed for closer arcade feel
+        self.gear_max = [8.0, 22.0]
         self.gear = 0
         self.max_speed = self.gear_max[-1]
-        self.turn_rate = 2.0  # rad/sec
+        # Slightly quicker steering for responsive handling
+        self.turn_rate = 2.5  # rad/sec
         self.shift_count = 0
         # If True speed is not clamped by gear ratios (Hyper mode)
         self.unlimited = False

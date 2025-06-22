@@ -265,11 +265,21 @@ class Pseudo3DRenderer:
     """
 
     def __init__(self, screen):
-        """Create the renderer bound to ``screen``."""
+        """Create the renderer bound to ``screen`` with an optional high-res buffer."""
 
         self.screen = screen
         if pygame and not pygame.font.get_init():
             pygame.font.init()
+        self.render_scale = 2
+        if pygame:
+            self.offscreen = pygame.Surface(
+                (
+                    screen.get_width() * self.render_scale,
+                    screen.get_height() * self.render_scale,
+                )
+            )
+        else:
+            self.offscreen = None
         self.horizon_base = int(screen.get_height() * 0.4)
         self.horizon = self.horizon_base
         self.sky_color = Palette.sky_blue
@@ -298,24 +308,31 @@ class Pseudo3DRenderer:
             self._scanline_row = pygame.Surface((1, 1), pygame.SRCALPHA)
             self._scanline_row.fill((0, 0, 0, self.scanline_alpha))
             self.start_font = pygame.font.SysFont(None, 48)
+            self.canvas = self.offscreen
         else:
             self._scanline_row = None
             self.start_font = None
+            self.canvas = screen
         self.dash_offset = 0.0
 
 
     def road_polygon(self, offset: float) -> list[tuple[float, float]]:
         """Return trapezoid points for the road given ``offset``."""
 
-        width = self.screen.get_width()
-        height = self.screen.get_height()
+        surface = self.canvas
+        scale = self.render_scale if self.offscreen else 1
+        width = surface.get_width()
+        height = surface.get_height()
         road_w = width * 0.6
         road_top = road_w * 0.2
-        return [
+        points = [
             (width / 2 - road_w / 2, height),
             (width / 2 + road_w / 2, height),
             (width / 2 + offset + road_top / 2, self.horizon),
             (width / 2 + offset - road_top / 2, self.horizon),
+        ]
+        return [
+            (x / scale, y / scale) for x, y in points
         ]
 
     def draw_road_polygon(self, env) -> list[tuple[float, float]]:
@@ -323,10 +340,11 @@ class Pseudo3DRenderer:
 
         angle = env.track.angle_at(env.cars[0].x)
         curvature = max(-1.0, min(angle / (math.pi / 4), 1.0))
-        offset = curvature * (self.screen.get_width() / 4)
+        offset = curvature * (self.canvas.get_width() / 4)
         points = self.road_polygon(offset)
         if pygame:
-            pygame.draw.polygon(self.screen, (60, 60, 60), points)
+            scaled = [(x * (self.render_scale if self.offscreen else 1), y * (self.render_scale if self.offscreen else 1)) for x, y in points]
+            pygame.draw.polygon(self.canvas, (60, 60, 60), scaled)
         return points
 
     def draw(self, env) -> None:
@@ -335,13 +353,14 @@ class Pseudo3DRenderer:
         if not pygame:
             return
 
-        width = self.screen.get_width()
-        height = self.screen.get_height()
+        surface = self.canvas
+        width = surface.get_width()
+        height = surface.get_height()
 
         # sky gradient
-        self.screen.fill(self.sky_color)
+        surface.fill(self.sky_color)
         pygame.draw.rect(
-            self.screen,
+            surface,
             self.ground_color,
             (0, self.horizon, width, height - self.horizon),
         )
@@ -371,17 +390,17 @@ class Pseudo3DRenderer:
                 (center + w / 2, y),
                 (center - w / 2, y),
             ]
-            pygame.draw.polygon(self.screen, (60, 60, 60), points)
+            pygame.draw.polygon(surface, (60, 60, 60), points)
             stripe_color = (255, 0, 0) if i % 2 == 0 else (255, 255, 255)
             pygame.draw.line(
-                self.screen,
+                surface,
                 stripe_color,
                 (points[0][0], points[0][1]),
                 (points[3][0], points[3][1]),
                 2,
             )
             pygame.draw.line(
-                self.screen,
+                surface,
                 stripe_color,
                 (points[1][0], points[1][1]),
                 (points[2][0], points[2][1]),
@@ -399,7 +418,7 @@ class Pseudo3DRenderer:
             center = width / 2 + offset * t
             if int(i + self.dash_offset) % 2 == 0:
                 pygame.draw.line(
-                    self.screen,
+                    surface,
                     (255, 255, 255),
                     (prev_center, prev_y),
                     (center, y),
@@ -416,7 +435,7 @@ class Pseudo3DRenderer:
                 color = (255, 255, 255) if i % 2 else (0, 0, 0)
                 x0 = width / 2 - road_w / 2 + i * step
                 rect = pygame.Rect(int(x0), int(y0), int(step), 12)
-                pygame.draw.rect(self.screen, color, rect)
+                pygame.draw.rect(surface, color, rect)
 
         # Obstacles rendered as roadside billboards
         player = env.cars[0]
@@ -430,9 +449,9 @@ class Pseudo3DRenderer:
             rect = pygame.Rect(int(ox - o_w / 2), int(oy - o_h), int(o_w), int(o_h))
             if self.billboard_sprite:
                 img = pygame.transform.scale(self.billboard_sprite, rect.size)
-                self.screen.blit(img, rect)
+                surface.blit(img, rect)
             else:
-                pygame.draw.rect(self.screen, (200, 200, 200), rect)
+                pygame.draw.rect(surface, (200, 200, 200), rect)
 
         # Render the opponent car scaled by distance
         other = env.cars[1]
@@ -445,9 +464,9 @@ class Pseudo3DRenderer:
         rect = pygame.Rect(int(x - car_w / 2), int(y - car_h), int(car_w), int(car_h))
         if self.car_sprite:
             img = pygame.transform.scale(self.car_sprite, rect.size)
-            self.screen.blit(img, rect)
+            surface.blit(img, rect)
         else:
-            pygame.draw.rect(self.screen, self.car_color, rect)
+            pygame.draw.rect(surface, self.car_color, rect)
 
         if env.crash_timer > 0:
             self.draw_explosion(env, (int(x - car_w), int(y - car_h * 2)))
@@ -458,33 +477,33 @@ class Pseudo3DRenderer:
             hi_score = max(HIGH_SCORE, int(env.score))
             hi_text = font.render(f"HI {hi_score:06d}", True, (0, 255, 0))
             score_text = font.render(f"SCORE {int(env.score):06d}", True, (0, 255, 0))
-            self.screen.blit(hi_text, (10, 10))
-            self.screen.blit(score_text, (10, 30))
+            surface.blit(hi_text, (10, 10))
+            surface.blit(score_text, (10, 30))
 
             # center timer & lap timer
             time_text = font.render(f"TIME {env.remaining_time:05.2f}", True, (255, 255, 0))
             tx = width // 2 - time_text.get_width() // 2
-            self.screen.blit(time_text, (tx, 10))
+            surface.blit(time_text, (tx, 10))
             lap_val = env.lap_timer if env.lap_flash <= 0 else env.last_lap_time
             if lap_val is not None:
                 lap_time_text = font.render(f"LAP {lap_val:05.2f}", True, (0, 255, 0))
                 lx = width // 2 - lap_time_text.get_width() // 2
-                self.screen.blit(lap_time_text, (lx, 30))
+                surface.blit(lap_time_text, (lx, 30))
 
             lap_text = font.render(f"LAP {env.lap + 1}/4", True, (0, 255, 0))
             p_prog = env.track.progress(player)
             o_prog = env.track.progress(other)
             pos = 1 if p_prog >= o_prog else 2
             pos_text = font.render(f"POS {pos}/2", True, (0, 255, 0))
-            self.screen.blit(lap_text, (10, 50))
-            self.screen.blit(pos_text, (10, 70))
+            surface.blit(lap_text, (10, 50))
+            surface.blit(pos_text, (10, 70))
 
             mph = int(player.speed * 2.23694)
             spd_text = font.render(f"SPEED {mph} MPH", True, (255, 255, 255))
             gear = "H" if player.gear else "L"
             gear_text = font.render(f"GEAR {gear}", True, (255, 255, 255))
-            self.screen.blit(spd_text, (width - spd_text.get_width() - 10, 10))
-            self.screen.blit(gear_text, (width - gear_text.get_width() - 10, 30))
+            surface.blit(spd_text, (width - spd_text.get_width() - 10, 10))
+            surface.blit(gear_text, (width - gear_text.get_width() - 10, 30))
 
             perf_lines = []
             if os.environ.get("PERF_HUD", "0") != "0":
@@ -502,13 +521,13 @@ class Pseudo3DRenderer:
                     )
         for i, line in enumerate(perf_lines):
             t = font.render(line, True, (255, 255, 255))
-            self.screen.blit(t, (width - 160, 30 + 20 * i))
+            surface.blit(t, (width - 160, 30 + 20 * i))
 
         # mini-map simple dot positions
             map_h = 80
             map_w = 80
             pygame.draw.rect(
-                self.screen,
+                surface,
                 (30, 30, 30),
                 pygame.Rect(width - map_w - 10, 10, map_w, map_h),
                 1,
@@ -517,8 +536,8 @@ class Pseudo3DRenderer:
             py = 10 + (player.y / env.track.height) * map_h
             ox = width - map_w - 10 + (other.x / env.track.width) * map_w
             oy = 10 + (other.y / env.track.height) * map_h
-            pygame.draw.circle(self.screen, (255, 0, 0), (int(px), int(py)), 3)
-            pygame.draw.circle(self.screen, (0, 255, 0), (int(ox), int(oy)), 3)
+            pygame.draw.circle(surface, (255, 0, 0), (int(px), int(py)), 3)
+            pygame.draw.circle(surface, (0, 255, 0), (int(ox), int(oy)), 3)
 
         # Starting lights / ready-set-go text
         if self.start_font and env.current_step < 30:
@@ -528,29 +547,35 @@ class Pseudo3DRenderer:
                 text = self.start_font.render(phase, True, color)
                 tx = width // 2 - text.get_width() // 2
                 ty = height // 2 - text.get_height() // 2
-                self.screen.blit(text, (tx, ty))
+                surface.blit(text, (tx, ty))
         if self.start_font and env.message_timer > 0 and env.game_message:
             msg = self.start_font.render(env.game_message, True, (255, 255, 0))
             mx = width // 2 - msg.get_width() // 2
             my = height // 2 - msg.get_height() // 2
-            self.screen.blit(msg, (mx, my))
+            surface.blit(msg, (mx, my))
 
         if self.start_font and getattr(env, "time_extend_flash", 0) > 0:
             text = self.start_font.render("EXTENDED TIME", True, (255, 255, 0))
             tx = width // 2 - text.get_width() // 2
             ty = height // 2 + 40
-            self.screen.blit(text, (tx, ty))
+            surface.blit(text, (tx, ty))
 
-        # Scanline effect
+        # Scale to display and apply scanlines
+        target = self.screen
+        if self.offscreen:
+            scaled = pygame.transform.smoothscale(self.offscreen, target.get_size())
+            target.blit(scaled, (0, 0))
+        else:
+            target = surface
 
         if self.scanline_alpha > 0:
-            row = pygame.Surface((width, 1))
+            row = pygame.Surface((target.get_width(), 1))
             row.fill((0, 0, 0))
             row.set_alpha(self.scanline_alpha)
-            for y in range(0, height, self.scanline_spacing):
-                self.screen.blit(row, (0, y))
+            for y in range(0, target.get_height(), self.scanline_spacing):
+                target.blit(row, (0, y))
 
         if self._scanline_row:
-            row = pygame.transform.scale(self._scanline_row, (width, 1))
-            for y in range(0, height, self.scanline_step):
-                self.screen.blit(row, (0, y))
+            row = pygame.transform.scale(self._scanline_row, (target.get_width(), 1))
+            for y in range(0, target.get_height(), self.scanline_step):
+                target.blit(row, (0, y))

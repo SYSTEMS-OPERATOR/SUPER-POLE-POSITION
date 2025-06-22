@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Simple animated sprite movement demo using Pygame 2."""
+
+from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import List

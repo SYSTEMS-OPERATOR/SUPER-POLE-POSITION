@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """Tests for TrackCurve helper."""
 
-import math
 import pytest
 
 from super_pole_position.physics.track_curve import TrackCurve

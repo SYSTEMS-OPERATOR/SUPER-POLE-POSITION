@@ -20,6 +20,13 @@ from typing import Dict
 
 
 from ..config import load_parity_config
+from .sprites import (
+    BILLBOARD_ART,
+    CAR_ART,
+    EXPLOSION_FRAMES,
+    ascii_surface,
+)
+from ..evaluation.scores import load_scores
 
 
 _AUDIO_CFG = load_parity_config()
@@ -64,15 +71,6 @@ def _load_config() -> dict:
 _PARITY_CFG = _load_config()
 SCANLINE_SPACING = int(_PARITY_CFG.get("scanline_spacing", 2))
 SCANLINE_ALPHA = int(_PARITY_CFG.get("scanline_alpha", 40))
-
-from .sprites import (
-    BILLBOARD_ART,
-    CAR_ART,
-    EXPLOSION_FRAMES,
-    ascii_surface,
-    load_sprite,
-)
-from ..evaluation.scores import load_scores
 
 try:
     HIGH_SCORE = max((s["score"] for s in load_scores(None)), default=0)

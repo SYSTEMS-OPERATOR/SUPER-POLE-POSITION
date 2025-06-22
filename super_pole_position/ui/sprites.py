@@ -118,8 +118,6 @@ def load_sprite(name: str, ascii_art: list[str] | None = None) -> "pygame.Surfac
         gen = path.parent / "generate_placeholders.py"
         if gen.exists():
             try:
-                import importlib.util
-
                 spec = importlib.util.spec_from_file_location("placeholder_gen", gen)
                 if spec and spec.loader:
                     mod = importlib.util.module_from_spec(spec)

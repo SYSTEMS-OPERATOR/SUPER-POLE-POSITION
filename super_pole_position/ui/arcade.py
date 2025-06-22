@@ -340,6 +340,26 @@ class Pseudo3DRenderer:
             self.canvas = screen
         self.dash_offset = 0.0
 
+    def _draw_start_lights(self, surface: "pygame.Surface", phase: str) -> None:
+        """Render a 3-light countdown for the start sequence."""
+
+        radius = 10
+        spacing = 30
+        cx = surface.get_width() // 2 - spacing
+        cy = surface.get_height() // 2 - radius * 2
+        colors = [Palette.grey, Palette.grey, Palette.grey]
+        if phase == "READY":
+            colors[0] = Palette.red
+        elif phase == "SET":
+            colors[0] = Palette.red
+            colors[1] = Palette.yellow
+        elif phase == "GO":
+            colors[2] = Palette.green
+        for i, col in enumerate(colors):
+            pos = (cx + i * spacing, cy)
+            pygame.draw.circle(surface, col, pos, radius)
+            pygame.draw.circle(surface, Palette.white, pos, radius, 2)
+
     def road_polygon(self, offset: float) -> list[tuple[float, float]]:
         """Return trapezoid points for the road given ``offset``."""
 
@@ -601,6 +621,7 @@ class Pseudo3DRenderer:
         if self.start_font and env.current_step < 30:
             phase = env.start_phase
             if phase:
+                self._draw_start_lights(surface, phase)
                 color = (255, 255, 0) if phase != "GO" else (0, 255, 0)
                 text = self.start_font.render(phase, True, color)
                 tx = width // 2 - text.get_width() // 2

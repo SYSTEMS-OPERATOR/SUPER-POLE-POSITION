@@ -2,7 +2,6 @@ gymnasium
 numpy
 pyyaml
 pygame
-simpleaudio
 torch
 transformers
 pytest

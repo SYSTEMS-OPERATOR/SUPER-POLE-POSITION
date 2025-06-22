@@ -16,35 +16,40 @@ import types
 try:
     import pygame  # type: ignore
 except Exception:  # pragma: no cover - optional
-    pygame = types.SimpleNamespace(display=types.SimpleNamespace(init=lambda *a, **k: None))
+    pygame = types.SimpleNamespace(
+        display=types.SimpleNamespace(init=lambda *a, **k: None),
+        mixer=types.SimpleNamespace(),
+        sndarray=types.SimpleNamespace(),
+    )
 
 os.environ.setdefault("FAST_TEST", "1")
 os.environ["ALLOW_NET"] = "0"
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 
-class _DummyWave:
-    bytes_per_sample = 2
-    num_channels = 2
-    sample_rate = 44100
-    audio_data = b""
 
-    @staticmethod
-    def from_wave_file(*args, **kwargs):
-        return _DummyWave()
+class _DummyChannel:
+    def stop(self):
+        pass
+
+    def set_volume(self, *args, **kwargs):
+        pass
+
+
+class _DummySound:
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def set_volume(self, *args, **kwargs):
+        pass
 
     def play(self, *args, **kwargs):
-        return None
+        return _DummyChannel()
 
-def _play_buffer(*args, **kwargs):
-    class _Dummy:
-        def stop(self):
-            pass
-    return _Dummy()
-
-sys.modules["simpleaudio"] = types.SimpleNamespace(
-    WaveObject=_DummyWave,
-    play_buffer=_play_buffer,
-)
+pygame.mixer.init = lambda *a, **k: None
+pygame.mixer.get_init = lambda: True
+pygame.mixer.Sound = lambda *a, **k: _DummySound()
+pygame.mixer.music = types.SimpleNamespace(set_volume=lambda *a, **k: None)
+pygame.sndarray.make_sound = lambda *a, **k: _DummySound()
 
 pygame.display.init = lambda *args, **kwargs: None
 

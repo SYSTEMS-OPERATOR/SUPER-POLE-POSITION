@@ -40,6 +40,49 @@ class Renderer:
         self.scanline.fill((0, 0, 0, 38))
         self.horizon = 90
         self.sprites: dict[str, pygame.Surface] = {}
+        self.dash_offset = 0.0
+
+    # ------------------------------------------------------------------
+    def _apply_horizon_fade(self, img: pygame.Surface, depth: float) -> pygame.Surface:
+        """Return ``img`` with alpha applied based on ``depth``."""
+
+        fade_start = 56 / 64.0
+        if depth <= fade_start:
+            return img
+        factor = max(0.0, 1.0 - (depth - fade_start) * 4.0)
+        if factor >= 1.0:
+            return img
+        faded = img.copy()
+        faded.set_alpha(int(255 * factor))
+        return faded
+
+    # ------------------------------------------------------------------
+    def _draw_center_stripe(
+        self,
+        cx_prev: float,
+        cx: float,
+        y_prev: float,
+        y: float,
+        road_half_prev: float,
+        road_half_curr: float,
+        index: int,
+    ) -> None:
+        """Draw one dashed center stripe segment."""
+
+        if int(index + self.dash_offset) % 2 != 0:
+            return
+        stripe_prev = max(1.0, road_half_prev * 0.02)
+        stripe_curr = max(1.0, road_half_curr * 0.02)
+        pygame.draw.polygon(
+            self.surface,
+            (255, 255, 255),
+            [
+                (cx_prev - stripe_prev, y_prev),
+                (cx_prev + stripe_prev, y_prev),
+                (cx + stripe_curr, y),
+                (cx - stripe_curr, y),
+            ],
+        )
 
     # ------------------------------------------------------------------
     def perspective_scale(self, depth: float) -> float:
@@ -62,6 +105,7 @@ class Renderer:
         if pygame is None:
             return
         player = env.cars[0]
+        self.dash_offset = (self.dash_offset + player.speed * 0.05) % 2
         base_x = WIDTH // 2
         bottom = HEIGHT
         road_half_prev = BASE_ROAD_HALF
@@ -129,6 +173,15 @@ class Renderer:
                     (cx + road_half_curr, y),
                 ],
             )
+            self._draw_center_stripe(
+                cx_prev,
+                cx,
+                y_prev,
+                y,
+                road_half_prev,
+                road_half_curr,
+                i,
+            )
 
         sprites = getattr(env, "sprites", [])
         sprites_sorted = sorted(sprites, key=lambda s: s[1], reverse=True)
@@ -139,6 +192,7 @@ class Renderer:
             scale = self.perspective_scale(depth)
             w, h = img.get_size()
             img_scaled = pygame.transform.scale(img, (int(w * scale), int(h * scale)))
+            img_scaled = self._apply_horizon_fade(img_scaled, depth)
             cx = (
                 base_x
                 + sum(

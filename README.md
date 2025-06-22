@@ -136,9 +136,10 @@ This avoids importing heavy GPU libraries until you explicitly load the GPT plan
 
 ### Assets
 Placeholder PNG and WAV files live under `assets/sprites` and `assets/audio`.
-These files are empty stubs so the project contains no binary data.
-See `assets/sprites/SPRITES.md` and `assets/audio/AUDIO.md` for the full list.
-Replace them with real graphics and samples for a fully authentic experience.
+No binary blobs are checked in. Use `generate_placeholders.py` inside each
+folder to create simple stand-ins if you haven't supplied real artwork or
+samples. See `assets/sprites/SPRITES.md` and `assets/audio/AUDIO.md` for the
+full list.
 
 🚀 **Run a Test Race**
 ```bash

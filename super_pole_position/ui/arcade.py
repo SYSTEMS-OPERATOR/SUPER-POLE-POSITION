@@ -65,7 +65,13 @@ _PARITY_CFG = _load_config()
 SCANLINE_SPACING = int(_PARITY_CFG.get("scanline_spacing", 2))
 SCANLINE_ALPHA = int(_PARITY_CFG.get("scanline_alpha", 40))
 
-from .sprites import BILLBOARD_ART, CAR_ART, EXPLOSION_FRAMES, ascii_surface
+from .sprites import (
+    BILLBOARD_ART,
+    CAR_ART,
+    EXPLOSION_FRAMES,
+    ascii_surface,
+    load_sprite,
+)
 from ..evaluation.scores import load_scores
 
 try:

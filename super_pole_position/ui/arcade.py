@@ -285,10 +285,20 @@ class Pseudo3DRenderer:
         self.sky_color = Palette.sky_blue
         self.ground_color = Palette.grey
         self.car_color = Palette.red
-        self.car_sprite = _load_sprite("player_car.png") or ascii_surface(CAR_ART)
-        self.billboard_sprite = _load_sprite("billboard_1.png") or ascii_surface(
-            BILLBOARD_ART
+        self.player_car_sprite = _load_sprite("player_car.png") or ascii_surface(
+            CAR_ART
         )
+        self.cpu_front_sprite = _load_sprite("cpu_car.png") or ascii_surface(CAR_ART)
+        self.billboard_sprites = []
+        for i in range(1, 9):
+            spr = _load_sprite(f"billboard_{i}.png")
+            if spr:
+                self.billboard_sprites.append(spr)
+        if not self.billboard_sprites:
+            self.billboard_sprites = [ascii_surface(BILLBOARD_ART)]
+        self.mt_fuji = _load_sprite("mt_fuji.png")
+        self.clouds = _load_sprite("clouds.png")
+        self.cloud_offset = 0.0
         sheet = _load_sprite("explosion_16f.png")
         if sheet:
             frame_w = sheet.get_width() // 16
@@ -364,6 +374,14 @@ class Pseudo3DRenderer:
             self.ground_color,
             (0, self.horizon, width, height - self.horizon),
         )
+        if self.mt_fuji:
+            mx = width // 2 - self.mt_fuji.get_width() // 2
+            my = self.horizon - self.mt_fuji.get_height()
+            surface.blit(self.mt_fuji, (mx, my))
+        if self.clouds:
+            self.cloud_offset = (self.cloud_offset + env.cars[0].x * 0.02) % self.clouds.get_width()
+            for off in (-self.cloud_offset, -self.cloud_offset + self.clouds.get_width()):
+                surface.blit(self.clouds, (int(off), self.horizon - self.clouds.get_height() - 10))
 
         # road trapezoid (vanishing point shifts with curvature)
         road_w = width * 0.6
@@ -439,7 +457,7 @@ class Pseudo3DRenderer:
 
         # Obstacles rendered as roadside billboards
         player = env.cars[0]
-        for obs in getattr(env.track, "obstacles", []):
+        for idx, obs in enumerate(getattr(env.track, "obstacles", [])):
             dx = (obs.x - player.x) % env.track.width
             scale = max(0.1, min(1.0 / (dx / 5.0 + 1.0), 1.0))
             o_h = 15 * scale
@@ -447,8 +465,9 @@ class Pseudo3DRenderer:
             ox = width / 2 + (obs.y - env.track.height / 2) - offset * (1.0 - scale)
             oy = bottom - (bottom - self.horizon) * scale
             rect = pygame.Rect(int(ox - o_w / 2), int(oy - o_h), int(o_w), int(o_h))
-            if self.billboard_sprite:
-                img = pygame.transform.scale(self.billboard_sprite, rect.size)
+            sprite = self.billboard_sprites[idx % len(self.billboard_sprites)]
+            if sprite:
+                img = pygame.transform.scale(sprite, rect.size)
                 surface.blit(img, rect)
             else:
                 pygame.draw.rect(surface, (200, 200, 200), rect)
@@ -462,8 +481,11 @@ class Pseudo3DRenderer:
         x = width / 2 - offset * (1.0 - scale)
         y = bottom - (bottom - self.horizon) * scale
         rect = pygame.Rect(int(x - car_w / 2), int(y - car_h), int(car_w), int(car_h))
-        if self.car_sprite:
-            img = pygame.transform.scale(self.car_sprite, rect.size)
+        sprite = self.player_car_sprite
+        if dist < env.track.width / 2:
+            sprite = self.cpu_front_sprite
+        if sprite:
+            img = pygame.transform.scale(sprite, rect.size)
             surface.blit(img, rect)
         else:
             pygame.draw.rect(surface, self.car_color, rect)
@@ -567,13 +589,6 @@ class Pseudo3DRenderer:
             target.blit(scaled, (0, 0))
         else:
             target = surface
-
-        if self.scanline_alpha > 0:
-            row = pygame.Surface((target.get_width(), 1))
-            row.fill((0, 0, 0))
-            row.set_alpha(self.scanline_alpha)
-            for y in range(0, target.get_height(), self.scanline_spacing):
-                target.blit(row, (0, y))
 
         if self._scanline_row:
             row = pygame.transform.scale(self._scanline_row, (target.get_width(), 1))

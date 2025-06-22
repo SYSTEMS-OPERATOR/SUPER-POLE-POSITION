@@ -344,33 +344,6 @@ class PolePositionEnv(gym.Env):
         prev_obs = self._get_obs()
         reward = 0.0
 
-        if self.crash_timer <= 0:
-            for t in self.traffic:
-                if (
-                    abs(t.x - self.cars[0].x) < Car.length
-                    and abs(t.y - self.cars[0].y) < Car.width / 2
-                ):
-                    self.crashes += 1
-                    self.crash_timer = 2.5
-                    self._play_crash_audio()
-                    self.cars[0].crash()
-                    print("[ENV] Crash!", flush=True)
-                    return self._get_obs(), -10.0, False, False, {}
-
-        # Start light sequence (does not block motion in tests)
-        if self.start_timer > 0:
-            self.start_timer -= dt
-            if self.start_timer >= 2.0:
-                self.start_phase = "READY"
-            elif self.start_timer > 0:
-                self.start_phase = "SET"
-            else:
-                self.start_phase = "GO"
-                print("[ENV] GO!", flush=True)
-        if self.message_timer > 0:
-            self.message_timer -= dt
-
-        # ---- Car 0 (Player / Random) ----
         throttle, brake, steer, gear_cmd = 0.0, 0.0, 0.0, 0
         if isinstance(action, (tuple, list)):
             if len(action) >= 3:
@@ -392,6 +365,39 @@ class PolePositionEnv(gym.Env):
             elif action == 1:
                 brake = True
             # else action==2 => no action
+
+        control_active = bool(throttle) or bool(brake)
+
+        if self.crash_timer <= 0:
+            for t in self.traffic:
+                dx = (
+                    (t.x - self.cars[0].x + self.track.width / 2) % self.track.width
+                    - self.track.width / 2
+                )
+                if (
+                    abs(dx) <= Car.length * 0.75
+                    and abs(t.y - self.cars[0].y) <= Car.width / 2
+                    and (control_active or abs(dx) < 0.1)
+                ):
+                    self.crashes += 1
+                    self.crash_timer = 2.5
+                    self._play_crash_audio()
+                    self.cars[0].crash()
+                    print("[ENV] Crash!", flush=True)
+                    return self._get_obs(), -10.0, False, False, {}
+
+        # Start light sequence (does not block motion in tests)
+        if self.start_timer > 0:
+            self.start_timer -= dt
+            if self.start_timer >= 2.0:
+                self.start_phase = "READY"
+            elif self.start_timer > 0:
+                self.start_phase = "SET"
+            else:
+                self.start_phase = "GO"
+                print("[ENV] GO!", flush=True)
+        if self.message_timer > 0:
+            self.message_timer -= dt
 
         self.cars[0].shift(gear_cmd)
         self.cars[0].apply_controls(throttle, brake, steer, dt=dt, track=self.track)
@@ -517,9 +523,14 @@ class PolePositionEnv(gym.Env):
         else:
             self.safe_point = (self.cars[0].x, self.cars[0].y)
             for t in self.traffic:
+                dx = (
+                    (t.x - self.cars[0].x + self.track.width / 2) % self.track.width
+                    - self.track.width / 2
+                )
                 if (
-                    abs(t.x - self.cars[0].x) < Car.length
-                    and abs(t.y - self.cars[0].y) < Car.width / 2
+                    abs(dx) <= Car.length * 0.75
+                    and abs(t.y - self.cars[0].y) <= Car.width / 2
+                    and (control_active or abs(dx) < 0.1)
                 ):
                     self.crashes += 1
                     self.crash_timer = 2.5

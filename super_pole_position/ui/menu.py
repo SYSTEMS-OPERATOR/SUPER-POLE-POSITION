@@ -25,6 +25,10 @@ except Exception:  # pragma: no cover - optional dependency
     pygame = None
 
 from ..evaluation import scores as score_mod
+try:  # optional audio support
+    from src.audio.sfx import Sfx  # type: ignore
+except Exception:  # pragma: no cover - optional dependency
+    Sfx = None  # type: ignore
 
 
 def show_race_outro(screen, score: int, duration: float = 5.0) -> None:
@@ -164,7 +168,7 @@ def _load_backdrop(rng: random.Random) -> pygame.Surface | None:
 
     if not pygame:
         return None
-    bg_dir = Path(__file__).resolve().parent.parent / "assets" / "title_bg"
+    bg_dir = Path(__file__).resolve().parents[2] / "assets" / "title_bg"
     files = list(bg_dir.glob("*.png"))
     if files:
         img = pygame.image.load(str(rng.choice(files)))
@@ -190,6 +194,13 @@ def main_loop(screen, seed: int | None = None) -> dict | None:
     backdrop = _load_backdrop(rng)
     state = MenuState()
     font = pygame.font.SysFont(None, 24)
+    audio_dir = Path(__file__).resolve().parents[2] / "assets" / "audio"
+    try:
+        if pygame.mixer and not pygame.mixer.get_init():
+            pygame.mixer.init()
+        tick_sfx = Sfx("menu_tick", audio_dir / "menu_tick.wav")
+    except Exception:  # pragma: no cover - audio failure
+        tick_sfx = None
     x_offset = 0
     running = True
     while running:
@@ -199,6 +210,8 @@ def main_loop(screen, seed: int | None = None) -> dict | None:
             if event.type == pygame.KEYDOWN:
                 name = pygame.key.name(event.key).upper()
                 result = state.handle(name)
+                if tick_sfx and name in {"UP", "DOWN", "LEFT", "RIGHT", "ENTER", "SPACE"}:
+                    tick_sfx.play()
                 if result is None or isinstance(result, dict):
                     return result
                 if name == "H":

@@ -20,3 +20,11 @@ def test_draw_road_polygon_offset():
     assert poly[2][0] == pytest.approx(width / 2 + expected + road_top / 2)
     assert poly[3][0] == pytest.approx(width / 2 + expected - road_top / 2)
     pygame.display.quit()
+
+
+def test_ground_color_green() -> None:
+    pygame.display.init()
+    screen = pygame.display.set_mode((320, 240))
+    renderer = Pseudo3DRenderer(screen)
+    assert renderer.ground_color == (0, 184, 0)
+    pygame.display.quit()

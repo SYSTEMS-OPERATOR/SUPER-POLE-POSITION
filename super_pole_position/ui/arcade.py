@@ -554,6 +554,11 @@ class Pseudo3DRenderer:
             ) or sprite
         if sprite:
             img = pygame.transform.scale(sprite, rect.size)
+            steer = getattr(env, "last_steer", 0.0)
+            if abs(steer) > 0.5:
+                angle = -15 if steer > 0 else 15
+                img = pygame.transform.rotate(img, angle)
+                rect = img.get_rect(center=rect.center)
             surface.blit(img, rect)
         else:
             pygame.draw.rect(surface, self.car_color, rect)

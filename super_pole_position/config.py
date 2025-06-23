@@ -13,6 +13,9 @@ except Exception:  # pragma: no cover - PyYAML optional
 DEFAULTS = {
     "puddle": {"speed_factor": 0.65, "angle_jitter": 0.2},
     "audio_volume": 0.8,
+    "engine_volume": 0.8,
+    "voice_volume": 1.0,
+    "effects_volume": 0.8,
     "engine_pan_spread": 0.8,
 }
 
@@ -38,6 +41,12 @@ def load_parity_config() -> dict[str, Any]:
             cfg["audio_volume"] = float(data["audio_volume"])
         except (TypeError, ValueError):
             cfg["audio_volume"] = DEFAULTS["audio_volume"]
+    for key in ("engine_volume", "voice_volume", "effects_volume"):
+        if key in data:
+            try:
+                cfg[key] = float(data[key])
+            except (TypeError, ValueError):
+                cfg[key] = DEFAULTS[key]
     if "engine_pan_spread" in data:
         try:
             cfg["engine_pan_spread"] = float(data["engine_pan_spread"])

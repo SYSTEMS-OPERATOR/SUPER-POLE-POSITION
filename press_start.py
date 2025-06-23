@@ -8,7 +8,7 @@ from __future__ import annotations
 from super_pole_position.agents.keyboard_agent import KeyboardAgent
 from super_pole_position.envs.pole_position import PolePositionEnv
 from super_pole_position.evaluation.metrics import summary
-from super_pole_position.matchmaking.arena import run_episode
+from super_pole_position.utils import safe_run_episode
 
 
 INTRO = """
@@ -36,7 +36,11 @@ def main() -> None:
     # 🚗 Prepare the track and cars
     # Create a race-ready environment. 🏆
 
-    env = PolePositionEnv(render_mode="human", mode="race", track_name="fuji")
+    try:
+        env = PolePositionEnv(render_mode="human", mode="race", track_name="fuji")
+    except Exception as exc:  # pragma: no cover - defensive
+        print(f"env error: {exc}", flush=True)
+        return
     # KeyboardAgent lets you take control of the action. 🎮
     agent = KeyboardAgent()
 
@@ -44,7 +48,7 @@ def main() -> None:
     play_again = True
     while play_again:
         env.reset()
-        run_episode(env, (agent, agent))
+        safe_run_episode(env, (agent, agent))
         print(summary(env))
         ans = input("Race again? [y/N] ")
         play_again = ans.strip().lower().startswith("y")

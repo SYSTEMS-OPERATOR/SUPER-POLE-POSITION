@@ -20,11 +20,12 @@ from .agents.openai_agent import OpenAIAgent
 from .agents.mistral_agent import MistralAgent
 from .agents.keyboard_agent import KeyboardAgent
 
-from .envs.pole_position import PolePositionEnv
+from .envs.pole_position import PolePositionEnv, FAST_TEST
 from .matchmaking.arena import run_episode, update_leaderboard
 from .utils import safe_run_episode
 from .evaluation.metrics import summary
 from .evaluation.scores import load_scores, reset_scores, update_scores
+from .ui.menu import show_race_outro
 
 AGENT_MAP = {
     "null": NullAgent,
@@ -138,6 +139,14 @@ def main() -> None:
             args.player,
             int(env.score),
         )
+        try:
+            show_race_outro(
+                getattr(env, "screen", None),
+                int(env.score),
+                duration=0 if FAST_TEST else 5.0,
+            )
+        except Exception:
+            pass
         env.close()
         print(metrics)
     else:
@@ -182,6 +191,14 @@ def main() -> None:
             args.player,
             int(env.score),
         )
+        try:
+            show_race_outro(
+                getattr(env, "screen", None),
+                int(env.score),
+                duration=0 if FAST_TEST else 5.0,
+            )
+        except Exception:
+            pass
         env.close()
         print(metrics)
 

@@ -22,6 +22,7 @@ from .agents.keyboard_agent import KeyboardAgent
 
 from .envs.pole_position import PolePositionEnv
 from .matchmaking.arena import run_episode, update_leaderboard
+from .utils import safe_run_episode
 from .evaluation.metrics import summary
 from .evaluation.scores import load_scores, reset_scores, update_scores
 
@@ -125,7 +126,7 @@ def main() -> None:
         )
         agent_cls = AGENT_MAP.get(args.agent, NullAgent)
         agent = agent_cls()
-        run_episode(env, (agent, agent))
+        safe_run_episode(env, (agent, agent))
         metrics = summary(env)
         update_leaderboard(
             Path(__file__).parent / "evaluation" / "leaderboard.json",
@@ -169,7 +170,7 @@ def main() -> None:
         )
         agent_cls = AGENT_MAP.get(args.agent, NullAgent)
         agent = agent_cls()
-        run_episode(env, (agent, agent))
+        safe_run_episode(env, (agent, agent))
         metrics = summary(env)
         update_leaderboard(
             Path(__file__).parent / "evaluation" / "leaderboard.json",

@@ -297,11 +297,13 @@ class Pseudo3DRenderer:
         self.sky_top = Palette.sky_blue
         self.sky_bottom = (80, 160, 208)
         self.sky_color = Palette.sky_blue
-        self.ground_color = Palette.grey
+        self.ground_color = Palette.green
         self.car_color = Palette.red
         self.player_car_sprite = _load_sprite("player_car.png") or ascii_surface(
             CAR_ART
         )
+        self.player_car_left = _load_sprite("player_car_bankL.png")
+        self.player_car_right = _load_sprite("player_car_bankR.png")
         self.cpu_front_sprite = _load_sprite("cpu_car.png") or ascii_surface(CAR_ART)
         self.billboard_sprites = []
         for i in range(1, 9):
@@ -544,6 +546,12 @@ class Pseudo3DRenderer:
         sprite = self.player_car_sprite
         if dist < env.track.width / 2:
             sprite = self.cpu_front_sprite
+        elif abs(getattr(env, "last_steer", 0.0)) > 0.5:
+            sprite = (
+                self.player_car_right
+                if getattr(env, "last_steer", 0.0) > 0
+                else self.player_car_left
+            ) or sprite
         if sprite:
             img = pygame.transform.scale(sprite, rect.size)
             surface.blit(img, rect)

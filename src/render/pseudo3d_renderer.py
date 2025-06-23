@@ -29,6 +29,7 @@ BASE_ROAD_HALF = 77.0
 ROAD_GRAY = (60, 60, 60)
 HORIZON_GAIN = 120
 STRIPE_COLOR = (250, 250, 250)
+BANK_THRESHOLD = 0.4
 
 
 class Renderer:
@@ -191,7 +192,7 @@ class Renderer:
         for name, depth, lateral in sprites_sorted:
             frame = name
             steer = getattr(env, "last_steer", 0.0)
-            if name == "player_car" and abs(steer) > 0.5:
+            if name == "player_car" and abs(steer) > BANK_THRESHOLD:
                 frame = "player_car_bankR" if steer > 0 else "player_car_bankL"
             img = self.sprites.get(frame)
             if not img:

@@ -22,5 +22,6 @@
 - [x] Lap times posted to scoreboard API
 - [x] Lap time leaderboard accessible via API
 - [x] Player name recorded in high-score table
+- [x] Grass-colored terrain and banked car sprites
 
 🎉 All core arcade mechanics implemented! 🏁

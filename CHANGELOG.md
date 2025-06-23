@@ -21,6 +21,7 @@
 - Stereo engine audio now pans per player with `engine_pan_spread` and mixes
   alongside skid and crash effects.
 - Added `JoystickAgent` for analog wheel and gamepad control.
+- Off-track ground now renders in green with leaning car sprites.
 
 📌 Keep racing for the next update! 🏁
 

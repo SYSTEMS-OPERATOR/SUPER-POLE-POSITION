@@ -7,6 +7,7 @@
 - Parameterized scanline effect intensity via `config.arcade_parity.yaml`.
 - Reduced default scanline darkness for a softer CRT vibe.
 - Lap times now sent to the scoreboard API at each lap and race end.
+- Lap time leaderboard endpoints added to the scoreboard API.
 - Added `audio_volume` setting in `config.py` controlling pygame mixer volume.
 - Added `scoreboard-sync` command to mirror scores from a remote server.
 - Introduced `TrackCurve` helper and new `fuji_curve` track data.

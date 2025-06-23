@@ -52,6 +52,8 @@ class KeyboardAgent(BaseLLMAgent):
         # Basic throttle/brake logic. 🚀
         throttle = int(keys[pygame.K_UP])  # ⬆️ accelerate
         brake = int(keys[pygame.K_DOWN])  # ⬇️ slow down
+        if os.environ.get("DISABLE_BRAKE", "0") == "1":
+            brake = 0
 
         # Steering uses arrow keys.
         steer = 0.0

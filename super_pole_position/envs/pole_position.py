@@ -248,6 +248,7 @@ class PolePositionEnv(gym.Env):
         self.prepare_wave = _load_audio("prepare.wav", "prepare_voice")
         self.final_lap_wave = _load_audio("final_lap.wav", "final_lap_voice")
         self.goal_wave = _load_audio("goal.wav", "goal_voice")
+        self.shift_wave = _load_audio("shift.wav", "shift_click")
         self.bgm_wave = _load_audio("bgm.wav", "bgm_theme")
         self.current_step = 0
         self.max_steps = 500  # limit episode length
@@ -437,6 +438,10 @@ class PolePositionEnv(gym.Env):
         if self.message_timer > 0:
             self.message_timer -= dt
 
+        if gear_cmd:
+            self._play_shift_sound()
+            self.game_message = "HIGH" if gear_cmd > 0 else "LOW"
+            self.message_timer = 1.0
         self.cars[0].shift(gear_cmd)
         self.cars[0].apply_controls(throttle, brake, steer, dt=dt, track=self.track)
         self.last_steer = steer
@@ -896,6 +901,18 @@ class PolePositionEnv(gym.Env):
             return
         try:
             self.goal_wave.play()
+        except Exception:  # pragma: no cover
+            pass
+
+    def _play_shift_sound(self) -> None:
+        """Play short click when the player shifts gear."""
+
+        if pg_mixer is None:
+            return
+        if self.shift_wave is None:
+            return
+        try:
+            self.shift_wave.play()
         except Exception:  # pragma: no cover
             pass
 

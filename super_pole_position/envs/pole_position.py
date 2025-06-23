@@ -17,6 +17,7 @@ import numpy as np
 import gymnasium as gym
 import time
 from pathlib import Path
+import importlib.util
 
 try:
     import pygame  # optional dependency for graphics
@@ -197,33 +198,51 @@ class PolePositionEnv(gym.Env):
         self.audio_stream = None
         self.engine_channel = None
         base = Path(__file__).resolve().parent.parent / "assets" / "audio"
+        gen_path = base / "generate_placeholders.py"
+        gen_mod = None
+        if gen_path.exists():
+            spec = importlib.util.spec_from_file_location("audio_gen", gen_path)
+            if spec and spec.loader:
+                gen_mod = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(gen_mod)
+
+        def _load_audio(name: str, func_name: str | None) -> "pg_mixer.Sound | None":
+            if pg_mixer is None:
+                return None
+            path = base / name
+            if path.exists() and path.stat().st_size > 0:
+                try:
+                    snd = pg_mixer.Sound(str(path))
+                    snd.set_volume(self.audio_volume)
+                    return snd
+                except Exception:
+                    pass
+            if gen_mod and func_name and hasattr(gen_mod, func_name):
+                try:
+                    if not pg_mixer.get_init():
+                        pg_mixer.init(frequency=gen_mod.SAMPLE_RATE)
+                    data = getattr(gen_mod, func_name)()
+                    arr = np.ascontiguousarray(data * 32767, dtype=np.int16)
+                    snd = pygame.sndarray.make_sound(arr)
+                    snd.set_volume(self.audio_volume)
+                    return snd
+                except Exception:
+                    return None
+            return None
+
         if pg_mixer is not None:
             try:
                 if not pg_mixer.get_init():
                     pg_mixer.init()
                 pg_mixer.music.set_volume(self.audio_volume)
-                self.crash_wave = pg_mixer.Sound(str(base / "crash.wav"))
-                self.crash_wave.set_volume(self.audio_volume)
-                self.prepare_wave = pg_mixer.Sound(str(base / "prepare.wav"))
-                self.prepare_wave.set_volume(self.audio_volume)
-                self.final_lap_wave = pg_mixer.Sound(str(base / "final_lap.wav"))
-                self.final_lap_wave.set_volume(self.audio_volume)
-                self.goal_wave = pg_mixer.Sound(str(base / "goal.wav"))
-                self.goal_wave.set_volume(self.audio_volume)
-                self.bgm_wave = pg_mixer.Sound(str(base / "namco_theme.wav"))
-                self.bgm_wave.set_volume(self.audio_volume)
-            except Exception:  # pragma: no cover - file missing or mixer error
-                self.crash_wave = None
-                self.prepare_wave = None
-                self.final_lap_wave = None
-                self.goal_wave = None
-                self.bgm_wave = None
-        else:
-            self.crash_wave = None
-            self.prepare_wave = None
-            self.final_lap_wave = None
-            self.goal_wave = None
-            self.bgm_wave = None
+            except Exception:
+                pass
+
+        self.crash_wave = _load_audio("crash.wav", "crash")
+        self.prepare_wave = _load_audio("prepare.wav", "prepare_voice")
+        self.final_lap_wave = _load_audio("final_lap.wav", "final_lap_voice")
+        self.goal_wave = _load_audio("goal.wav", "goal_voice")
+        self.bgm_wave = _load_audio("bgm.wav", "bgm_theme")
         self.current_step = 0
         self.max_steps = 500  # limit episode length
         if FAST_TEST:

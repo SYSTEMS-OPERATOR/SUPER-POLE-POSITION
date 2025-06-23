@@ -48,6 +48,7 @@ def checkpoint(duration: float = 0.2) -> np.ndarray:
     return tone * envelope
 
 
+
 def menu_tick(duration: float = 0.1) -> np.ndarray:
     """Return short beep for menu navigation."""
 
@@ -56,6 +57,31 @@ def menu_tick(duration: float = 0.1) -> np.ndarray:
     envelope = np.exp(-12 * t)
     return tone * envelope
 
+  
+def _square_wave(freq: float, duration: float) -> np.ndarray:
+    t = np.linspace(0, duration, int(SAMPLE_RATE * duration), endpoint=False)
+    return 0.5 * np.sign(np.sin(2 * math.pi * freq * t))
+
+
+def prepare_voice() -> np.ndarray:
+    notes = [(440, 0.15), (660, 0.15), (880, 0.3)]
+    return np.concatenate([_square_wave(f, d) for f, d in notes])
+
+
+def final_lap_voice() -> np.ndarray:
+    notes = [(660, 0.2), (660, 0.2), (880, 0.3)]
+    return np.concatenate([_square_wave(f, d) for f, d in notes])
+
+
+def goal_voice() -> np.ndarray:
+    notes = [(523, 0.2), (659, 0.25), (784, 0.35)]
+    return np.concatenate([_square_wave(f, d) for f, d in notes])
+
+
+def bgm_theme() -> np.ndarray:
+    melody = [(440, 0.2), (554, 0.2), (659, 0.4), (587, 0.2), (659, 0.2)]
+    return np.concatenate([_square_wave(f, d) for f, d in melody])
+
 
 GENERATORS: dict[str, Callable[[], np.ndarray]] = {
     "engine_loop.wav": engine_loop,
@@ -63,6 +89,10 @@ GENERATORS: dict[str, Callable[[], np.ndarray]] = {
     "crash.wav": crash,
     "checkpoint.wav": checkpoint,
     "menu_tick.wav": menu_tick,
+    "prepare.wav": prepare_voice,
+    "final_lap.wav": final_lap_voice,
+    "goal.wav": goal_voice,
+    "bgm.wav": bgm_theme,
 }
 
 

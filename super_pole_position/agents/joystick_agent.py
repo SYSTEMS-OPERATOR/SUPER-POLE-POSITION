@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import os
+import math
 from dataclasses import dataclass
 
 # Hide pygame's greeting for cleaner logs
@@ -60,9 +61,10 @@ class JoystickAgent(BaseLLMAgent):
 
         pygame.event.pump()
 
-        steer = self._axis(self.config.steer_axis)
+        steer_raw = self._axis(self.config.steer_axis)
+        steer = math.copysign(abs(steer_raw) ** 1.5, steer_raw)
         throttle_val = -self._axis(self.config.throttle_axis)
-        throttle = max(0.0, min(1.0, (throttle_val + 1) / 2))
+        throttle = max(0.0, min(1.0, (throttle_val + 1) / 2)) ** 1.2
 
         brake = 0.0
         if self.config.brake_axis is not None:

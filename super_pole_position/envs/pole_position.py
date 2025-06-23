@@ -73,6 +73,7 @@ class PolePositionEnv(gym.Env):
         track_name: str | None = None,
         hyper: bool = False,
         player_name: str = "PLAYER",
+        slipstream: bool = True,
     ) -> None:
         """Create a Pole Position environment.
 
@@ -88,6 +89,7 @@ class PolePositionEnv(gym.Env):
         self.mode = mode
         self.hyper = hyper
         self.player_name = player_name
+        self.slipstream_enabled = slipstream
 
         self.time_limit = 90.0 if self.mode == "race" else 73.0
         self.traffic_count = 7 if self.mode == "race" else 0
@@ -186,6 +188,7 @@ class PolePositionEnv(gym.Env):
         else:
             self.game_message = "PREPARE TO RACE"
         self.message_timer = 60.0
+        self.invulnerable_timer = 0.0
 
         # Performance metrics
         self.plan_durations: list[float] = []
@@ -364,6 +367,8 @@ class PolePositionEnv(gym.Env):
             self.time_extend_flash = max(self.time_extend_flash - dt, 0.0)
         if self.skid_timer > 0:
             self.skid_timer = max(self.skid_timer - dt, 0.0)
+        if self.invulnerable_timer > 0:
+            self.invulnerable_timer = max(self.invulnerable_timer - dt, 0.0)
         prev_obs = self._get_obs()
         reward = 0.0
 
@@ -491,7 +496,12 @@ class PolePositionEnv(gym.Env):
 
         # Off-road penalty when leaving paved surface
         if not self.track.on_road(self.cars[0]):
-            self.cars[0].speed *= 0.5
+            cap = 36.0  # ~80 MPH
+            if self.cars[0].speed > cap:
+                self.cars[0].speed = max(
+                    cap,
+                    self.cars[0].speed - self.cars[0].acceleration * dt,
+                )
             self.offroad_frames += 1
             if self.offroad_frames > 30 and self.crash_timer <= 0:
                 self.crashes += 1
@@ -520,22 +530,24 @@ class PolePositionEnv(gym.Env):
             self.skid_timer = 1.0
             self._play_skid_audio()
 
-        # Slipstream boost behind another car requires staying close
-        slip = False
-        for other in [self.cars[1]] + self.traffic:
-            dx = (other.x - self.cars[0].x + self.track.width) % self.track.width
-            dy = abs(other.y - self.cars[0].y)
-            if 0 < dx <= 3.0 and dy < 1.0:
-                slip = True
-                break
-        if slip:
-            self.slipstream_timer += dt
-            if self.slipstream_timer >= 0.5:
-                self.cars[0].speed = min(
-                    self.cars[0].speed * 1.05,
-                    self.cars[0].gear_max[self.cars[0].gear] + 5,
-                )
-                self.slipstream_frames += 1
+        if self.slipstream_enabled:
+            slip = False
+            for other in [self.cars[1]] + self.traffic:
+                dx = (other.x - self.cars[0].x + self.track.width) % self.track.width
+                dy = abs(other.y - self.cars[0].y)
+                if 0 < dx <= 3.0 and dy < 1.0:
+                    slip = True
+                    break
+            if slip:
+                self.slipstream_timer += dt
+                if self.slipstream_timer >= 0.5:
+                    self.cars[0].speed = min(
+                        self.cars[0].speed * 1.05,
+                        self.cars[0].gear_max[self.cars[0].gear] + 5,
+                    )
+                    self.slipstream_frames += 1
+                    self.slipstream_timer = 0.0
+            else:
                 self.slipstream_timer = 0.0
         else:
             self.slipstream_timer = 0.0
@@ -545,25 +557,27 @@ class PolePositionEnv(gym.Env):
             if self.crash_timer <= 0:
                 self.cars[0].x, self.cars[0].y = self.safe_point
                 self.cars[0].speed = 0.0
+                self.invulnerable_timer = 0.5
         else:
             self.safe_point = (self.cars[0].x, self.cars[0].y)
-            for t in self.traffic:
-                dx = (
-                    (t.x - self.cars[0].x + self.track.width / 2) % self.track.width
-                    - self.track.width / 2
-                )
-                if (
-                    abs(dx) <= Car.length * 0.75
-                    and abs(t.y - self.cars[0].y) <= Car.width / 2
-                    and (control_active or abs(dx) < 0.1)
-
-                ):
-                    self.crashes += 1
-                    self.crash_timer = 2.5
-                    self._play_crash_audio()
-                    self.cars[0].crash()
-                    reward = -10.0
-                    return self._get_obs(), reward, False, False, {}
+            if self.invulnerable_timer <= 0:
+                for t in self.traffic:
+                    dx = (
+                        (t.x - self.cars[0].x + self.track.width / 2) % self.track.width
+                        - self.track.width / 2
+                    )
+                    if (
+                        abs(dx) <= Car.length * 0.75
+                        and abs(t.y - self.cars[0].y) <= Car.width / 2
+                        and (control_active or abs(dx) < 0.1)
+                        
+                    ):
+                        self.crashes += 1
+                        self.crash_timer = 2.5
+                        self._play_crash_audio()
+                        self.cars[0].crash()
+                        reward = -10.0
+                        return self._get_obs(), reward, False, False, {}
 
         # Binaural audio: generate waveform based on each car's speed
         self._play_binaural_audio()

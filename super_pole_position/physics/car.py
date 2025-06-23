@@ -24,8 +24,8 @@ class Car:
         self.speed = speed
         self.acceleration = 2.0
         # Two gear ratios: index 0=LOW, 1=HIGH
-        # Adjusted top speeds for closer arcade feel (~190 MPH)
-        self.gear_max = [32.0, 85.0]
+        # Low gear revised to ~120 MPH for arcade parity
+        self.gear_max = [54.0, 85.0]
         self.gear = 0
         self.max_speed = self.gear_max[-1]
         # Slightly quicker steering for responsive handling

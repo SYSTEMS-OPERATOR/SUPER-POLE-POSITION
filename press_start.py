@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from super_pole_position.agents.keyboard_agent import KeyboardAgent
+from super_pole_position.agents.joystick_agent import JoystickAgent
 from super_pole_position.envs.pole_position import PolePositionEnv
 from super_pole_position.evaluation.metrics import summary
 from super_pole_position.utils import safe_run_episode
@@ -51,8 +52,8 @@ def main() -> None:
         logger.exception("Failed to create environment: %s", exc)
         return
 
-    # KeyboardAgent lets you take control of the action. 🎮
-    agent = KeyboardAgent()
+    js = JoystickAgent()
+    agent = js if js.joystick else KeyboardAgent()
 
     # 🔁 Allow multiple races without closing the window
     play_again = True

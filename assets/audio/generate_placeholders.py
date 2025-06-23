@@ -48,11 +48,21 @@ def checkpoint(duration: float = 0.2) -> np.ndarray:
     return tone * envelope
 
 
+def menu_tick(duration: float = 0.1) -> np.ndarray:
+    """Return short beep for menu navigation."""
+
+    t = np.linspace(0, duration, int(SAMPLE_RATE * duration), endpoint=False)
+    tone = np.sin(2 * math.pi * 660 * t)
+    envelope = np.exp(-12 * t)
+    return tone * envelope
+
+
 GENERATORS: dict[str, Callable[[], np.ndarray]] = {
     "engine_loop.wav": engine_loop,
     "skid.wav": skid,
     "crash.wav": crash,
     "checkpoint.wav": checkpoint,
+    "menu_tick.wav": menu_tick,
 }
 
 

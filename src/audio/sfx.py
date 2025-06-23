@@ -11,6 +11,7 @@ CHANNEL_MAP = {
     "skid": 1,
     "crash": 2,
     "checkpoint": 3,
+    "menu_tick": 4,
 }
 
 

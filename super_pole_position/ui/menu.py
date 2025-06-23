@@ -25,6 +25,7 @@ except Exception:  # pragma: no cover - optional dependency
     pygame = None
 
 from ..evaluation import scores as score_mod
+from ..audio.sfx import Sfx
 
 
 def show_race_outro(screen, score: int, duration: float = 5.0) -> None:
@@ -190,6 +191,13 @@ def main_loop(screen, seed: int | None = None) -> dict | None:
     backdrop = _load_backdrop(rng)
     state = MenuState()
     font = pygame.font.SysFont(None, 24)
+    audio_dir = Path(__file__).resolve().parent.parent / "assets" / "audio"
+    try:
+        if pygame.mixer and not pygame.mixer.get_init():
+            pygame.mixer.init()
+        tick_sfx = Sfx("menu_tick", audio_dir / "menu_tick.wav")
+    except Exception:  # pragma: no cover - audio failure
+        tick_sfx = None
     x_offset = 0
     running = True
     while running:
@@ -199,6 +207,8 @@ def main_loop(screen, seed: int | None = None) -> dict | None:
             if event.type == pygame.KEYDOWN:
                 name = pygame.key.name(event.key).upper()
                 result = state.handle(name)
+                if tick_sfx and name in {"UP", "DOWN", "LEFT", "RIGHT", "ENTER", "SPACE"}:
+                    tick_sfx.play()
                 if result is None or isinstance(result, dict):
                     return result
                 if name == "H":

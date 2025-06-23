@@ -17,6 +17,7 @@ except Exception:  # pragma: no cover - optional dependency
     pygame = None
 
 from .base_llm_agent import BaseLLMAgent
+from ..config import load_parity_config
 
 
 @dataclass
@@ -29,6 +30,7 @@ class JoystickConfig:
     shift_up_button: int | None = None
     shift_down_button: int | None = None
     dead_zone: float = 0.05
+    disable_brake: bool = load_parity_config().get("disable_brake", False)
 
 
 class JoystickAgent(BaseLLMAgent):
@@ -37,6 +39,9 @@ class JoystickAgent(BaseLLMAgent):
     def __init__(self, config: JoystickConfig | None = None) -> None:
         self.config = config or JoystickConfig()
         self.joystick = None
+        env_val = os.getenv("DISABLE_BRAKE")
+        if env_val is not None:
+            self.config.disable_brake = env_val == "1"
         if pygame is not None:
             try:  # pragma: no cover - optional dependency
                 pygame.joystick.init()
@@ -70,6 +75,8 @@ class JoystickAgent(BaseLLMAgent):
         if self.config.brake_axis is not None:
             brake_val = self._axis(self.config.brake_axis)
             brake = max(0.0, min(1.0, (brake_val + 1) / 2))
+        if self.config.disable_brake:
+            brake = 0.0
 
         gear = 0
         if self.config.shift_up_button is not None and self.joystick.get_numbuttons() > self.config.shift_up_button:

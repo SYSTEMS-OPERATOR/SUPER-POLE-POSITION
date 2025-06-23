@@ -15,6 +15,7 @@ except Exception:  # pragma: no cover - optional dependency
     pygame = None
 
 from .base_llm_agent import BaseLLMAgent
+from ..config import load_parity_config
 
 
 class KeyboardAgent(BaseLLMAgent):
@@ -24,6 +25,8 @@ class KeyboardAgent(BaseLLMAgent):
         self._last_up = False
         self._last_down = False
         self.use_virtual = False
+        cfg = load_parity_config()
+        self.disable_brake = os.getenv("DISABLE_BRAKE", "1" if cfg.get("disable_brake", False) else "0") == "1"
         if os.getenv("VIRTUAL_JOYSTICK", "0") == "1" and pygame is not None:
             try:  # pragma: no cover - optional dependency
                 import pygame_virtual_joystick as pvj  # type: ignore
@@ -52,6 +55,8 @@ class KeyboardAgent(BaseLLMAgent):
         # Basic throttle/brake logic. 🚀
         throttle = int(keys[pygame.K_UP])  # ⬆️ accelerate
         brake = int(keys[pygame.K_DOWN])  # ⬇️ slow down
+        if self.disable_brake:
+            brake = 0
 
         # Steering uses arrow keys.
         steer = 0.0

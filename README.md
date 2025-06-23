@@ -111,6 +111,10 @@ connect your device and run:
 spp race --render --agent joystick
 ```
 
+### 🔒 Purist Mode
+Set `DISABLE_BRAKE=1` to disable braking input and mimic the upright cabinet
+which relied solely on throttle control.
+
 🕹️ **CAR 2:** _(AI-Driven)_
 🤖 **Automated racing, planning, and learning**
 

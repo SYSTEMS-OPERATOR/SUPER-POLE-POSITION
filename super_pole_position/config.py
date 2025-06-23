@@ -14,6 +14,7 @@ DEFAULTS = {
     "puddle": {"speed_factor": 0.65, "angle_jitter": 0.2},
     "audio_volume": 0.8,
     "engine_pan_spread": 0.8,
+    "disable_brake": False,
 }
 
 CONFIG_PATH = Path(__file__).resolve().parent.parent / "config.arcade_parity.yaml"
@@ -43,6 +44,8 @@ def load_parity_config() -> dict[str, Any]:
             cfg["engine_pan_spread"] = float(data["engine_pan_spread"])
         except (TypeError, ValueError):
             cfg["engine_pan_spread"] = DEFAULTS["engine_pan_spread"]
+    if "disable_brake" in data:
+        cfg["disable_brake"] = bool(data["disable_brake"])
     return cfg
 
 def load_arcade_parity() -> dict[str, float]:

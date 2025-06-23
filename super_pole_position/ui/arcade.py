@@ -297,7 +297,7 @@ class Pseudo3DRenderer:
         self.sky_top = Palette.sky_blue
         self.sky_bottom = (80, 160, 208)
         self.sky_color = Palette.sky_blue
-        self.ground_color = Palette.grey
+        self.ground_color = Palette.green
         self.car_color = Palette.red
         self.player_car_sprite = _load_sprite("player_car.png") or ascii_surface(
             CAR_ART
@@ -546,6 +546,11 @@ class Pseudo3DRenderer:
             sprite = self.cpu_front_sprite
         if sprite:
             img = pygame.transform.scale(sprite, rect.size)
+            steer = getattr(env, "last_steer", 0.0)
+            if abs(steer) > 0.5:
+                angle = -15 if steer > 0 else 15
+                img = pygame.transform.rotate(img, angle)
+                rect = img.get_rect(center=rect.center)
             surface.blit(img, rect)
         else:
             pygame.draw.rect(surface, self.car_color, rect)

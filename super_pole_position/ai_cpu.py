@@ -19,6 +19,7 @@ class CPUCar(Car):
     target_speed: float = 5.0
     state: str = "CRUISE"
     _block_time: float = field(default=0.0, init=False)
+    _block_cooldown: float = field(default=0.0, init=False)
     _lane_timer: float = field(default=0.0, init=False)
 
     def __post_init__(self) -> None:
@@ -31,14 +32,21 @@ class CPUCar(Car):
 
         behind = (self.x - player.x) % track.width
         same_lane = abs(self.y - player.y) < 0.5
-        return 0 < behind <= 7.0 and same_lane
+        return 0 < behind <= 5.0 and same_lane
 
     def update(self, dt: float, track: Track, player: Car) -> None:
         """Advance AI state machine."""
 
-        if self.state == "CRUISE" and self.blocking(player, track):
+        self._block_cooldown = max(self._block_cooldown - dt, 0.0)
+
+        if (
+            self.state == "CRUISE"
+            and self._block_cooldown <= 0.0
+            and self.blocking(player, track)
+        ):
             self.state = "BLOCK"
             self._block_time = 1.0
+            self._block_cooldown = 2.0
 
         if self.state == "CRUISE":
             self._lane_timer -= dt

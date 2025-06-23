@@ -12,6 +12,10 @@ This document highlights planned milestones for upcoming releases.
 - Enhanced telemetry output via WebSockets.
 - Visualization notebooks for replay analysis.
 - Integrated AI replay viewer.
+- Qualify-to-race transition and grid ranking.
+- End-of-race rank screen and local high scores.
+- Difficulty presets for time allowance tweaks.
+- Optional attract mode cycling leaderboard.
 
 ## 🏆 v2.0.0
 - Community model submissions and tournament mode.

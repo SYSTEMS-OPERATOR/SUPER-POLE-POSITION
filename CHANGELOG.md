@@ -25,6 +25,8 @@
   `config.arcade_parity.yaml` with optional brake disable using
   `DISABLE_BRAKE`.
 - Off-track ground now renders in green with leaning car sprites.
+- Documented upcoming arcade-parity tasks in `PROGRESS_ARCADE_PARITY.md` and
+  added roadmap items for qualify-to-race and high-score table.
 
 📌 Keep racing for the next update! 🏁
 

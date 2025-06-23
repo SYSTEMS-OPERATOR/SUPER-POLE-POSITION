@@ -8,6 +8,7 @@ simple chiptune-style samples if real audio is unavailable.
 - `skid.wav` – tire skid effect
 - `crash.wav` – crash explosion
 - `checkpoint.wav` – checkpoint chime
+- `menu_tick.wav` – short beep for menu navigation
 - `prepare.wav` – "Prepare to qualify" voice
 - `final_lap.wav` – "Final lap" call
 - `goal.wav` – finish line voice

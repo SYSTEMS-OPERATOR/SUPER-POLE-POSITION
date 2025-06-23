@@ -12,12 +12,23 @@ Description: Module for Super Pole Position.
 
 import math
 
+from ..config import load_arcade_parity
+
+_ARC_CFG = load_arcade_parity()
+
 class Car:
     """A basic arcade-style car with position, speed, angle, acceleration."""
     length = 2.0
     width = 1.0
 
-    def __init__(self, x=0.0, y=0.0, angle=0.0, speed=0.0):
+    def __init__(
+        self,
+        x: float = 0.0,
+        y: float = 0.0,
+        angle: float = 0.0,
+        speed: float = 0.0,
+        turn_rate: float | None = None,
+    ) -> None:
         self.x = x
         self.y = y
         self.angle = angle  # Radians; 0 means facing 'east' by convention
@@ -29,7 +40,8 @@ class Car:
         self.gear = 0
         self.max_speed = self.gear_max[-1]
         # Slightly quicker steering for responsive handling
-        self.turn_rate = 2.5  # rad/sec
+        default_turn = float(_ARC_CFG.get("turn_rate", 2.5))
+        self.turn_rate = turn_rate if turn_rate is not None else default_turn
         self.shift_count = 0
         # If True speed is not clamped by gear ratios (Hyper mode)
         self.unlimited = False
@@ -39,11 +51,14 @@ class Car:
 
         return min(1.0, self.speed / self.gear_max[self.gear])
 
-    def shift(self, change: int) -> None:
-        """Change gear by ``change`` amount (e.g. -1, 0, +1)."""
+    def shift(self, change: int) -> bool:
+        """Change gear by ``change`` amount and return ``True`` if shifted."""
         if change:
             self.shift_count += 1
+            prev = self.gear
             self.gear = min(max(self.gear + change, 0), len(self.gear_max) - 1)
+            return self.gear != prev
+        return False
 
     def apply_controls(
         self,

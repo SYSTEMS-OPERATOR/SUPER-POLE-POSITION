@@ -21,6 +21,9 @@
 - Stereo engine audio now pans per player with `engine_pan_spread` and mixes
   alongside skid and crash effects.
 - Added `JoystickAgent` for analog wheel and gamepad control.
+- Steering sensitivity now configurable via `turn_rate` in
+  `config.arcade_parity.yaml` with optional brake disable using
+  `DISABLE_BRAKE`.
 - Off-track ground now renders in green with leaning car sprites.
 
 📌 Keep racing for the next update! 🏁

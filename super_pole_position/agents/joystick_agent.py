@@ -44,6 +44,7 @@ class JoystickAgent(BaseLLMAgent):
                 pass
         self.config = cfg
         self.joystick = None
+        self.disable_brake = os.getenv("DISABLE_BRAKE", "0") == "1"
         if pygame is not None:
             try:  # pragma: no cover - optional dependency
                 pygame.joystick.init()
@@ -77,7 +78,7 @@ class JoystickAgent(BaseLLMAgent):
         if self.config.brake_axis is not None:
             brake_val = self._axis(self.config.brake_axis)
             brake = max(0.0, min(1.0, (brake_val + 1) / 2))
-        if os.environ.get("DISABLE_BRAKE", "0") == "1":
+        if self.disable_brake:
             brake = 0.0
 
         gear = 0

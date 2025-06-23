@@ -248,6 +248,7 @@ class PolePositionEnv(gym.Env):
         self.prepare_wave = _load_audio("prepare.wav", "prepare_voice")
         self.final_lap_wave = _load_audio("final_lap.wav", "final_lap_voice")
         self.goal_wave = _load_audio("goal.wav", "goal_voice")
+        self.shift_wave = _load_audio("menu_tick.wav", "menu_tick")
         self.shift_wave = _load_audio("shift.wav", "shift_click")
         self.bgm_wave = _load_audio("bgm.wav", "bgm_theme")
         self.current_step = 0
@@ -438,6 +439,9 @@ class PolePositionEnv(gym.Env):
         if self.message_timer > 0:
             self.message_timer -= dt
 
+        shifted = self.cars[0].shift(gear_cmd)
+        if shifted:
+            self._play_shift_audio()
         if gear_cmd:
             self._play_shift_sound()
             self.game_message = "HIGH" if gear_cmd > 0 else "LOW"
@@ -970,6 +974,16 @@ class PolePositionEnv(gym.Env):
                 return
         sound = pygame.sndarray.make_sound(waveform_int16)
         self.audio_stream = sound.play()
+
+    def _play_shift_audio(self) -> None:
+        """Play a short click when shifting gears."""
+
+        if pg_mixer is None or self.shift_wave is None:
+            return
+        try:
+            self.shift_wave.play()
+        except Exception:  # pragma: no cover - audio may fail
+            pass
 
     def close(self):
         """Clean up resources like audio streams."""

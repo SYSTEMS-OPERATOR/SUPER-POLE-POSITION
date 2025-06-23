@@ -112,6 +112,9 @@ connect your device and run:
 ```bash
 spp race --render --agent joystick
 ```
+Set `DISABLE_BRAKE=1` to race without a brake pedal for an authentic upright
+cabinet challenge. Steering sensitivity can be tweaked via the `turn_rate`
+entry in `config.arcade_parity.yaml`.
 
 🕹️ **CAR 2:** _(AI-Driven)_
 🤖 **Automated racing, planning, and learning**

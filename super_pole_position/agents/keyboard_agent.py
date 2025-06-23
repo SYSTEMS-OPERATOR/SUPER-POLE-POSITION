@@ -24,6 +24,7 @@ class KeyboardAgent(BaseLLMAgent):
         self._last_up = False
         self._last_down = False
         self.use_virtual = False
+        self.disable_brake = os.getenv("DISABLE_BRAKE", "0") == "1"
         if os.getenv("VIRTUAL_JOYSTICK", "0") == "1" and pygame is not None:
             try:  # pragma: no cover - optional dependency
                 import pygame_virtual_joystick as pvj  # type: ignore
@@ -52,7 +53,7 @@ class KeyboardAgent(BaseLLMAgent):
         # Basic throttle/brake logic. 🚀
         throttle = int(keys[pygame.K_UP])  # ⬆️ accelerate
         brake = int(keys[pygame.K_DOWN])  # ⬇️ slow down
-        if os.environ.get("DISABLE_BRAKE", "0") == "1":
+        if self.disable_brake:
             brake = 0
 
         # Steering uses arrow keys.

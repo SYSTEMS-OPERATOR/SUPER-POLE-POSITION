@@ -12,6 +12,9 @@ from super_pole_position.utils import safe_run_episode
 from super_pole_position.matchmaking.arena import run_episode
 import logging
 
+logging.basicConfig(level=logging.ERROR)
+logger = logging.getLogger(__name__)
+
 
 
 INTRO = """
@@ -41,19 +44,27 @@ def main() -> None:
     # Create a race-ready environment. 🏆
 
     try:
-        env = PolePositionEnv(render_mode="human", mode="race", track_name="fuji")
-    except Exception as exc:  # pragma: no cover - defensive
-        print(f"env error: {exc}", flush=True)
+        env = PolePositionEnv(
+            render_mode="human", mode="race", track_name="fuji"
+        )
+    except Exception as exc:  # pragma: no cover - startup errors
+        logger.exception("Failed to create environment: %s", exc)
         return
+
     # KeyboardAgent lets you take control of the action. 🎮
     agent = KeyboardAgent()
 
     # 🔁 Allow multiple races without closing the window
     play_again = True
     while play_again:
-        env.reset()
-        safe_run_episode(env, (agent, agent))
-        print(summary(env))
+        try:
+            env.reset()
+            run_episode(env, (agent, agent))
+            print(summary(env))
+        except Exception as exc:
+            logger.exception("Runtime error: %s", exc)
+            break
+
         ans = input("Race again? [y/N] ")
         play_again = ans.strip().lower().startswith("y")
 

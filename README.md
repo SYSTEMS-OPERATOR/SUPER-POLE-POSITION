@@ -104,6 +104,13 @@ Enable it with `--virtual-joystick` when launching a race or qualifying run:
 spp race --render --virtual-joystick
 ```
 
+### 🏁 Steering Wheels & Gamepads
+Use the new `joystick` agent for analog input from a wheel or gamepad. Simply
+connect your device and run:
+```bash
+spp race --render --agent joystick
+```
+
 🕹️ **CAR 2:** _(AI-Driven)_
 🤖 **Automated racing, planning, and learning**
 

@@ -19,6 +19,7 @@ from .agents.base_llm_agent import NullAgent
 from .agents.openai_agent import OpenAIAgent
 from .agents.mistral_agent import MistralAgent
 from .agents.keyboard_agent import KeyboardAgent
+from .agents.joystick_agent import JoystickAgent
 
 from .envs.pole_position import PolePositionEnv, FAST_TEST
 from .matchmaking.arena import run_episode, update_leaderboard
@@ -32,6 +33,7 @@ AGENT_MAP = {
     "openai": OpenAIAgent,
     "mistral": MistralAgent,
     "keyboard": KeyboardAgent,
+    "joystick": JoystickAgent,
 }
 
 

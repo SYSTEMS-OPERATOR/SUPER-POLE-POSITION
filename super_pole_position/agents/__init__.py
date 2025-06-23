@@ -6,6 +6,7 @@
 """Agent implementations and controller helpers."""
 
 from .keyboard_agent import KeyboardAgent
+from .joystick_agent import JoystickAgent
 
-__all__ = ["KeyboardAgent"]
+__all__ = ["KeyboardAgent", "JoystickAgent"]
 

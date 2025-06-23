@@ -95,6 +95,8 @@ These are zero-byte stubs included only so the file paths exist.
 ⬅️➡️ **Steer Left / Right**
 **Z/X** **Shift Down / Up**
 
+Enable purist mode with `--no-brake` to disable braking entirely.
+
 For more details see [GAMEPLAY_FAQ.md](GAMEPLAY_FAQ.md).
 
 ### 🖐️ Virtual Joystick
@@ -238,6 +240,7 @@ python examples/animated_sprite.py
 - Arrow keys – Move the sprite
 - Esc – Quit the demo
 - Use `--virtual-joystick` for touchscreen controls
+- Use `--no-brake` for brake-free purist mode
 
 🚗 Happy racing! 🏁
 

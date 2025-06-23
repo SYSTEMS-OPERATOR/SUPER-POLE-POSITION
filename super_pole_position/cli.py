@@ -53,6 +53,11 @@ def main() -> None:
         action="store_true",
         help="Enable on-screen controls for touch devices",
     )
+    q.add_argument(
+        "--no-brake",
+        action="store_true",
+        help="Disable brake input for purist mode",
+    )
 
     r = sub.add_parser("race")
     r.add_argument("--agent", choices=list(AGENT_MAP.keys()), default="null")
@@ -64,6 +69,11 @@ def main() -> None:
         "--virtual-joystick",
         action="store_true",
         help="Enable on-screen controls for touch devices",
+    )
+    r.add_argument(
+        "--no-brake",
+        action="store_true",
+        help="Disable brake input for purist mode",
     )
 
     sub.add_parser("hiscore")
@@ -81,6 +91,10 @@ def main() -> None:
         os.environ["VIRTUAL_JOYSTICK"] = "1"
     else:
         os.environ.setdefault("VIRTUAL_JOYSTICK", "0")
+    if getattr(args, "no_brake", False):
+        os.environ["DISABLE_BRAKE"] = "1"
+    else:
+        os.environ.setdefault("DISABLE_BRAKE", "0")
 
     if args.cmd == "hiscore":
         file = Path(__file__).parent / "evaluation" / "scores.json"

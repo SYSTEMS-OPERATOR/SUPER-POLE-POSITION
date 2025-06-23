@@ -751,7 +751,7 @@ class PolePositionEnv(gym.Env):
 
     def _play_binaural_audio(self, duration=0.1, sample_rate=44100):
         """Generate stereo engine audio with per-player panning."""
-        if pg_mixer is None:
+        if pg_mixer is None or pygame is None:
             return
 
         t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)

@@ -131,6 +131,9 @@ class PolePositionEnv(gym.Env):
         self.low_level = LowLevelController()
         self.learning_agent = LearningAgent()
         self.audio_volume = float(PARITY_CFG.get("audio_volume", 0.8))
+        self.engine_volume = float(PARITY_CFG.get("engine_volume", self.audio_volume))
+        self.voice_volume = float(PARITY_CFG.get("voice_volume", 1.0))
+        self.effects_volume = float(PARITY_CFG.get("effects_volume", self.audio_volume))
         self.engine_pan_spread = float(PARITY_CFG.get("engine_pan_spread", 0.8))
 
         # Action space for Car 0 when controlled by a human or AI.
@@ -211,15 +214,19 @@ class PolePositionEnv(gym.Env):
             if spec and spec.loader:
                 gen_mod = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(gen_mod)
-
-        def _load_audio(name: str, func_name: str | None) -> "pg_mixer.Sound | None":
+                if hasattr(gen_mod, "generate_all"):
+                    try:
+                        gen_mod.generate_all(base)
+                    except Exception:
+                        pass
+        def _load_audio(name: str, func_name: str | None, volume: float) -> "pg_mixer.Sound | None":
             if pg_mixer is None:
                 return None
             path = base / name
             if path.exists() and path.stat().st_size > 0:
                 try:
                     snd = pg_mixer.Sound(str(path))
-                    snd.set_volume(self.audio_volume)
+                    snd.set_volume(volume)
                     return snd
                 except Exception:
                     pass
@@ -230,7 +237,7 @@ class PolePositionEnv(gym.Env):
                     data = getattr(gen_mod, func_name)()
                     arr = np.ascontiguousarray(data * 32767, dtype=np.int16)
                     snd = pygame.sndarray.make_sound(arr)
-                    snd.set_volume(self.audio_volume)
+                    snd.set_volume(volume)
                     return snd
                 except Exception:
                     return None
@@ -244,13 +251,15 @@ class PolePositionEnv(gym.Env):
             except Exception:
                 pass
 
-        self.crash_wave = _load_audio("crash.wav", "crash")
-        self.prepare_wave = _load_audio("prepare.wav", "prepare_voice")
-        self.final_lap_wave = _load_audio("final_lap.wav", "final_lap_voice")
-        self.goal_wave = _load_audio("goal.wav", "goal_voice")
-        self.shift_wave = _load_audio("menu_tick.wav", "menu_tick")
-        self.shift_wave = _load_audio("shift.wav", "shift_click")
-        self.bgm_wave = _load_audio("bgm.wav", "bgm_theme")
+        self.crash_wave = _load_audio("crash.wav", "crash", self.effects_volume)
+        self.skid_wave = _load_audio("skid.wav", "skid", self.effects_volume)
+        self.prepare_qualify_wave = _load_audio("prepare_qualify.wav", "prepare_qualify_voice", self.voice_volume)
+        self.prepare_race_wave = _load_audio("prepare_race.wav", "prepare_race_voice", self.voice_volume)
+        self.final_lap_wave = _load_audio("final_lap.wav", "final_lap_voice", self.voice_volume)
+        self.goal_wave = _load_audio("goal.wav", "goal_voice", self.voice_volume)
+        self.shift_wave = _load_audio("menu_tick.wav", "menu_tick", self.effects_volume)
+        self.shift_wave = _load_audio("shift.wav", "shift_click", self.effects_volume)
+        self.bgm_wave = _load_audio("bgm.wav", "bgm_theme", self.effects_volume)
         self.current_step = 0
         self.max_steps = 500  # limit episode length
         if FAST_TEST:
@@ -808,9 +817,11 @@ class PolePositionEnv(gym.Env):
         t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
 
         def engine_wave(freq):
-            base = 0.3 * np.sin(2 * np.pi * freq * t)
-            harm2 = 0.2 * np.sin(2 * np.pi * freq * 2 * t)
-            harm3 = 0.1 * np.sin(2 * np.pi * freq * 3 * t)
+            wobble = 0.02 * np.sin(2 * np.pi * 8 * t)
+            mod_freq = freq * (1.0 + wobble)
+            base = 0.3 * np.sin(2 * np.pi * mod_freq * t)
+            harm2 = 0.2 * np.sin(2 * np.pi * mod_freq * 2 * t)
+            harm3 = 0.1 * np.sin(2 * np.pi * mod_freq * 3 * t)
             rumble = 0.05 * np.random.uniform(-1.0, 1.0, len(t))
             return base + harm2 + harm3 + rumble
 
@@ -847,7 +858,7 @@ class PolePositionEnv(gym.Env):
         sound = pygame.sndarray.make_sound(waveform_int16)
         channel = sound.play()
         if channel:
-            channel.set_volume(self.audio_volume, self.audio_volume)
+            channel.set_volume(self.engine_volume, self.engine_volume)
         self.engine_channel = channel
 
     def _play_crash_audio(self) -> None:
@@ -858,17 +869,22 @@ class PolePositionEnv(gym.Env):
         if self.crash_wave is None:
             return
         pan = (self.cars[0].x - self.track.width / 2) / (self.track.width / 2)
-        self._play_panned_wave(self.crash_wave, pan)
+        self._play_panned_wave(self.crash_wave, pan, self.effects_volume)
 
     def _play_prepare_voice(self) -> None:
-        """Play the 'Get Ready' voice sample."""
+        """Play the appropriate 'Prepare' voice sample."""
 
         if pg_mixer is None:
             return
-        if self.prepare_wave is None:
+        wave_obj = (
+            self.prepare_qualify_wave
+            if self.mode == "qualify"
+            else self.prepare_race_wave
+        )
+        if wave_obj is None:
             return
         try:
-            self.prepare_wave.play()
+            wave_obj.play()
         except Exception:  # pragma: no cover
             pass
 
@@ -880,7 +896,7 @@ class PolePositionEnv(gym.Env):
         if pg_mixer is None or self.bgm_wave is None:
             return
         try:
-            self.bgm_wave.play(loops=-1)
+            self.bgm_wave.play(loops=0)
         except Exception:  # pragma: no cover
             pass
 
@@ -920,8 +936,8 @@ class PolePositionEnv(gym.Env):
         except Exception:  # pragma: no cover
             pass
 
-    def _play_panned_wave(self, wave_obj, pan: float) -> None:
-        """Play ``wave_obj`` panned left/right based on ``pan`` (-1..1)."""
+    def _play_panned_wave(self, wave_obj, pan: float, volume: float) -> None:
+        """Play ``wave_obj`` panned left/right using ``volume`` (-1..1 pan)."""
 
         if pg_mixer is None:
             return
@@ -937,8 +953,8 @@ class PolePositionEnv(gym.Env):
             channel = wave_obj.play()
             if channel:
                 channel.set_volume(
-                    self.audio_volume * (1.0 - max(0.0, pan)),
-                    self.audio_volume * (1.0 + min(0.0, pan)),
+                    volume * (1.0 - max(0.0, pan)),
+                    volume * (1.0 + min(0.0, pan)),
                 )
             self.audio_stream = channel
         except Exception:  # pragma: no cover
@@ -952,6 +968,11 @@ class PolePositionEnv(gym.Env):
 
         if pg_mixer is None:
             return
+        if self.skid_wave is not None:
+            pan = (self.cars[0].x - self.track.width / 2) / (self.track.width / 2)
+            self._play_panned_wave(self.skid_wave, pan, self.effects_volume)
+            return
+
         duration = 0.2
         sample_rate = 44100
         t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)

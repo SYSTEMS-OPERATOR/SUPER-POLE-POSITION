@@ -21,9 +21,13 @@ def write_wav(path: Path, data: np.ndarray) -> None:
 
 
 def engine_loop(duration: float = 1.0) -> np.ndarray:
+    """Return looping engine drone with slight vibrato."""
+
     t = np.linspace(0, duration, int(SAMPLE_RATE * duration), endpoint=False)
-    base = 0.4 * np.sin(2 * math.pi * 220 * t)
-    harm = 0.2 * np.sin(2 * math.pi * 440 * t)
+    wobble = 0.02 * np.sin(2 * math.pi * 8 * t)
+    freq = 220 * (1.0 + wobble)
+    base = 0.4 * np.sin(2 * math.pi * freq * t)
+    harm = 0.2 * np.sin(2 * math.pi * freq * 2 * t)
     return base + harm
 
 
@@ -68,6 +72,20 @@ def prepare_voice() -> np.ndarray:
     return np.concatenate([_square_wave(f, d) for f, d in notes])
 
 
+def prepare_qualify_voice() -> np.ndarray:
+    """Voice cue for 'Prepare to Qualify'."""
+
+    notes = [(440, 0.15), (660, 0.15), (880, 0.3)]
+    return np.concatenate([_square_wave(f, d) for f, d in notes])
+
+
+def prepare_race_voice() -> np.ndarray:
+    """Voice cue for 'Prepare to Race'."""
+
+    notes = [(392, 0.15), (523, 0.15), (784, 0.3)]
+    return np.concatenate([_square_wave(f, d) for f, d in notes])
+
+
 def final_lap_voice() -> np.ndarray:
     notes = [(660, 0.2), (660, 0.2), (880, 0.3)]
     return np.concatenate([_square_wave(f, d) for f, d in notes])
@@ -96,6 +114,8 @@ GENERATORS: dict[str, Callable[[], np.ndarray]] = {
     "checkpoint.wav": checkpoint,
     "menu_tick.wav": menu_tick,
     "prepare.wav": prepare_voice,
+    "prepare_qualify.wav": prepare_qualify_voice,
+    "prepare_race.wav": prepare_race_voice,
     "final_lap.wav": final_lap_voice,
     "goal.wav": goal_voice,
     "shift.wav": shift_click,

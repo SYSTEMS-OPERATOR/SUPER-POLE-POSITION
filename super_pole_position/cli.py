@@ -25,6 +25,7 @@ from .matchmaking.arena import run_episode, update_leaderboard
 from .utils import safe_run_episode
 from .evaluation.metrics import summary
 from .evaluation.scores import load_scores, reset_scores, update_scores
+from .ui.menu import show_race_outro
 
 AGENT_MAP = {
     "null": NullAgent,
@@ -138,6 +139,10 @@ def main() -> None:
             args.player,
             int(env.score),
         )
+        try:
+            show_race_outro(getattr(env, "screen", None), int(env.score))
+        except Exception:
+            pass
         env.close()
         print(metrics)
     else:
@@ -182,6 +187,10 @@ def main() -> None:
             args.player,
             int(env.score),
         )
+        try:
+            show_race_outro(getattr(env, "screen", None), int(env.score))
+        except Exception:
+            pass
         env.close()
         print(metrics)
 

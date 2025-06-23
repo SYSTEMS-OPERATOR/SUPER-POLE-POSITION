@@ -27,6 +27,49 @@ except Exception:  # pragma: no cover - optional dependency
 from ..evaluation.scores import load_scores
 
 
+def show_race_outro(screen, score: int, duration: float = 5.0) -> None:
+    """Display final score and top high scores.
+
+    When pygame is unavailable this falls back to printing the scores
+    to ``stdout``. ``duration`` controls how long the overlay remains
+    visible in seconds.
+    """
+
+    scores = load_scores(None)[:5]
+    if pygame is None:
+        print(f"FINAL SCORE {score}")
+        for i, s in enumerate(scores, 1):
+            print(f"{i}. {s['name']} {s['score']}")
+        return
+
+    if screen is None:
+        screen = pygame.display.set_mode((256, 224))
+
+    font = pygame.font.SysFont(None, 24)
+    clock = pygame.time.Clock()
+    frames = int(duration * 30)
+    count = 0
+    while count < frames:
+        for event in pygame.event.get():
+            if event.type in {pygame.KEYDOWN, pygame.QUIT}:
+                count = frames
+        screen.fill((0, 0, 0))
+        title = font.render("RACE OVER", True, (255, 255, 0))
+        screen.blit(title, (50, 20))
+        total = font.render(f"SCORE {score}", True, (255, 255, 255))
+        screen.blit(total, (50, 50))
+        header = font.render("TOP SCORES", True, (255, 255, 0))
+        screen.blit(header, (50, 80))
+        y = 110
+        for i, s in enumerate(scores, 1):
+            line = font.render(f"{i}. {s['name']} {s['score']}", True, (255, 255, 255))
+            screen.blit(line, (50, y))
+            y += 30
+        pygame.display.flip()
+        clock.tick(30)
+        count += 1
+
+
 def _show_high_scores(screen, font) -> None:
     """Display the top five scores until a key is pressed."""
 

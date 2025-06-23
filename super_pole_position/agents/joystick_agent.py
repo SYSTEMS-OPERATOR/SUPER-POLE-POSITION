@@ -29,13 +29,20 @@ class JoystickConfig:
     shift_up_button: int | None = None
     shift_down_button: int | None = None
     dead_zone: float = 0.05
+    sensitivity: float = 1.0
 
 
 class JoystickAgent(BaseLLMAgent):
     """Human agent using a physical joystick or wheel."""
 
     def __init__(self, config: JoystickConfig | None = None) -> None:
-        self.config = config or JoystickConfig()
+        cfg = config or JoystickConfig()
+        if "STEER_SENSITIVITY" in os.environ:
+            try:
+                cfg.sensitivity = float(os.environ["STEER_SENSITIVITY"])
+            except ValueError:
+                pass
+        self.config = cfg
         self.joystick = None
         self.disable_brake = os.getenv("DISABLE_BRAKE", "0") == "1"
         if pygame is not None:
@@ -62,7 +69,7 @@ class JoystickAgent(BaseLLMAgent):
 
         pygame.event.pump()
 
-        steer_raw = self._axis(self.config.steer_axis)
+        steer_raw = self._axis(self.config.steer_axis) * self.config.sensitivity
         steer = math.copysign(abs(steer_raw) ** 1.5, steer_raw)
         throttle_val = -self._axis(self.config.throttle_axis)
         throttle = max(0.0, min(1.0, (throttle_val + 1) / 2)) ** 1.2

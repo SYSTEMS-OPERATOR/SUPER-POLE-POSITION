@@ -34,6 +34,7 @@ class CPUCar(Car):
         same_lane = abs(self.y - player.y) < 0.5
         return 0 < behind <= 7.0 and same_lane
 
+
     def update(self, dt: float, track: Track, player: Car) -> None:
         """Advance AI state machine."""
 

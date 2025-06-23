@@ -83,6 +83,12 @@ def bgm_theme() -> np.ndarray:
     return np.concatenate([_square_wave(f, d) for f, d in melody])
 
 
+def shift_click() -> np.ndarray:
+    """Return short click for gear shifts."""
+
+    return _square_wave(1000, 0.05) * np.linspace(1.0, 0.0, int(SAMPLE_RATE * 0.05))
+
+
 GENERATORS: dict[str, Callable[[], np.ndarray]] = {
     "engine_loop.wav": engine_loop,
     "skid.wav": skid,
@@ -92,6 +98,7 @@ GENERATORS: dict[str, Callable[[], np.ndarray]] = {
     "prepare.wav": prepare_voice,
     "final_lap.wav": final_lap_voice,
     "goal.wav": goal_voice,
+    "shift.wav": shift_click,
     "bgm.wav": bgm_theme,
 }
 

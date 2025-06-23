@@ -20,6 +20,7 @@
 - Added on-screen high-score display and `examples/reset_high_scores.py` utility.
 - Stereo engine audio now pans per player with `engine_pan_spread` and mixes
   alongside skid and crash effects.
+- Added `JoystickAgent` for analog wheel and gamepad control.
 
 📌 Keep racing for the next update! 🏁
 

@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 from typing import Any
 
-from ..evaluation import scores
+from ..evaluation import scores, lap_times
 
 try:  # pragma: no cover - optional dependency
     from fastapi import FastAPI, HTTPException
@@ -26,7 +26,15 @@ class ScoreIn(BaseModel):
     score: int
 
 
+class LapIn(BaseModel):
+    """Lap time entry model."""
+
+    name: str
+    lap_ms: int
+
+
 SCORES_FILE = Path(os.getenv("SPP_SCORES", scores._DEFAULT_FILE))
+LAPS_FILE = Path(os.getenv("SPP_LAPS", lap_times._DEFAULT_FILE))
 
 
 def build_app() -> "FastAPI":
@@ -41,12 +49,24 @@ def build_app() -> "FastAPI":
     def get_scores() -> Any:
         return {"scores": scores.load_scores(SCORES_FILE)}
 
+    @app.get("/laps")
+    def get_laps() -> Any:
+        return {"laps": lap_times.load_lap_times(LAPS_FILE)}
+
     from fastapi import Body
 
     @app.post("/scores")
     def post_score(entry: ScoreIn = Body(...)) -> Any:
         try:
             scores.update_scores(SCORES_FILE, entry.name, entry.score)
+        except Exception as exc:  # pragma: no cover - file error
+            raise HTTPException(status_code=500, detail=str(exc))
+        return JSONResponse({"ok": True})
+
+    @app.post("/laps")
+    def post_lap(entry: LapIn = Body(...)) -> Any:
+        try:
+            lap_times.update_lap_times(LAPS_FILE, entry.name, entry.lap_ms)
         except Exception as exc:  # pragma: no cover - file error
             raise HTTPException(status_code=500, detail=str(exc))
         return JSONResponse({"ok": True})

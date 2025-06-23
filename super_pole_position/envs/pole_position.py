@@ -34,7 +34,7 @@ from ..ui.arcade import Pseudo3DRenderer
 
 from ..config import load_parity_config
 from ..config import load_arcade_parity
-from ..evaluation import submit_score_http
+from ..evaluation import submit_score_http, submit_lap_time_http
 
 _PARITY_CONFIG = load_arcade_parity()
 ENGINE_BASE_FREQ = _PARITY_CONFIG.get("engine_base_freq", 400.0)
@@ -577,8 +577,8 @@ class PolePositionEnv(gym.Env):
             self.time_extend_flash = 2.0
             print(f"[ENV] Completed lap {self.lap} in {self.last_lap_time:.2f}s", flush=True)
             try:
-                submit_score_http(
-                    f"{self.player_name}_lap", int(self.last_lap_time * 1000)
+                submit_lap_time_http(
+                    self.player_name, int(self.last_lap_time * 1000)
                 )
             except Exception:
                 pass

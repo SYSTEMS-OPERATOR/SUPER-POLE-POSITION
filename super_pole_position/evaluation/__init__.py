@@ -17,6 +17,12 @@ from .scores import (
     reset_scores,
     submit_score_http,
 )
+from .lap_times import (
+    load_lap_times,
+    update_lap_times,
+    reset_lap_times,
+    submit_lap_time_http,
+)
 
 __all__ = [
     "summary",
@@ -25,4 +31,8 @@ __all__ = [
     "update_scores",
     "reset_scores",
     "submit_score_http",
+    "load_lap_times",
+    "update_lap_times",
+    "reset_lap_times",
+    "submit_lap_time_http",
 ]

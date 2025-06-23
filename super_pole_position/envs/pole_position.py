@@ -29,6 +29,7 @@ except Exception:  # pragma: no cover - optional dependency may be missing
 from ..physics.car import Car
 from ..physics.track import Track
 from ..physics.traffic_car import TrafficCar
+import random
 from ..ai_cpu import CPUCar
 from ..agents.controllers import GPTPlanner, LowLevelController, LearningAgent
 from ..ui.arcade import Pseudo3DRenderer
@@ -112,15 +113,17 @@ class PolePositionEnv(gym.Env):
         if self.mode == "race":
             for i in range(self.traffic_count):
                 x = (100 + (i + 1) * 10) % self.track.width
-                speed = 5.0 + (i % 3)
-                if i == 0:
-                    self.traffic.append(
-                        CPUCar(x=x, y=self.track.height / 2, target_speed=speed)
-                    )
+                if i < 3:
+                    spd = random.uniform(5.0, 7.0)
+                elif i < 5:
+                    spd = random.uniform(8.0, 10.0)
                 else:
-                    self.traffic.append(
-                        TrafficCar(x=x, y=self.track.height / 2, target_speed=speed)
-                    )
+                    spd = random.uniform(12.0, 15.0)
+                y = self.track.height / 2 + random.uniform(-1.0, 1.0)
+                if i == 0:
+                    self.traffic.append(CPUCar(x=x, y=y, target_speed=spd))
+                else:
+                    self.traffic.append(TrafficCar(x=x, y=y, target_speed=spd))
 
         # AI components for second car
         # Load GPT model lazily to avoid startup hiccups
@@ -316,7 +319,13 @@ class PolePositionEnv(gym.Env):
         if self.mode == "race":
             for i, t in enumerate(self.traffic):
                 t.x = (100 + (i + 1) * 10) % self.track.width
-                t.y = self.track.height / 2
+                if i < 3:
+                    t.target_speed = random.uniform(5.0, 7.0)
+                elif i < 5:
+                    t.target_speed = random.uniform(8.0, 10.0)
+                else:
+                    t.target_speed = random.uniform(12.0, 15.0)
+                t.y = self.track.height / 2 + random.uniform(-1.0, 1.0)
                 t.speed = 0.0
                 t.prev_x = t.x
 

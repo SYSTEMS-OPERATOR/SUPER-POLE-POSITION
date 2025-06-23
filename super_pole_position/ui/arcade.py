@@ -534,36 +534,47 @@ class Pseudo3DRenderer:
             else:
                 pygame.draw.rect(surface, (200, 200, 200), rect)
 
-        # Render the opponent car scaled by distance
-        other = env.cars[1]
-        dist = (other.x - player.x) % env.track.width
-        scale = max(0.1, min(1.0 / (dist / 5.0 + 1.0), 1.0))
-        car_h = 20 * scale
-        car_w = 10 * scale
-        x = width / 2 - offset * (1.0 - scale)
-        y = bottom - (bottom - self.horizon) * scale
-        rect = pygame.Rect(int(x - car_w / 2), int(y - car_h), int(car_w), int(car_h))
-        sprite = self.player_car_sprite
-        if dist < env.track.width / 2:
-            sprite = self.cpu_front_sprite
-        elif abs(getattr(env, "last_steer", 0.0)) > 0.5:
-            sprite = (
-                self.player_car_right
-                if getattr(env, "last_steer", 0.0) > 0
-                else self.player_car_left
-            ) or sprite
-        if sprite:
-            img = pygame.transform.scale(sprite, rect.size)
-            steer = getattr(env, "last_steer", 0.0)
-            if abs(steer) > 0.5:
-                angle = -15 if steer > 0 else 15
-                img = pygame.transform.rotate(img, angle)
-                rect = img.get_rect(center=rect.center)
-            surface.blit(img, rect)
+        # Render opponent cars sorted by distance (farthest first)
+        if env.mode == "race":
+            opponents = [env.cars[1]] + list(env.traffic)
         else:
-            pygame.draw.rect(surface, self.car_color, rect)
+            opponents = []
 
-        if env.crash_timer > 0:
+        opponent_info = [
+            (car, (car.x - player.x) % env.track.width) for car in opponents
+        ]
+        opponent_info.sort(key=lambda item: item[1], reverse=True)
+
+        for car, dist in opponent_info:
+            scale = max(0.1, min(1.0 / (dist / 5.0 + 1.0), 1.0))
+            car_h = 20 * scale
+            car_w = 10 * scale
+            x = width / 2 + (car.y - env.track.height / 2) - offset * (1.0 - scale)
+            y = bottom - (bottom - self.horizon) * scale
+            rect = pygame.Rect(
+                int(x - car_w / 2), int(y - car_h), int(car_w), int(car_h)
+            )
+            sprite = self.player_car_sprite
+            if dist < env.track.width / 2:
+                sprite = self.cpu_front_sprite
+            elif abs(getattr(env, "last_steer", 0.0)) > 0.5:
+                sprite = (
+                    self.player_car_right
+                    if getattr(env, "last_steer", 0.0) > 0
+                    else self.player_car_left
+                ) or sprite
+            if sprite:
+                img = pygame.transform.scale(sprite, rect.size)
+                steer = getattr(env, "last_steer", 0.0)
+                if abs(steer) > 0.5:
+                    angle = -15 if steer > 0 else 15
+                    img = pygame.transform.rotate(img, angle)
+                    rect = img.get_rect(center=rect.center)
+                surface.blit(img, rect)
+            else:
+                pygame.draw.rect(surface, self.car_color, rect)
+
+        if env.mode == "race" and env.crash_timer > 0:
             self.draw_explosion(env, (int(x - car_w), int(y - car_h * 2)))
 
         # Player HUD text
@@ -588,10 +599,14 @@ class Pseudo3DRenderer:
                 surface.blit(lap_time_text, (lx, 30))
 
             lap_text = font.render(f"LAP {env.lap + 1}/4", True, (0, 255, 0))
-            p_prog = env.track.progress(player)
-            o_prog = env.track.progress(other)
-            pos = 1 if p_prog >= o_prog else 2
-            pos_text = font.render(f"POS {pos}/2", True, (0, 255, 0))
+            rank = 1
+            if env.mode == "race":
+                for car in env.traffic:
+                    ahead = (car.x - player.x) % env.track.width
+                    if ahead > 0:
+                        rank += 1
+            total = len(env.traffic) + 1
+            pos_text = font.render(f"POS {rank}/{total}", True, (0, 255, 0))
             surface.blit(lap_text, (10, 50))
             surface.blit(pos_text, (10, 70))
 

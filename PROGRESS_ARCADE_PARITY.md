@@ -29,10 +29,10 @@
 ## Upcoming Features
 
 - [ ] Qualify-to-race transition with start position message
-- [ ] Score bonus tiers for high qualifying ranks
 - [x] Difficulty options for time allowance per lap
+- [x] Score bonus tiers for high qualifying ranks
 - [ ] Expanded end-of-race sequence with rank display
 - [ ] Local high-score entry and leaderboard screen
 - [ ] Optional attract mode cycling the leaderboard
-- [ ] Finish-line check when timer hits exactly zero
-- [ ] Puddles placed at original track corners
+- [x] Finish-line check when timer hits exactly zero
+- [x] Puddles placed at original track corners

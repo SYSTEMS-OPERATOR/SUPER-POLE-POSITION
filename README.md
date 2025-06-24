@@ -154,6 +154,7 @@ No binary blobs are checked in. Use `generate_placeholders.py` inside each
 folder to create simple stand-ins if you haven't supplied real artwork or
 samples. See `assets/sprites/SPRITES.md` and `assets/audio/AUDIO.md` for the
 full list.
+For planned graphic enhancements consult [`GRAPHICS_FIDELITY_TASKS.md`](GRAPHICS_FIDELITY_TASKS.md).
 
 🚀 **Run a Test Race**
 ```bash

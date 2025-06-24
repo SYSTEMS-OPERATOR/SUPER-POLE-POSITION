@@ -473,7 +473,6 @@ class PolePositionEnv(gym.Env):
         shifted = self.cars[0].shift(gear_cmd)
         if shifted:
             self._play_shift_audio()
-            self._play_shift_sound()
             self.game_message = "HIGH" if gear_cmd > 0 else "LOW"
             self.message_timer = 1.0
         self.cars[0].apply_controls(throttle, brake, steer, dt=dt, track=self.track)
@@ -937,18 +936,6 @@ class PolePositionEnv(gym.Env):
             return
         try:
             self.goal_wave.play()
-        except Exception:  # pragma: no cover
-            pass
-
-    def _play_shift_sound(self) -> None:
-        """Play short click when the player shifts gear."""
-
-        if pg_mixer is None:
-            return
-        if self.shift_wave is None:
-            return
-        try:
-            self.shift_wave.play()
         except Exception:  # pragma: no cover
             pass
 

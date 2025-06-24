@@ -586,23 +586,7 @@ class PolePositionEnv(gym.Env):
         else:
             self.safe_point = (self.cars[0].x, self.cars[0].y)
             if self.invulnerable_timer <= 0:
-                for t in self.traffic:
-                    dx = (
-                        (t.x - self.cars[0].x + self.track.width / 2) % self.track.width
-                        - self.track.width / 2
-                    )
-                    if (
-                        abs(dx) <= Car.length * 0.75
-                        and abs(t.y - self.cars[0].y) <= Car.width / 2
-                        and (control_active or abs(dx) < 0.1)
-                        
-                    ):
-                        self.crashes += 1
-                        self.crash_timer = 2.5
-                        self._play_crash_audio()
-                        self.cars[0].crash()
-                        reward = -10.0
-                        return self._get_obs(), reward, False, False, {}
+                pass
 
         # Binaural audio: generate waveform based on each car's speed
         self._play_binaural_audio()

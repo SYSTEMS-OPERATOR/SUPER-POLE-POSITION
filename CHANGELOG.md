@@ -28,5 +28,6 @@
 - Documented upcoming arcade-parity tasks in `PROGRESS_ARCADE_PARITY.md` and
   added roadmap items for qualify-to-race and high-score table.
 
+- Fixed duplicate menu tick sound load for gear shifts.
 📌 Keep racing for the next update! 🏁
 

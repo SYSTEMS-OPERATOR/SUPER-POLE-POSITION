@@ -257,7 +257,6 @@ class PolePositionEnv(gym.Env):
         self.prepare_race_wave = _load_audio("prepare_race.wav", "prepare_race_voice", self.voice_volume)
         self.final_lap_wave = _load_audio("final_lap.wav", "final_lap_voice", self.voice_volume)
         self.goal_wave = _load_audio("goal.wav", "goal_voice", self.voice_volume)
-        self.shift_wave = _load_audio("menu_tick.wav", "menu_tick", self.effects_volume)
         self.shift_wave = _load_audio("shift.wav", "shift_click", self.effects_volume)
         self.bgm_wave = _load_audio("bgm.wav", "bgm_theme", self.effects_volume)
         self.current_step = 0

@@ -29,3 +29,8 @@ def test_factorial_positive():
 def test_factorial_negative():
     with pytest.raises(ValueError):
         factorial(-1)
+
+
+def test_factorial_large():
+    import math
+    assert factorial(100) == math.factorial(100)

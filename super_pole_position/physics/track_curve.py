@@ -36,8 +36,8 @@ class TrackCurve:
         """Precompute polyline points spaced one meter apart."""
         x, y, angle = 0.0, 0.0, 0.0
         self._points.append((x, y))
-        for seg in self.segments:
-            if seg != self.segments[0]:
+        for i, seg in enumerate(self.segments):
+            if i > 0:
                 x, y = seg.x, seg.y
             dist = 0.0
             while dist < seg.length:

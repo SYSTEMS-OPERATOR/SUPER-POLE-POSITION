@@ -397,6 +397,7 @@ class PolePositionEnv(gym.Env):
             except Exception:
                 pass
         self.remaining_time = max(self.remaining_time - dt, 0.0)
+        expired_now = self.remaining_time <= 0
         self.lap_timer += dt
         if self.lap_flash > 0.0:
             self.lap_flash = max(self.lap_flash - dt, 0.0)
@@ -684,6 +685,7 @@ class PolePositionEnv(gym.Env):
             self._play_goal_voice()
             self.game_message = "FINISHED!"
             self.message_timer = 90.0
+            
         if self.remaining_time <= 0 and not lap_crossed:
             done = True
             self.game_message = "TIME UP!"
@@ -807,6 +809,11 @@ class PolePositionEnv(gym.Env):
             ),
             2,
         )
+        for p in getattr(self.track, "puddles", []):
+            x = int(p.x * self._scale)
+            y = int(p.y * self._scale)
+            r = max(1, int(p.radius * self._scale))
+            pygame.draw.circle(self.screen, (40, 40, 120), (x, y), r)
         colors = [(255, 0, 0), (0, 255, 0)]
         for car, color in zip(self.cars, colors):
             x = int(car.x * self._scale)

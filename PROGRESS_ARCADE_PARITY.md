@@ -35,4 +35,4 @@
 - [ ] Local high-score entry and leaderboard screen
 - [ ] Optional attract mode cycling the leaderboard
 - [x] Finish-line check when timer hits exactly zero
-- [ ] Puddles placed at original track corners
+- [x] Puddles placed at original track corners

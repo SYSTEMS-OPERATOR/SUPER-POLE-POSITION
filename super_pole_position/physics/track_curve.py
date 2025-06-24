@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import math
+from bisect import bisect_left
 from typing import List, Tuple
 
 
@@ -69,8 +70,13 @@ class TrackCurve:
         return self._points[-1]
 
     def tangent_at(self, s: float) -> Tuple[float, float]:
-        """Return unit tangent vector at distance ``s``."""
-        idx = max(0, min(len(self._points) - 2, int(s)))
+        """Return unit tangent vector at distance ``s`` along the curve."""
+
+        if not self._points:
+            return 0.0, 0.0
+        s = max(0.0, min(s, self.total_length))
+        idx = bisect_left(self._lengths, s)
+        idx = min(max(idx, 0), len(self._points) - 2)
         x0, y0 = self._points[idx]
         x1, y1 = self._points[idx + 1]
         dx, dy = x1 - x0, y1 - y0
@@ -80,4 +86,3 @@ class TrackCurve:
     def normal_at(self, s: float) -> Tuple[float, float]:
         tx, ty = self.tangent_at(s)
         return -ty, tx
-

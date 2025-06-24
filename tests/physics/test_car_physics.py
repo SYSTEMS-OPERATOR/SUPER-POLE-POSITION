@@ -33,3 +33,12 @@ def test_steering_limit():
     c.speed_kmh = 320
     c.update(1.0, 1.0)
     assert c.a_lat <= 0.8 * 9.81 * 1.05
+
+
+def test_shift_count_increments():
+    car = Car()
+    assert car.shift_count == 0
+    car.shift_high()
+    assert car.shift_count == 1
+    car.shift_low()
+    assert car.shift_count == 2

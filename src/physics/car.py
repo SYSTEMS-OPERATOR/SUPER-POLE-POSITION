@@ -22,6 +22,7 @@ SKID_DURATION: float = 0.5
 class Car:
     speed_kmh: float = 0.0
     gear: str = "LOW"
+    shift_count: int = 0
     skid_timer: float = 0.0
     heading: float = 0.0
     a_lat: float = 0.0
@@ -59,10 +60,12 @@ class Car:
     # ------------------------------------------------------------------
     def shift_high(self) -> None:
         self.gear = "HIGH"
+        self.shift_count += 1
 
     # ------------------------------------------------------------------
     def shift_low(self) -> None:
         self.gear = "LOW"
+        self.shift_count += 1
 
 
 """

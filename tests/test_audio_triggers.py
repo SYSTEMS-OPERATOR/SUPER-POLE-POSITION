@@ -25,3 +25,9 @@ def test_step_with_audio_no_exception():
     env.cars[0].speed = 6.0
     env.step((True, False, 1.0))
     env.close()
+
+
+def test_checkpoint_sound_loaded():
+    env = PolePositionEnv(render_mode="human")
+    assert env.checkpoint_wave is not None
+    env.close()

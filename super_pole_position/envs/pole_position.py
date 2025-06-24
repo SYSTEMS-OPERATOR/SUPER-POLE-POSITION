@@ -189,6 +189,8 @@ class PolePositionEnv(gym.Env):
         self.time_extend_flash = 0.0
         self.lap_times: list[float] = []
         self.grid_order: list[int] = []
+        # Flag whether a lap completed this frame for timer grace
+        self.lap_extended = False
         if self.mode == "qualify":
             self.game_message = "PREPARE TO QUALIFY"
         else:
@@ -311,6 +313,7 @@ class PolePositionEnv(gym.Env):
         self.time_extend_flash = 0.0
         self.lap_times = []
         self.grid_order = []
+        self.lap_extended = False
         self.game_message = ""
         self.message_timer = 0.0
 
@@ -380,6 +383,8 @@ class PolePositionEnv(gym.Env):
             except Exception:
                 pass
         self.remaining_time = max(self.remaining_time - dt, 0.0)
+        # Reset lap extension flag each frame
+        self.lap_extended = False
         self.lap_timer += dt
         if self.lap_flash > 0.0:
             self.lap_flash = max(self.lap_flash - dt, 0.0)
@@ -616,6 +621,7 @@ class PolePositionEnv(gym.Env):
             self.lap_timer = 0.0
             self.lap_flash = 2.0
             self.remaining_time += 30.0
+            self.lap_extended = True
             self.time_extend_flash = 2.0
             self._play_checkpoint_audio()
             print(f"[ENV] Completed lap {self.lap} in {self.last_lap_time:.2f}s", flush=True)
@@ -663,7 +669,7 @@ class PolePositionEnv(gym.Env):
             self._play_goal_voice()
             self.game_message = "FINISHED!"
             self.message_timer = 90.0
-        if self.remaining_time <= 0:
+        if self.remaining_time <= 0 and not self.lap_extended:
             done = True
             self.game_message = "TIME UP!"
             self.message_timer = 90.0

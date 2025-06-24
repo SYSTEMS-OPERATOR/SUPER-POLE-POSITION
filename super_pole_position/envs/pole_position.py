@@ -53,7 +53,22 @@ FAST_TEST = bool(int(os.getenv("FAST_TEST", "0")))
 PARITY_CFG = load_parity_config()
 
 
-FAST_TEST = bool(int(os.getenv("FAST_TEST", "0")))
+def ordinal(n: int) -> str:
+    """Return ordinal string for an integer (1 -> 1ST)."""
+    if 10 <= n % 100 <= 20:
+        suffix = "TH"
+    else:
+        suffix = {1: "ST", 2: "ND", 3: "RD"}.get(n % 10, "TH")
+    return f"{n}{suffix}"
+
+
+def _qualifying_bonus(time_s: float) -> tuple[int, int]:
+    """Return (rank, score bonus) for a qualifying time."""
+    if time_s < 55.0:
+        return 1, 5000
+    if time_s < 58.0:
+        return 3, 3000
+    return 6, 1000
 
 class PolePositionEnv(gym.Env):
     """
@@ -189,6 +204,7 @@ class PolePositionEnv(gym.Env):
         self.time_extend_flash = 0.0
         self.lap_times: list[float] = []
         self.grid_order: list[int] = []
+        self.qualifying_rank = 0
         if self.mode == "qualify":
             self.game_message = "PREPARE TO QUALIFY"
         else:
@@ -311,6 +327,7 @@ class PolePositionEnv(gym.Env):
         self.time_extend_flash = 0.0
         self.lap_times = []
         self.grid_order = []
+        self.qualifying_rank = 0
         self.game_message = ""
         self.message_timer = 0.0
 
@@ -608,7 +625,9 @@ class PolePositionEnv(gym.Env):
             t.prev_x = t.x
 
         progress = self.track.progress(self.cars[0])
+        lap_crossed = False
         if progress < self.prev_progress:
+            lap_crossed = True
             self.lap += 1
             self.score += 2000
             self.last_lap_time = self.lap_timer
@@ -647,8 +666,10 @@ class PolePositionEnv(gym.Env):
             reward = progress - 0.1 * elapsed
             if progress >= 1.0:
                 self.qualifying_time = elapsed
-                if elapsed < 55.0:
-                    self.score += 5000
+                self.qualifying_rank, bonus = _qualifying_bonus(elapsed)
+                self.score += bonus
+                self.game_message = f"QUALIFIED {ordinal(self.qualifying_rank)}"
+                self.message_timer = 90.0
                 done = True
         else:  # race
             reward = self.cars[0].speed * 0.05
@@ -663,7 +684,7 @@ class PolePositionEnv(gym.Env):
             self._play_goal_voice()
             self.game_message = "FINISHED!"
             self.message_timer = 90.0
-        if self.remaining_time <= 0:
+        if self.remaining_time <= 0 and not lap_crossed:
             done = True
             self.game_message = "TIME UP!"
             self.message_timer = 90.0

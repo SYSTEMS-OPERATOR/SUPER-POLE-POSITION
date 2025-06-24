@@ -17,3 +17,5 @@ horizon_sway: 0.12
 
 
 turn_rate: 2.5
+show_gear: 1
+show_minimap: 1

@@ -143,7 +143,7 @@ class Track:
     @classmethod
     def load(cls, name: str) -> "Track":
         path = (
-            Path(__file__).resolve().parent.parent
+            Path(__file__).resolve().parents[2]
             / "assets"
             / "tracks"
             / f"{name}.json"
@@ -199,7 +199,7 @@ class Track:
         """Load one of the original Namco tracks by name."""
 
         path = (
-            Path(__file__).resolve().parent.parent
+            Path(__file__).resolve().parents[2]
             / "assets"
             / "tracks"
             / f"{name}.json"

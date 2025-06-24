@@ -75,6 +75,7 @@ class PolePositionEnv(gym.Env):
         hyper: bool = False,
         player_name: str = "PLAYER",
         slipstream: bool = True,
+        difficulty: str = "normal",
     ) -> None:
         """Create a Pole Position environment.
 
@@ -83,6 +84,7 @@ class PolePositionEnv(gym.Env):
         :param track_name: Optional track to load.
         :param hyper: If ``True`` doubles gear limits for extreme speed.
         :param player_name: Name recorded in the high-score table.
+        :param difficulty: ``easy``, ``normal`` or ``hard`` time settings.
         """
 
         super().__init__()
@@ -91,8 +93,19 @@ class PolePositionEnv(gym.Env):
         self.hyper = hyper
         self.player_name = player_name
         self.slipstream_enabled = slipstream
+        self.difficulty = difficulty
 
-        self.time_limit = 90.0 if self.mode == "race" else 73.0
+        base_time = 90.0 if self.mode == "race" else 73.0
+        self.time_bonus = 30.0
+        if self.difficulty == "easy":
+            self.time_limit = base_time + 5.0
+            self.time_bonus = 35.0
+        elif self.difficulty == "hard":
+            self.time_limit = base_time - 10.0
+            self.time_bonus = 25.0
+        else:
+            self.time_limit = base_time
+
         self.traffic_count = 7 if self.mode == "race" else 0
         if FAST_TEST:
             self.time_limit = min(self.time_limit, 20.0)
@@ -111,6 +124,11 @@ class PolePositionEnv(gym.Env):
                 car.unlimited = True
         self.traffic: list[Car] = []
         if self.mode == "race":
+            speed_factor = 1.0
+            if self.difficulty == "easy":
+                speed_factor = 0.9
+            elif self.difficulty == "hard":
+                speed_factor = 1.1
             for i in range(self.traffic_count):
                 x = (100 + (i + 1) * 10) % self.track.width
                 if i < 3:
@@ -119,6 +137,7 @@ class PolePositionEnv(gym.Env):
                     spd = random.uniform(8.0, 10.0)
                 else:
                     spd = random.uniform(12.0, 15.0)
+                spd *= speed_factor
                 y = self.track.height / 2 + random.uniform(-1.0, 1.0)
                 if i == 0:
                     self.traffic.append(CPUCar(x=x, y=y, target_speed=spd))
@@ -615,7 +634,7 @@ class PolePositionEnv(gym.Env):
             self.lap_times.append(self.lap_timer)
             self.lap_timer = 0.0
             self.lap_flash = 2.0
-            self.remaining_time += 30.0
+            self.remaining_time += self.time_bonus
             self.time_extend_flash = 2.0
             self._play_checkpoint_audio()
             print(f"[ENV] Completed lap {self.lap} in {self.last_lap_time:.2f}s", flush=True)
@@ -663,7 +682,7 @@ class PolePositionEnv(gym.Env):
             self._play_goal_voice()
             self.game_message = "FINISHED!"
             self.message_timer = 90.0
-        if self.remaining_time <= 0:
+        if self.remaining_time < 0:
             done = True
             self.game_message = "TIME UP!"
             self.message_timer = 90.0

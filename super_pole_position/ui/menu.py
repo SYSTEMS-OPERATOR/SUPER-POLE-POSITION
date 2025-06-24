@@ -102,7 +102,7 @@ class MenuState:
     """Headless-friendly menu state machine."""
 
     options = {
-        "difficulty": ["beginner", "expert"],
+        "difficulty": ["easy", "normal", "hard"],
         "audio": ["on", "off"],
         "track": ["fuji", "seaside", "random"],
         "volume": list(range(0, 110, 10)),
@@ -183,7 +183,7 @@ def main_loop(screen, seed: int | None = None) -> dict | None:
     """Interactive title menu loop. Returns config or None if cancelled."""
     if not pygame:
         return {
-            "difficulty": "beginner",
+            "difficulty": "easy",
             "audio": os.environ.get("AUDIO", "1") != "0",
             "track": "fuji",
             "volume": 100,

@@ -15,7 +15,8 @@ from super_pole_position.ui.menu import MenuState
 
 def test_menu_navigation_and_config():
     state = MenuState()
-    # set difficulty to expert
+    # set difficulty to hard
+    state.handle('RIGHT')
     state.handle('RIGHT')
     # move to audio and turn off
     state.handle('DOWN')
@@ -25,7 +26,7 @@ def test_menu_navigation_and_config():
     state.handle('RIGHT')
     # confirm
     cfg = state.handle('ENTER')
-    assert cfg['difficulty'] == 'expert'
+    assert cfg['difficulty'] == 'hard'
     assert cfg['audio'] is False
     assert cfg['track'] == 'seaside'
 

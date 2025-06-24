@@ -97,9 +97,15 @@ def _load_sprite(name: str) -> "pygame.Surface | None":
 
 
 def _load_arcade_config() -> Dict[str, float]:
-    """Return scanline configuration from ``config.arcade_parity.yaml``."""
+    """Return HUD and display settings from ``config.arcade_parity.yaml``."""
 
-    cfg: Dict[str, float] = {"scanline_step": 2, "scanline_alpha": 255, "horizon_sway": 0.1}
+    cfg: Dict[str, float] = {
+        "scanline_step": 2,
+        "scanline_alpha": 255,
+        "horizon_sway": 0.1,
+        "show_gear": 1,
+        "show_minimap": 1,
+    }
     path = Path(__file__).resolve().parents[2] / "config.arcade_parity.yaml"
     try:
         with open(path, "r", encoding="utf-8") as fh:
@@ -331,6 +337,10 @@ class Pseudo3DRenderer:
         self.scanline_step = cfg["scanline_step"]
         self.scanline_alpha = cfg["scanline_alpha"]
         self.horizon_sway = float(cfg.get("horizon_sway", HORIZON_SWAY))
+        self.show_gear = os.environ.get("HUD_GEAR", str(int(cfg.get("show_gear", 1)))) != "0"
+        self.show_minimap = os.environ.get(
+            "HUD_MINIMAP", str(int(cfg.get("show_minimap", 1)))
+        ) != "0"
         if pygame:
             self._scanline_row = pygame.Surface((1, 1), pygame.SRCALPHA)
             self._scanline_row.fill((0, 0, 0, self.scanline_alpha))
@@ -605,17 +615,19 @@ class Pseudo3DRenderer:
                     ahead = (car.x - player.x) % env.track.width
                     if ahead > 0:
                         rank += 1
-            total = len(env.traffic) + 1
-            pos_text = font.render(f"POS {rank}/{total}", True, (0, 255, 0))
-            surface.blit(lap_text, (10, 50))
-            surface.blit(pos_text, (10, 70))
+            pos_text = font.render(f"RANK {rank}", True, (0, 255, 0))
+            lx = width - lap_text.get_width() - 10
+            px = width - pos_text.get_width() - 10
+            surface.blit(lap_text, (lx, 50))
+            surface.blit(pos_text, (px, 70))
 
             mph = int(player.speed * 2.23694)
             spd_text = font.render(f"SPEED {mph} MPH", True, (255, 255, 255))
             gear = "H" if player.gear else "L"
-            gear_text = font.render(f"GEAR {gear}", True, (255, 255, 255))
             surface.blit(spd_text, (width - spd_text.get_width() - 10, 10))
-            surface.blit(gear_text, (width - gear_text.get_width() - 10, 30))
+            if self.show_gear:
+                gear_text = font.render(f"GEAR {gear}", True, (255, 255, 255))
+                surface.blit(gear_text, (width - gear_text.get_width() - 10, 30))
 
             perf_lines = []
             if os.environ.get("PERF_HUD", "0") != "0":
@@ -629,7 +641,7 @@ class Pseudo3DRenderer:
             t = font.render(line, True, (255, 255, 255))
             surface.blit(t, (width - 160, 30 + 20 * i))
 
-            # mini-map simple dot positions
+        if self.show_minimap:
             map_h = 80
             map_w = 80
             pygame.draw.rect(

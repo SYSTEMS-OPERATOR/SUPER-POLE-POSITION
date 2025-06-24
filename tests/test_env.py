@@ -28,3 +28,21 @@ def test_reset_and_step():
     assert isinstance(reward, float)
     assert len(obs) == 17
     env.close()
+
+
+def test_custom_parameters() -> None:
+    """Initialize ``PolePositionEnv`` with non-default settings."""
+    env = PolePositionEnv(
+        render_mode="human",
+        mode="qualify",
+        track_name="fuji",
+        hyper=True,
+        player_name="ACE",
+        slipstream=False,
+    )
+    env.reset()
+    assert env.mode == "qualify"
+    assert env.player_name == "ACE"
+    assert env.slipstream_enabled is False
+    assert env.hyper is True
+    env.close()

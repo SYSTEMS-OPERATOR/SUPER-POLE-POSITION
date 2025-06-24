@@ -382,7 +382,12 @@ class Pseudo3DRenderer:
     def draw_road_polygon(self, env) -> list[tuple[float, float]]:
         """Draw the road trapezoid and return its points."""
 
-        angle = env.track.angle_at(env.cars[0].x)
+        car = env.cars[0]
+        if getattr(env.track, "curve", None) is not None and hasattr(env.track, "progress"):
+            dist = env.track.progress(car) * env.track.curve.total_length
+        else:
+            dist = car.x
+        angle = env.track.angle_at(dist)
         curvature = max(-1.0, min(angle / (math.pi / 4), 1.0))
         offset = curvature * (self.canvas.get_width() / 4)
         points = self.road_polygon(offset)
@@ -445,7 +450,11 @@ class Pseudo3DRenderer:
         road_w = width * 0.6
         bottom = height
         player = env.cars[0]
-        angle = env.track.angle_at(player.x)
+        if getattr(env.track, "curve", None) is not None and hasattr(env.track, "progress"):
+            dist = env.track.progress(player) * env.track.curve.total_length
+        else:
+            dist = player.x
+        angle = env.track.angle_at(dist)
         curvature = max(-1.0, min(angle / (math.pi / 4), 1.0))
         offset = curvature * (width / 4)
         self.horizon = int(self.horizon_base + offset * self.horizon_sway)

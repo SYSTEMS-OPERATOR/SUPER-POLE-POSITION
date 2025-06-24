@@ -15,6 +15,7 @@ import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from super_pole_position.physics.car import Car
+from super_pole_position.envs.pole_position import PolePositionEnv
 
 
 def test_shift_changes_max_speed():
@@ -26,3 +27,14 @@ def test_shift_changes_max_speed():
     for _ in range(10):
         car.apply_controls(True, False, 0.0, dt=1.0)
     assert car.speed <= car.gear_max[1]
+
+
+def test_env_shift_increments_once():
+    env = PolePositionEnv(render_mode="human")
+    env.reset()
+    env.start_timer = 0
+    before = env.cars[0].shift_count
+    env.step((False, False, 0.0, 1))
+    after = env.cars[0].shift_count
+    assert after - before == 1
+    env.close()

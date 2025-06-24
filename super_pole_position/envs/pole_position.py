@@ -451,11 +451,9 @@ class PolePositionEnv(gym.Env):
         shifted = self.cars[0].shift(gear_cmd)
         if shifted:
             self._play_shift_audio()
-        if gear_cmd:
             self._play_shift_sound()
             self.game_message = "HIGH" if gear_cmd > 0 else "LOW"
             self.message_timer = 1.0
-        self.cars[0].shift(gear_cmd)
         self.cars[0].apply_controls(throttle, brake, steer, dt=dt, track=self.track)
         self.last_steer = steer
 

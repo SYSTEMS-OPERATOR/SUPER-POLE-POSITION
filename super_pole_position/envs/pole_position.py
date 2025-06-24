@@ -206,7 +206,7 @@ class PolePositionEnv(gym.Env):
 
         self.audio_stream = None
         self.engine_channel = None
-        base = Path(__file__).resolve().parent.parent / "assets" / "audio"
+        base = Path(__file__).resolve().parent.parent.parent / "assets" / "audio"
         gen_path = base / "generate_placeholders.py"
         gen_mod = None
         if gen_path.exists():
@@ -257,6 +257,9 @@ class PolePositionEnv(gym.Env):
         self.prepare_race_wave = _load_audio("prepare_race.wav", "prepare_race_voice", self.voice_volume)
         self.final_lap_wave = _load_audio("final_lap.wav", "final_lap_voice", self.voice_volume)
         self.goal_wave = _load_audio("goal.wav", "goal_voice", self.voice_volume)
+        self.checkpoint_wave = _load_audio(
+            "checkpoint.wav", "checkpoint", self.effects_volume
+        )
         self.shift_wave = _load_audio("menu_tick.wav", "menu_tick", self.effects_volume)
         self.shift_wave = _load_audio("shift.wav", "shift_click", self.effects_volume)
         self.bgm_wave = _load_audio("bgm.wav", "bgm_theme", self.effects_volume)
@@ -633,6 +636,7 @@ class PolePositionEnv(gym.Env):
             self.lap_flash = 2.0
             self.remaining_time += 30.0
             self.time_extend_flash = 2.0
+            self._play_checkpoint_audio()
             print(f"[ENV] Completed lap {self.lap} in {self.last_lap_time:.2f}s", flush=True)
             try:
                 submit_lap_time_http(
@@ -993,6 +997,18 @@ class PolePositionEnv(gym.Env):
                 return
         sound = pygame.sndarray.make_sound(waveform_int16)
         self.audio_stream = sound.play()
+
+    def _play_checkpoint_audio(self) -> None:
+        """Play checkpoint chime when time extends."""
+
+        if pg_mixer is None:
+            return
+        if self.checkpoint_wave is None:
+            return
+        try:
+            self.checkpoint_wave.play()
+        except Exception:  # pragma: no cover
+            pass
 
     def _play_shift_audio(self) -> None:
         """Play a short click when shifting gears."""

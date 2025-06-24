@@ -36,3 +36,16 @@
 - [ ] Optional attract mode cycling the leaderboard
 - [x] Finish-line check when timer hits exactly zero
 - [x] Puddles placed at original track corners
+
+## Graphics Fidelity Tasks
+
+- [ ] Authentic player and CPU car sprites with proper banking angles
+- [ ] Multiple opponent palettes rendered back-to-front
+- [ ] Four-phase explosion with wheels that scatter and fade
+- [ ] Road shoulder stripes using 4 px red/white pattern
+- [ ] Grass rendered in #007000 with a subtle vertical gradient
+- [ ] Parallax clouds and steering-linked Mount Fuji sway
+- [ ] Eight billboard artworks with smoother scaling and ground shadows
+- [ ] Start/finish gantry banner and three-light countdown
+- [ ] CRT filter with barrel distortion, RGB mask and scanlines
+- [ ] HUD font and palette aligned to arcade ROM

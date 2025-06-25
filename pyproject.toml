@@ -7,8 +7,8 @@ name = "super-pole-position"
 version = "0.1.0"
 description = "Gymnasium environment for AI-driven Pole Position style racing."
 readme = "README.md"
-license = {file = "LICENSE"}
-authors = [{name="System Operators"}]
+license = "Unlicense"
+authors = [{name="Systems Operator"}]
 requires-python = ">=3.8"
 dependencies = [
     "gymnasium",

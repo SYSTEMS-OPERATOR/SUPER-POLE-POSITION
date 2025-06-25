@@ -8,10 +8,13 @@ import logging
 from pathlib import Path
 from typing import List, Dict
 from urllib import request
+import logging
 import os
+
 
 logger = logging.getLogger(__name__)
 _DEFAULT_FILE = Path(__file__).resolve().parent / "lap_times.json"
+logger = logging.getLogger(__name__)
 
 
 def load_lap_times(file: Path | None = None) -> List[Dict]:

@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass, field
 import random
+from random import Random
 
 from .physics.car import Car
 from .physics.track import Track
@@ -21,11 +22,12 @@ class CPUCar(Car):
     _block_time: float = field(default=0.0, init=False)
     _block_cooldown: float = field(default=0.0, init=False)
     _lane_timer: float = field(default=0.0, init=False)
+    rng: Random = field(default_factory=Random, repr=False)
 
     def __post_init__(self) -> None:
         super().__init__(self.x, self.y, self.angle, self.speed)
         self.preferred_lane = self.y
-        self._lane_timer = random.uniform(2.0, 4.0)
+        self._lane_timer = self.rng.uniform(2.0, 4.0)
 
     def blocking(self, player: Car, track: Track) -> bool:
         """Return ``True`` if player is close enough behind to block."""
@@ -52,11 +54,9 @@ class CPUCar(Car):
         if self.state == "CRUISE":
             self._lane_timer -= dt
             if self._lane_timer <= 0.0:
-                offset = random.choice([-1.0, 0.0, 1.0])
-                self.preferred_lane = (
-                    track.y_at(self.x) + offset
-                )
-                self._lane_timer = random.uniform(2.0, 4.0)
+                offset = self.rng.choice([-1.0, 0.0, 1.0])
+                self.preferred_lane = track.y_at(self.x) + offset
+                self._lane_timer = self.rng.uniform(2.0, 4.0)
             diff = self.preferred_lane - self.y
             self.y += diff * dt * 0.5
 

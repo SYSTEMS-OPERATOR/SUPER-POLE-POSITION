@@ -606,7 +606,7 @@ class PolePositionEnv(gym.Env):
             self.offroad_frames = 0
 
         if self.track.in_puddle(self.cars[0]):
-            factor = PARITY_CFG["puddle"].get("speed_factor", 0.7)
+            factor = self.track.get_puddle_factor()
             jitter = PARITY_CFG["puddle"].get("angle_jitter", 0.2)
             self.cars[0].speed *= factor
             self.cars[0].angle += self.np_rng.uniform(-jitter, jitter)

@@ -354,12 +354,27 @@ class Track:
 
     def surface_friction(self, car) -> float:
         """Return friction coefficient for ``car`` based on surface zones."""
-        if self.in_puddle(car):
-            return self.get_puddle_factor()
+        return self.friction_factor(car)
+
+    # ------------------------------------------------------------------
+    def friction_factor(self, obj) -> float:
+        """Return combined friction factor for ``obj``."""
+
+        factor = 1.0
+
+        if not self.on_road(obj):
+            cfg = load_parity_config()
+            factor *= float(cfg.get("offroad_speed_factor", 0.5))
+
+        if self.in_puddle(obj):
+            factor *= self.get_puddle_factor()
+
         for s in self.surfaces:
-            if s.x <= car.x <= s.x + s.width and s.y <= car.y <= s.y + s.height:
-                return s.friction
-        return 1.0
+            if s.x <= obj.x <= s.x + s.width and s.y <= obj.y <= s.y + s.height:
+                factor *= s.friction
+                break
+
+        return factor
 
     def friction_factor(self, car) -> float:
         """Return combined friction factor for ``car``."""

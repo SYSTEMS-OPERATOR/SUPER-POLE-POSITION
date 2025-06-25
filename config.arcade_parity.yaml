@@ -2,6 +2,7 @@
 puddle:
   speed_factor: 0.65
   angle_jitter: 0.2
+offroad_speed_factor: 0.5
 
 engine_base_freq: 400.0
 engine_pitch_factor: 3100.0

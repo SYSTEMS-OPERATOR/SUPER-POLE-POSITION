@@ -15,6 +15,17 @@ import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from super_pole_position.envs.pole_position import PolePositionEnv
+import random
+
+
+def test_seed_passthrough() -> None:
+    env = PolePositionEnv(render_mode="human")
+    env.reset(seed=42)
+    first = random.random()
+    env.reset(seed=42)
+    second = random.random()
+    env.close()
+    assert first == second
 
 
 def test_reset_and_step():

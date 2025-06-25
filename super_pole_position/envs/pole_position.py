@@ -91,6 +91,7 @@ class PolePositionEnv(gym.Env):
         player_name: str = "PLAYER",
         slipstream: bool = True,
         difficulty: str = "beginner",
+        seed: int | None = None,
     ) -> None:
         """Create a Pole Position environment.
 
@@ -102,6 +103,9 @@ class PolePositionEnv(gym.Env):
         """
 
         super().__init__()
+        if seed is not None:
+            random.seed(seed)
+            np.random.seed(seed)
         self.render_mode = render_mode
         self.mode = mode
         self.hyper = hyper
@@ -379,7 +383,9 @@ class PolePositionEnv(gym.Env):
         self.step_log = []
 
         # Return initial observation
-        return self._get_obs(), {}
+        obs = self._get_obs()
+        info = {"track_hash": self.track.track_hash}
+        return obs, info
 
     def step(self, action):
         """
@@ -734,10 +740,12 @@ class PolePositionEnv(gym.Env):
                 pass
             print("[ENV] Race finished", flush=True)
 
-        experience = (prev_obs, action, reward, self._get_obs())
+        obs = self._get_obs()
+        experience = (prev_obs, action, reward, obs)
         self.learning_agent.update_on_experience([experience])
         self.step_durations.append(time.perf_counter() - step_start)
-        return self._get_obs(), reward, done, False, {}
+        info = {"track_hash": self.track.track_hash}
+        return obs, reward, done, False, info
 
     def render(self):
         """Render the environment."""

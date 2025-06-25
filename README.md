@@ -26,8 +26,7 @@ rrrrr
 
 ## Quick Start
 ```bash
-pip install -r requirements.txt
-python press_start.py
+pip install -r requirements.txt && python run_game.py
 # or dive into the CLI
 spp qualify --agent null --track fuji
 # try the new curved Fuji circuit

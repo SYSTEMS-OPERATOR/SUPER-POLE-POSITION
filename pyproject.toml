@@ -23,6 +23,7 @@ dev = ["pytest", "pytest-cov", "coverage", "pytest-timeout"]
 
 [project.scripts]
 super-pole-position = "super_pole_position.cli:main"
+pole-position = "src.cli:main"
 
 [tool.setuptools.packages.find]
 exclude = ["assets*"]

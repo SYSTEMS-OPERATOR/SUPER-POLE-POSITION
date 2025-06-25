@@ -1,6 +1,10 @@
 # 🏎️ SUPER-POLE-POSITION 🏁  
 🔴🟡🟢 **AI RACING GYM – PUSH YOUR LIMITS!** 🟢🟡🔴  
-_A Reinforcement Learning Lab for Next-Gen AI Racers_  
+_A Reinforcement Learning Lab for Next-Gen AI Racers_
+
+## CI Badges
+![tests](https://github.com/example/super-pole-position/actions/workflows/ci.yml/badge.svg)
+![coverage](https://img.shields.io/badge/coverage-71%25-yellow)
 
 🕹️ **INSERT COIN TO CONTINUE...**  
 💾 **LOADING AI MODELS...**  

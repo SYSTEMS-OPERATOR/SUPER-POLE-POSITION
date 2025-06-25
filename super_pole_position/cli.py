@@ -65,6 +65,11 @@ def main() -> None:
         default="beginner",
         help="Set difficulty level for time limits",
     )
+    q.add_argument(
+        "--attract-mode",
+        action="store_true",
+        help="Cycle leaderboard when idle at menu",
+    )
 
     r = sub.add_parser("race")
     r.add_argument("--agent", choices=list(AGENT_MAP.keys()), default="null")
@@ -89,6 +94,11 @@ def main() -> None:
         default="beginner",
         help="Set difficulty level for time limits",
     )
+    r.add_argument(
+        "--attract-mode",
+        action="store_true",
+        help="Cycle leaderboard when idle at menu",
+    )
 
     sub.add_parser("hiscore")
     sub.add_parser("reset-scores")
@@ -109,6 +119,10 @@ def main() -> None:
         os.environ["DISABLE_BRAKE"] = "1"
     else:
         os.environ.setdefault("DISABLE_BRAKE", "0")
+    if getattr(args, "attract_mode", False):
+        os.environ["ATTRACT_MODE"] = "1"
+    else:
+        os.environ.setdefault("ATTRACT_MODE", "0")
 
     if args.cmd == "hiscore":
         file = Path(__file__).parent / "evaluation" / "scores.json"

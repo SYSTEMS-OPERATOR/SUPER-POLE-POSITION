@@ -180,7 +180,12 @@ def _load_backdrop(rng: random.Random) -> pygame.Surface | None:
 
 
 def main_loop(screen, seed: int | None = None) -> dict | None:
-    """Interactive title menu loop. Returns config or None if cancelled."""
+    """Interactive title menu loop.
+
+    When ``ATTRACT_MODE`` is set to ``"1"`` the high-score table
+    automatically appears after a period of inactivity.
+    Returns config or ``None`` if cancelled.
+    """
     if not pygame:
         return {
             "difficulty": "beginner",
@@ -202,6 +207,9 @@ def main_loop(screen, seed: int | None = None) -> dict | None:
     except Exception:  # pragma: no cover - audio failure
         tick_sfx = None
     x_offset = 0
+    attract = os.getenv("ATTRACT_MODE", "0") == "1"
+    idle_limit = 5.0 if os.getenv("FAST_TEST", "0") == "1" else 10.0
+    last_input = pygame.time.get_ticks()
     running = True
     while running:
         for event in pygame.event.get():
@@ -216,6 +224,12 @@ def main_loop(screen, seed: int | None = None) -> dict | None:
                     return result
                 if name == "H":
                     _show_high_scores(screen, font)
+                last_input = pygame.time.get_ticks()
+        if attract and pygame.time.get_ticks() - last_input >= idle_limit * 1000:
+            _show_high_scores(screen, font)
+            last_input = pygame.time.get_ticks()
+            if os.getenv("FAST_TEST", "0") == "1":
+                return None
         if backdrop:
             w = backdrop.get_width()
             screen.blit(backdrop, (-x_offset % w, 0))

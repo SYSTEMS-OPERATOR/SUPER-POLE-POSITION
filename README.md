@@ -245,6 +245,7 @@ python examples/animated_sprite.py
 - Esc – Quit the demo
 - Use `--virtual-joystick` for touchscreen controls
 - Use `--no-brake` for brake-free purist mode
+- Select harder races with `--difficulty expert`
 
 🚗 Happy racing! 🏁
 

@@ -58,6 +58,12 @@ def main() -> None:
         action="store_true",
         help="Disable brake input for purist mode",
     )
+    q.add_argument(
+        "--difficulty",
+        choices=["beginner", "expert"],
+        default="beginner",
+        help="Set difficulty level for time limits",
+    )
 
     r = sub.add_parser("race")
     r.add_argument("--agent", choices=list(AGENT_MAP.keys()), default="null")
@@ -74,6 +80,12 @@ def main() -> None:
         "--no-brake",
         action="store_true",
         help="Disable brake input for purist mode",
+    )
+    r.add_argument(
+        "--difficulty",
+        choices=["beginner", "expert"],
+        default="beginner",
+        help="Set difficulty level for time limits",
     )
 
     sub.add_parser("hiscore")
@@ -134,12 +146,14 @@ def main() -> None:
             if cfg is None:
                 return
             args.track = cfg.get("track", args.track)
+            args.difficulty = cfg.get("difficulty", args.difficulty)
             os.environ["AUDIO"] = "1" if cfg.get("audio", True) else "0"
         env = PolePositionEnv(
             render_mode="human",
             mode="qualify",
             track_name=args.track,
             player_name=args.player,
+            difficulty=args.difficulty,
         )
         agent_cls = AGENT_MAP.get(args.agent, NullAgent)
         agent = agent_cls()
@@ -186,12 +200,14 @@ def main() -> None:
             if cfg is None:
                 return
             args.track = cfg.get("track", args.track)
+            args.difficulty = cfg.get("difficulty", args.difficulty)
             os.environ["AUDIO"] = "1" if cfg.get("audio", True) else "0"
         env = PolePositionEnv(
             render_mode="human",
             mode="race",
             track_name=args.track,
             player_name=args.player,
+            difficulty=args.difficulty,
         )
         agent_cls = AGENT_MAP.get(args.agent, NullAgent)
         agent = agent_cls()

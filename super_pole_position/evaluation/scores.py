@@ -15,6 +15,7 @@ import json
 from pathlib import Path
 from typing import List, Dict
 from urllib import request
+import os
 
 
 _DEFAULT_FILE = Path(__file__).resolve().parent / "scores.json"
@@ -64,12 +65,13 @@ def submit_score_http(
     Returns ``True`` on success.
     """
 
+    if os.getenv("ALLOW_NET") != "1":
+        return False
     url = f"http://{host}:{port}/scores"
     data = json.dumps({"name": name, "score": int(score)}).encode()
     req = request.Request(url, data=data, headers={"Content-Type": "application/json"})
     try:
         with request.urlopen(req, timeout=1) as resp:  # pragma: no cover - network
             return 200 <= resp.status < 300
-    except Exception as exc:  # pragma: no cover - network failure
-        print(f"submit_score_http error: {exc}", flush=True)
+    except Exception:
         return False

@@ -139,7 +139,7 @@ class PolePositionEnv(gym.Env):
         self.time_limit = limits.get(difficulty, limits["beginner"])[self.mode]
         self.traffic_count = 7 if self.mode == "race" else 0
         if FAST_TEST:
-            self.time_limit = min(self.time_limit, 20.0)
+            self.time_limit = min(self.time_limit, 2.0)
             self.traffic_count = 2
 
         # Track & cars

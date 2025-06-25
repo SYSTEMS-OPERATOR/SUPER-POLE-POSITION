@@ -101,13 +101,8 @@ class Car:
         self.x += dx
         self.y += dy
 
-        # Off-road slowdown
-        if track and not track.on_road(self):
-            self.speed *= 0.5
-
-        # Surface friction zones
         if track:
-            self.speed *= track.surface_friction(self)
+            self.speed *= track.friction_factor(self)
 
     def crash(self) -> None:
         """Stop the car and reset gear when a crash occurs."""

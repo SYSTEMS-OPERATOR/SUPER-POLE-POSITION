@@ -54,6 +54,5 @@ def submit_lap_time_http(
     try:
         with request.urlopen(req, timeout=1) as resp:  # pragma: no cover - network
             return 200 <= resp.status < 300
-    except Exception as exc:  # pragma: no cover - network failure
-        print(f"submit_lap_time_http error: {exc}", flush=True)
+    except Exception:  # pragma: no cover - network failure
         return False

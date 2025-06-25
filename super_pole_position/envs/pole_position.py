@@ -106,6 +106,9 @@ class PolePositionEnv(gym.Env):
         if seed is not None:
             random.seed(seed)
             np.random.seed(seed)
+            self.rng = np.random.default_rng(seed)
+        else:
+            self.rng = np.random.default_rng()
         self.render_mode = render_mode
         self.mode = mode
         self.hyper = hyper
@@ -317,6 +320,9 @@ class PolePositionEnv(gym.Env):
         if seed is not None:
             random.seed(seed)
             np.random.seed(seed)
+            self.rng = np.random.default_rng(seed)
+        else:
+            self.rng = np.random.default_rng()
         print("[ENV] Resetting environment", flush=True)
         self.current_step = 0
         self.remaining_time = self.time_limit

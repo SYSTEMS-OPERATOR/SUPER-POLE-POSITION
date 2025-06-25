@@ -45,6 +45,7 @@ def main() -> None:
     q = sub.add_parser("qualify")
     q.add_argument("--agent", choices=list(AGENT_MAP.keys()), default="null")
     q.add_argument("--track", default="fuji")
+    q.add_argument("--track-file", dest="track_file")
     q.add_argument("--render", action="store_true")
     q.add_argument("--mute-bgm", action="store_true", help="Disable background music")
     q.add_argument("--player", default="PLAYER", help="Name for score entry")
@@ -68,6 +69,7 @@ def main() -> None:
     r = sub.add_parser("race")
     r.add_argument("--agent", choices=list(AGENT_MAP.keys()), default="null")
     r.add_argument("--track", default="fuji")
+    r.add_argument("--track-file", dest="track_file")
     r.add_argument("--render", action="store_true")
     r.add_argument("--mute-bgm", action="store_true", help="Disable background music")
     r.add_argument("--player", default="PLAYER", help="Name for score entry")
@@ -152,6 +154,7 @@ def main() -> None:
             render_mode="human",
             mode="qualify",
             track_name=args.track,
+            track_file=args.track_file,
             player_name=args.player,
             difficulty=args.difficulty,
         )
@@ -206,6 +209,7 @@ def main() -> None:
             render_mode="human",
             mode="race",
             track_name=args.track,
+            track_file=args.track_file,
             player_name=args.player,
             difficulty=args.difficulty,
         )

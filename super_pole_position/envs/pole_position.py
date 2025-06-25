@@ -101,6 +101,7 @@ class PolePositionEnv(gym.Env):
         render_mode: str = "human",
         mode: str = "race",
         track_name: str | None = None,
+        track_file: str | None = None,
         hyper: bool = False,
         player_name: str = "PLAYER",
         slipstream: bool = True,
@@ -111,7 +112,8 @@ class PolePositionEnv(gym.Env):
 
         :param render_mode: ``human`` for pygame output.
         :param mode: ``race`` or ``qualify``.
-        :param track_name: Optional track to load.
+        :param track_name: Optional built-in track to load.
+        :param track_file: Path to a custom track JSON file.
         :param hyper: If ``True`` doubles gear limits for extreme speed.
         :param player_name: Name recorded in the high-score table.
         """
@@ -128,6 +130,7 @@ class PolePositionEnv(gym.Env):
         self.player_name = player_name
         self.slipstream_enabled = slipstream
         self.difficulty = difficulty
+        self.track_file = track_file
 
         limits = {
             "beginner": {"race": 90.0, "qualify": 73.0},
@@ -140,9 +143,12 @@ class PolePositionEnv(gym.Env):
             self.traffic_count = 2
 
         # Track & cars
-        self.track = (
-            Track.load(track_name) if track_name else Track(width=200.0, height=200.0)
-        )
+        if track_file:
+            self.track = Track.from_file(track_file)
+        else:
+            self.track = (
+                Track.load(track_name) if track_name else Track(width=200.0, height=200.0)
+            )
         self.cars = [Car(x=50, y=50), Car(x=150, y=150)]
         if self.hyper:
             for car in self.cars:

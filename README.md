@@ -33,6 +33,8 @@ spp qualify --agent null --track fuji
 spp qualify --agent null --track fuji_curve
 # record scores under your initials
 spp race --player AAA
+# load a custom track
+spp race --track-file my_track.json
 ```
 ![](docs.gif)
 

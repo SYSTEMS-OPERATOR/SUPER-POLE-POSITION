@@ -239,6 +239,57 @@ class Track:
         return cls()
 
     @classmethod
+    def from_file(cls, path: str | Path) -> "Track":
+        """Load track configuration from an arbitrary JSON file."""
+
+        p = Path(path)
+        if p.exists():
+            try:
+                data = json.loads(p.read_text())
+            except Exception:
+                return cls()
+            seg = data.get("segments", [])
+            obstacles = [Obstacle(**o) for o in data.get("obstacles", [])]
+            puddles = [Puddle(**p) for p in data.get("puddles", [])]
+            surfaces = [SurfaceZone(**s) for s in data.get("surfaces", [])]
+            road_w = float(data.get("road_width", 10.0))
+            if seg:
+                if len(seg[0]) == 4:
+                    curve = TrackCurve.from_tuples([tuple(p) for p in seg])
+                    width = int(max(p[0] for p in curve._points)) + 1
+                    height = int(max(p[1] for p in curve._points)) + 1
+                    return cls(
+                        width=width,
+                        height=height,
+                        obstacles=obstacles,
+                        puddles=puddles,
+                        surfaces=surfaces,
+                        segments=None,
+                        curve=curve,
+                        road_width=road_w,
+                    )
+                else:
+                    width = max(p[0] for p in seg)
+                    height = max(p[1] for p in seg)
+                    return cls(
+                        width=width,
+                        height=height,
+                        obstacles=obstacles,
+                        puddles=puddles,
+                        surfaces=surfaces,
+                        segments=[tuple(p) for p in seg],
+                        road_width=road_w,
+                    )
+            if obstacles or puddles or surfaces:
+                return cls(
+                    obstacles=obstacles,
+                    puddles=puddles,
+                    surfaces=surfaces,
+                    road_width=road_w,
+                )
+        return cls()
+
+    @classmethod
     def load_namco(cls, name: str) -> "Track":
         """Load one of the original Namco tracks by name."""
 

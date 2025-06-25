@@ -22,7 +22,6 @@ from super_pole_position.physics.track import Track, Puddle
 
 import pathlib
 
-from super_pole_position.ui.arcade import SCANLINE_ALPHA
 
 
 def measure_puddle_ratio() -> float:

@@ -678,9 +678,7 @@ class PolePositionEnv(gym.Env):
             t.prev_x = t.x
 
         progress = self.track.progress(self.cars[0])
-        lap_crossed = False
         if progress < self.prev_progress:
-            lap_crossed = True
             self.lap += 1
             self.score += 2000
             self.last_lap_time = self.lap_timer

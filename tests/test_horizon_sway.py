@@ -1,6 +1,5 @@
 import math
 import pygame
-import pytest
 
 from super_pole_position.envs.pole_position import PolePositionEnv
 from super_pole_position.ui.arcade import Pseudo3DRenderer

@@ -19,7 +19,7 @@ for (int i=0;i<64;i++){
 
 from __future__ import annotations
 
-from typing import Iterable, List, Tuple
+
 
 import pygame
 

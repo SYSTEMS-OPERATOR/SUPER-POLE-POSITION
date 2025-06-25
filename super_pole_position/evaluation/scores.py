@@ -12,7 +12,6 @@ Description: Module for Super Pole Position.
 from __future__ import annotations
 
 import json
-import logging
 from pathlib import Path
 from typing import List, Dict
 from urllib import request
@@ -22,7 +21,6 @@ import os
 
 logger = logging.getLogger(__name__)
 _DEFAULT_FILE = Path(__file__).resolve().parent / "scores.json"
-logger = logging.getLogger(__name__)
 
 
 def load_scores(file: Path | None = None) -> List[Dict]:

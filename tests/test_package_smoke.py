@@ -1,7 +1,6 @@
 import subprocess
 import sys
 import venv
-from pathlib import Path
 
 
 import pytest
@@ -12,7 +11,6 @@ def test_wheel_smoke(tmp_path):
     wheel_dir = tmp_path / "wheel"
     wheel_dir.mkdir()
     subprocess.check_call([sys.executable, "-m", "pip", "wheel", ".", "-w", str(wheel_dir)])
-    wheel = next(wheel_dir.glob("super_pole_position*.whl"))
     env_dir = tmp_path / "venv"
     venv.EnvBuilder(with_pip=True).create(env_dir)
     exe = env_dir / "bin" / "pip"

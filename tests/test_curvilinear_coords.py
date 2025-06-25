@@ -12,8 +12,8 @@ sp_physics = importlib.util.module_from_spec(spec)
 sys.modules["super_pole_position.physics_module"] = sp_physics
 spec.loader.exec_module(sp_physics)  # type: ignore
 
-from super_pole_position.physics.track import Track
-from super_pole_position.physics.track_curve import TrackCurve, CurveSegment
+from super_pole_position.physics.track import Track  # noqa: E402
+from super_pole_position.physics.track_curve import TrackCurve, CurveSegment  # noqa: E402
 
 
 def test_curvilinear_coords_straight():

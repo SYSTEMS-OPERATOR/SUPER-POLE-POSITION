@@ -13,8 +13,12 @@ import math
 import json
 from pathlib import Path
 from dataclasses import dataclass
+
+from ..config import load_parity_config
 from .track_curve import TrackCurve
 from ..config import load_parity_config
+
+_PARITY_CFG = load_parity_config()
 
 _PARITY_CFG = load_parity_config()
 
@@ -313,6 +317,11 @@ class Track:
 
     def surface_friction(self, car) -> float:
         """Return friction coefficient for ``car`` based on surface zones."""
+        if self.in_puddle(car):
+            return float(_PARITY_CFG.get("puddle", {}).get("speed_factor", 0.65))
+
+        if self.in_puddle(car):
+            return float(_PARITY_CFG.get("puddle", {}).get("speed_factor", 0.65))
 
         if self.in_puddle(car):
             return float(_PARITY_CFG["puddle"].get("speed_factor", 0.65))

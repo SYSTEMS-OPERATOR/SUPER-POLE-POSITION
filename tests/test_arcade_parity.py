@@ -11,7 +11,6 @@ import pytest  # noqa: F401
 
 from super_pole_position.ui import arcade
 from super_pole_position.envs.pole_position import engine_pitch
-from pathlib import Path
 
 import os
 import sys
@@ -24,6 +23,7 @@ from super_pole_position.physics.track import Track, Puddle
 import pathlib
 
 from super_pole_position.ui.arcade import SCANLINE_ALPHA
+
 
 def measure_puddle_ratio() -> float:
     env = PolePositionEnv(render_mode="human")

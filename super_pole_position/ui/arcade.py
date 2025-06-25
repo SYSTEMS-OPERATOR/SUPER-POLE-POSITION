@@ -343,19 +343,16 @@ class Pseudo3DRenderer:
         self.dash_offset = 0.0
 
     def draw_explosion(self, env, pos) -> int:
-        """Blit the correct explosion frame at ``pos`` and return its index."""
+        """Render the explosion frame at ``pos`` and return its index."""
 
-        if not pygame or not self.explosion_frames or env.crash_timer <= 0:
+        if not pygame or env.crash_timer <= 0:
             return -1
-
         duration = getattr(env, "crash_duration", 2.5)
-        frame_duration = duration / len(self.explosion_frames)
-        frame_index = min(
-            len(self.explosion_frames) - 1,
-            int((duration - env.crash_timer) / frame_duration),
-        )
+        frame_count = len(self.explosion_frames)
+        frame_duration = duration / frame_count
+        frame_index = min(frame_count - 1, int((duration - env.crash_timer) / frame_duration))
         frame_surface = self.explosion_frames[frame_index]
-        self.screen.blit(frame_surface, pos)
+        self.canvas.blit(frame_surface, pos)
         return frame_index
 
     def _draw_start_lights(self, surface: "pygame.Surface", phase: str) -> None:

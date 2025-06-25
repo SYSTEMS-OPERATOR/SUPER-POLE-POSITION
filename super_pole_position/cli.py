@@ -89,6 +89,11 @@ def main() -> None:
         default="beginner",
         help="Set difficulty level for time limits",
     )
+    r.add_argument(
+        "--start-pos",
+        type=int,
+        help="Grid position from qualifying",
+    )
 
     sub.add_parser("hiscore")
     sub.add_parser("reset-scores")
@@ -212,6 +217,7 @@ def main() -> None:
             track_file=args.track_file,
             player_name=args.player,
             difficulty=args.difficulty,
+            start_position=args.start_pos,
         )
         agent_cls = AGENT_MAP.get(args.agent, NullAgent)
         agent = agent_cls()

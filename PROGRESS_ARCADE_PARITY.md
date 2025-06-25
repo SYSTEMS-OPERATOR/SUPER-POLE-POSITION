@@ -28,7 +28,7 @@
 
 ## Upcoming Features
 
-- [ ] Qualify-to-race transition with start position message
+- [x] Qualify-to-race transition with start position message
 - [x] Score bonus tiers for high qualifying ranks
 - [x] Difficulty options for time allowance per lap
 - [ ] Expanded end-of-race sequence with rank display

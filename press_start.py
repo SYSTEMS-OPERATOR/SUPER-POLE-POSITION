@@ -7,10 +7,20 @@ from __future__ import annotations
 
 from super_pole_position.agents.keyboard_agent import KeyboardAgent
 from super_pole_position.agents.joystick_agent import JoystickAgent
-from super_pole_position.envs.pole_position import PolePositionEnv
 from super_pole_position.evaluation.metrics import summary
 from super_pole_position.utils import safe_run_episode
 from super_pole_position.matchmaking.arena import run_episode
+
+try:  # optional deps may be missing on fresh installs
+    from super_pole_position.envs.pole_position import PolePositionEnv
+except ModuleNotFoundError as exc:  # pragma: no cover - environment check
+    missing = exc.name
+    print(
+        f"Missing dependency: {missing}.\n"
+        "Run `pip install -r requirements.txt` to install it.",
+        flush=True,
+    )
+    raise SystemExit(1)
 import logging
 
 logging.basicConfig(level=logging.ERROR)

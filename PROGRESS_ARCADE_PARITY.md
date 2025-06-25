@@ -30,7 +30,7 @@
 
 - [ ] Qualify-to-race transition with start position message
 - [x] Score bonus tiers for high qualifying ranks
-- [ ] Difficulty options for time allowance per lap
+- [x] Difficulty options for time allowance per lap
 - [ ] Expanded end-of-race sequence with rank display
 - [ ] Local high-score entry and leaderboard screen
 - [ ] Optional attract mode cycling the leaderboard

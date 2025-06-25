@@ -90,6 +90,7 @@ class PolePositionEnv(gym.Env):
         hyper: bool = False,
         player_name: str = "PLAYER",
         slipstream: bool = True,
+        difficulty: str = "beginner",
     ) -> None:
         """Create a Pole Position environment.
 
@@ -106,8 +107,13 @@ class PolePositionEnv(gym.Env):
         self.hyper = hyper
         self.player_name = player_name
         self.slipstream_enabled = slipstream
+        self.difficulty = difficulty
 
-        self.time_limit = 90.0 if self.mode == "race" else 73.0
+        limits = {
+            "beginner": {"race": 90.0, "qualify": 73.0},
+            "expert": {"race": 75.0, "qualify": 60.0},
+        }
+        self.time_limit = limits.get(difficulty, limits["beginner"])[self.mode]
         self.traffic_count = 7 if self.mode == "race" else 0
         if FAST_TEST:
             self.time_limit = min(self.time_limit, 20.0)

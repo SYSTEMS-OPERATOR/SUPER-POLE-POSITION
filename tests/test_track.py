@@ -14,7 +14,8 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from super_pole_position.physics.track import Track
+from super_pole_position.config import load_parity_config
+from super_pole_position.physics.track import Track, Puddle
 from super_pole_position.physics.car import Car
 
 
@@ -38,3 +39,11 @@ def test_distance():
 def test_load_named_track():
     track = Track.load("fuji")
     assert track.width > 0
+
+def test_friction_factor_puddle_offroad():
+    track = Track(width=50, height=50, puddles=[Puddle(x=5, y=5, radius=10)])
+    car = Car(x=5, y=5)
+    factor = track.friction_factor(car)
+    cfg = load_parity_config()
+    expected = cfg["puddle"]["speed_factor"] * cfg.get("offroad_factor", 0.5)
+    assert factor == expected

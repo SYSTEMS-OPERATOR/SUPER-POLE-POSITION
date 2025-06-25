@@ -117,14 +117,9 @@ class PolePositionEnv(gym.Env):
         """
 
         super().__init__()
-        if seed is not None:
-            random.seed(seed)
-            np.random.seed(seed)
-            self.rng = np.random.default_rng(seed)
-            self.np_rng = np.random.default_rng(seed)     
-        else:
-            self.rng = np.random.default_rng()
-            _seed_all(seed)
+        _seed_all(seed)
+        self.rng = Random(seed)
+        self.np_rng = np.random.default_rng(seed)
 
 
         self.render_mode = render_mode
@@ -335,20 +330,12 @@ class PolePositionEnv(gym.Env):
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
-        if seed is not None:
-            random.seed(seed)
-            np.random.seed(seed)
-            self.rng = np.random.default_rng(seed)
-        else:
-            self.rng = np.random.default_rng()
-            # Keep track hash deterministic even after obstacle changes
-            self.track._hash = self.track._compute_hash()
-            _seed_all(seed)
-
-
+        _seed_all(seed)
         print("[ENV] Resetting environment", flush=True)
         self.rng = Random(seed)
         self.np_rng = np.random.default_rng(seed)
+        # Keep track hash deterministic after resets
+        self.track._hash = self.track._compute_hash()
         self.current_step = 0
         self.remaining_time = self.time_limit
         self.qualifying_time = None

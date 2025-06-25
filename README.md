@@ -26,7 +26,7 @@ rrrrr
 
 ## Quick Start
 ```bash
-pip install -r requirements.txt
+pip install -r requirements.txt && python run_game.py
 python press_start.py
 # or dive into the CLI
 spp qualify --agent null --track fuji

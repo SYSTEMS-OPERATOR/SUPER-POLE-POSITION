@@ -91,6 +91,24 @@ class Track:
             self._curve_lengths = list(self.curve._lengths)
 
     # ------------------------------------------------------------------
+    @staticmethod
+    def get_puddle_factor() -> float:
+        """Return slowdown factor for puddles from config."""
+
+        return float(_PARITY_CFG.get("puddle", {}).get("speed_factor", 0.65))
+
+    # ------------------------------------------------------------------
+    def track_hash(self) -> str:
+        """Return a stable hash of static track attributes."""
+
+        import hashlib
+
+        data = (
+            f"{self.width},{self.height},{self.road_width}," f"{self.segments},{self.puddles},{self.surfaces}"
+        )
+        return hashlib.sha1(data.encode()).hexdigest()
+
+    # ------------------------------------------------------------------
     # Geometry helpers
     # ------------------------------------------------------------------
     def y_at(self, x: float) -> float:
@@ -317,16 +335,7 @@ class Track:
     def surface_friction(self, car) -> float:
         """Return friction coefficient for ``car`` based on surface zones."""
         if self.in_puddle(car):
-            return float(_PARITY_CFG.get("puddle", {}).get("speed_factor", 0.65))
-
-        if self.in_puddle(car):
-            return float(_PARITY_CFG.get("puddle", {}).get("speed_factor", 0.65))
-
-        if self.in_puddle(car):
-            return float(_PARITY_CFG["puddle"].get("speed_factor", 0.65))
-
-        if self.in_puddle(car):
-            return float(_PARITY.get("puddle", {}).get("speed_factor", 0.65))
+            return self.get_puddle_factor()
         for s in self.surfaces:
             if s.x <= car.x <= s.x + s.width and s.y <= car.y <= s.y + s.height:
                 return s.friction

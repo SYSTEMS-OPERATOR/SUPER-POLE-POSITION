@@ -91,6 +91,7 @@ class PolePositionEnv(gym.Env):
         player_name: str = "PLAYER",
         slipstream: bool = True,
         difficulty: str = "beginner",
+        seed: int | None = None,
     ) -> None:
         """Create a Pole Position environment.
 
@@ -99,9 +100,13 @@ class PolePositionEnv(gym.Env):
         :param track_name: Optional track to load.
         :param hyper: If ``True`` doubles gear limits for extreme speed.
         :param player_name: Name recorded in the high-score table.
+        :param seed: Optional RNG seed for deterministic start state.
         """
 
         super().__init__()
+        if seed is not None:
+            random.seed(seed)
+            np.random.seed(seed)
         self.render_mode = render_mode
         self.mode = mode
         self.hyper = hyper
@@ -313,6 +318,7 @@ class PolePositionEnv(gym.Env):
         if seed is not None:
             random.seed(seed)
             np.random.seed(seed)
+        self._rng = random.Random(seed) if seed is not None else random
         print("[ENV] Resetting environment", flush=True)
         self.current_step = 0
         self.remaining_time = self.time_limit
@@ -379,7 +385,8 @@ class PolePositionEnv(gym.Env):
         self.step_log = []
 
         # Return initial observation
-        return self._get_obs(), {}
+        info = {"track_hash": getattr(self.track, "track_hash", lambda: "")()}
+        return self._get_obs(), info
 
     def step(self, action):
         """

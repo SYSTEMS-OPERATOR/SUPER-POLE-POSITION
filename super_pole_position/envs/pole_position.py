@@ -106,6 +106,7 @@ class PolePositionEnv(gym.Env):
         player_name: str = "PLAYER",
         slipstream: bool = True,
         difficulty: str = "beginner",
+        start_position: int | None = None,
         seed: int | None = None,
     ) -> None:
         """Create a Pole Position environment.
@@ -116,6 +117,7 @@ class PolePositionEnv(gym.Env):
         :param track_file: Path to a custom track JSON file.
         :param hyper: If ``True`` doubles gear limits for extreme speed.
         :param player_name: Name recorded in the high-score table.
+        :param start_position: Optional grid position shown at race start.
         """
 
         super().__init__()
@@ -130,6 +132,8 @@ class PolePositionEnv(gym.Env):
         self.player_name = player_name
         self.slipstream_enabled = slipstream
         self.difficulty = difficulty
+        self.start_position = start_position
+        self._start_pos_shown = False
         self.track_file = track_file
 
         limits = {
@@ -367,6 +371,7 @@ class PolePositionEnv(gym.Env):
         self.lap_times = []
         self.grid_order = []
         self.lap_extended = False
+        self._start_pos_shown = False
         self.game_message = ""
         self.message_timer = 0.0
 
@@ -509,6 +514,14 @@ class PolePositionEnv(gym.Env):
             else:
                 self.start_phase = "GO"
                 print("[ENV] GO!", flush=True)
+        elif (
+            self.mode == "race"
+            and self.start_position is not None
+            and not self._start_pos_shown
+        ):
+            self.game_message = f"START POSITION {ordinal(self.start_position)}"
+            self.message_timer = 90.0
+            self._start_pos_shown = True
         if self.message_timer > 0:
             self.message_timer -= dt
 

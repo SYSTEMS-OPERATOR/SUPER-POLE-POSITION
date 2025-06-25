@@ -102,7 +102,7 @@ class Car:
         self.y += dy
 
         # Off-road slowdown
-        if track and (self.y < 5 or self.y > track.height - 5):
+        if track and not track.on_road(self):
             self.speed *= 0.5
 
         # Surface friction zones

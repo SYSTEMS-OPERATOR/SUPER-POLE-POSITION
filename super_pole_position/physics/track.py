@@ -365,13 +365,17 @@ class Track:
         if self.in_puddle(obj):
             factor *= self.get_puddle_factor()
 
-        for s in self.surfaces:
-            if s.x <= obj.x <= s.x + s.width and s.y <= obj.y <= s.y + s.height:
-                factor *= s.friction
+        for zone in self.surfaces:
+            if (
+                zone.x <= car.x <= zone.x + zone.width
+                and zone.y <= car.y <= zone.y + zone.height
+            ):
+                factor *= zone.friction
                 break
 
         return factor
 
+    # ------------------------------------------------------------------
     def friction_factor(self, car) -> float:
         """Return combined friction factor for ``car``."""
 

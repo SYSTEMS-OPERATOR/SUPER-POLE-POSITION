@@ -367,8 +367,8 @@ class Track:
 
         for zone in self.surfaces:
             if (
-                zone.x <= car.x <= zone.x + zone.width
-                and zone.y <= car.y <= zone.y + zone.height
+                zone.x <= obj.x <= zone.x + zone.width
+                and zone.y <= obj.y <= zone.y + zone.height
             ):
                 factor *= zone.friction
                 break

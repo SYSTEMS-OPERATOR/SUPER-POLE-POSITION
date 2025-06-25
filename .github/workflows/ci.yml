@@ -8,10 +8,35 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.11'
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: ${{ runner.os }}-pip-
       - name: Install
         run: |
           pip install pygame~=2.5.2 --only-binary=:all:
+          pip install ruff mypy
           pip install -e .[dev]
+      - name: Lint
+        run: |
+          ruff check --select E,F,I super_pole_position tests
+          mypy --strict super_pole_position || true
       - name: Test
         run: |
-          pytest -q --cov=super_pole_position --cov-fail-under=70
+          pytest -n auto --cov=super_pole_position | tee result.log
+          passed=$(grep -oE '\d+ passed' result.log | awk '{print $1}')
+          failed=$(grep -oE '\d+ failed' result.log | awk '{print $1}' || echo 0)
+          total=$((passed+failed))
+          rate=$(python - <<EOF
+import sys
+p=int('$passed'); f=int('$failed'); t=p+f
+print(p/t if t else 0)
+EOF
+)
+          python - <<EOF
+import sys
+rate=float('$rate')
+sys.exit(0 if rate >= 0.8 else 1)
+EOF

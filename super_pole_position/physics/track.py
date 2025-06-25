@@ -376,6 +376,15 @@ class Track:
 
         return factor
 
+    def friction_factor(self, car) -> float:
+        """Return combined friction factor for ``car``."""
+
+        factor = self.surface_friction(car)
+        off = float(_PARITY_CFG.get("offroad_factor", 0.5))
+        if not self.on_road(car):
+            factor *= off
+        return factor
+
     def billboard_hit(self, car) -> bool:
         """Remove billboard obstacle when ``car`` collides with it."""
 

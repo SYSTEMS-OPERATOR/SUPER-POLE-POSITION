@@ -83,3 +83,7 @@ def start(host: str = "127.0.0.1", port: int = 8000) -> None:
     import uvicorn  # pragma: no cover - runtime import
 
     uvicorn.run(build_app(), host=host, port=port)
+
+
+if __name__ == "__main__":  # pragma: no cover - manual entry
+    start()

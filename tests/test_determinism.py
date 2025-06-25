@@ -18,3 +18,4 @@ def test_determinism_seeded():
     h2, o2 = collect_obs(42)
     assert h1 == h2
     assert o1 == o2
+

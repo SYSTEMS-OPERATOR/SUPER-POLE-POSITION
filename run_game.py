@@ -1,4 +1,6 @@
-from super_pole_position.cli import main
+"""Convenience launcher used in documentation."""
 
-if __name__ == "__main__":
+from press_start import main
+
+if __name__ == "__main__":  # pragma: no cover - manual execution
     main()

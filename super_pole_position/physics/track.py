@@ -11,12 +11,12 @@ Description: Module for Super Pole Position.
 
 import math
 import json
+import hashlib
 from pathlib import Path
 from dataclasses import dataclass
 
 from ..config import load_parity_config
 from .track_curve import TrackCurve
-from ..config import load_parity_config
 
 
 _PARITY_CFG = load_parity_config()
@@ -89,6 +89,44 @@ class Track:
         self._curve_lengths: list[float] = []
         if self.curve:
             self._curve_lengths = list(self.curve._lengths)
+
+        self._hash = self._compute_hash()
+
+    # ------------------------------------------------------------------
+    def _compute_hash(self) -> str:
+        data = {
+            "width": self.width,
+            "height": self.height,
+            "road_width": self.road_width,
+            "obstacles": [
+                (o.x, o.y, o.width, o.height, o.billboard) for o in self.obstacles
+            ],
+            "puddles": [(p.x, p.y, p.radius) for p in self.puddles],
+            "surfaces": [
+                (s.x, s.y, s.width, s.height, s.friction) for s in self.surfaces
+            ],
+            "segments": self.segments,
+            "curve": getattr(self.curve, "_points", None),
+        }
+        blob = json.dumps(data, sort_keys=True).encode()
+        return hashlib.sha256(blob).hexdigest()
+
+    @property
+    def track_hash(self) -> str:
+        """Return deterministic hash representing the track."""
+
+        return self._hash
+
+    # ------------------------------------------------------------------
+    @staticmethod
+    def get_puddle_factor() -> float:
+        """Return slowdown factor for puddles from config."""
+
+        cfg = load_parity_config()
+        try:
+            return float(cfg["puddle"]["speed_factor"])
+        except KeyError as exc:  # pragma: no cover - misconfigured config
+            raise KeyError("Missing puddle.speed_factor in config") from exc
 
     # ------------------------------------------------------------------
     @staticmethod

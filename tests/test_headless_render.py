@@ -4,6 +4,7 @@ from super_pole_position.ui.arcade import Pseudo3DRenderer
 from super_pole_position.envs.pole_position import PolePositionEnv
 
 
+
 def test_headless_render_smoke():
     os.environ["SDL_VIDEODRIVER"] = "dummy"
     pygame.display.init()
@@ -14,3 +15,4 @@ def test_headless_render_smoke():
     renderer.draw(env)
     pygame.display.quit()
     env.close()
+

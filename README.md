@@ -27,11 +27,13 @@ rrrrr
 ## Quick Start
 ```bash
 pip install -r requirements.txt && python run_game.py
-python press_start.py
+
 # or dive into the CLI
 spp qualify --agent null --track fuji
+
 # try the new curved Fuji circuit
 spp qualify --agent null --track fuji_curve
+
 # record scores under your initials
 spp race --player AAA
 ```

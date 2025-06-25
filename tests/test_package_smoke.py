@@ -1,8 +1,13 @@
+
 import os
 import subprocess
 import sys
+import venv
 from pathlib import Path
 
+import pytest
+
+@pytest.mark.timeout(30)
 
 def test_wheel_smoke(tmp_path):
     wheel_dir = tmp_path / "wheel"
@@ -16,3 +21,4 @@ def test_wheel_smoke(tmp_path):
     subprocess.check_call([str(pip), "install", str(wheel)])
     env = {"FAST_TEST": "1", "SDL_VIDEODRIVER": "dummy", **os.environ}
     subprocess.check_call([str(exe), "race", "--agent", "null"], env=env)
+

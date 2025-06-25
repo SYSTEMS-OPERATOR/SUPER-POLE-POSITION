@@ -385,8 +385,10 @@ class PolePositionEnv(gym.Env):
         self.step_log = []
 
         # Return initial observation
-        info = {"track_hash": getattr(self.track, "track_hash", lambda: "")()}
-        return self._get_obs(), info
+        obs = self._get_obs()
+        info = {"track_hash": self.track.track_hash}
+        return obs, info
+
 
     def step(self, action):
         """
@@ -741,10 +743,12 @@ class PolePositionEnv(gym.Env):
                 pass
             print("[ENV] Race finished", flush=True)
 
-        experience = (prev_obs, action, reward, self._get_obs())
+        obs = self._get_obs()
+        experience = (prev_obs, action, reward, obs)
         self.learning_agent.update_on_experience([experience])
         self.step_durations.append(time.perf_counter() - step_start)
-        return self._get_obs(), reward, done, False, {}
+        info = {"track_hash": self.track.track_hash}
+        return obs, reward, done, False, info
 
     def render(self):
         """Render the environment."""

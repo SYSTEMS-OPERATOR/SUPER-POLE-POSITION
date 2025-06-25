@@ -54,7 +54,7 @@ FAST_TEST = bool(int(os.getenv("FAST_TEST", "0")))
 PARITY_CFG = load_parity_config()
 
 
-def _seed_all(seed: int) -> None:
+def _seed_all(seed: int | None) -> None:
     """Seed all random generators used by the environment."""
 
     random.seed(seed)
@@ -117,14 +117,9 @@ class PolePositionEnv(gym.Env):
         """
 
         super().__init__()
-        if seed is not None:
-            random.seed(seed)
-            np.random.seed(seed)
-            self.rng = np.random.default_rng(seed)
-            self.np_rng = np.random.default_rng(seed)     
-        else:
-            self.rng = np.random.default_rng()
-            _seed_all(seed)
+        _seed_all(seed)
+        self.rng = np.random.default_rng(seed)
+        self.np_rng = np.random.default_rng(seed)
 
 
         self.render_mode = render_mode
@@ -335,20 +330,15 @@ class PolePositionEnv(gym.Env):
 
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
-        if seed is not None:
-            random.seed(seed)
-            np.random.seed(seed)
-            self.rng = np.random.default_rng(seed)
-        else:
-            self.rng = np.random.default_rng()
+        _seed_all(seed)
+        self.rng = np.random.default_rng(seed)
+        self.np_rng = np.random.default_rng(seed)
+        if seed is None:
             # Keep track hash deterministic even after obstacle changes
             self.track._hash = self.track._compute_hash()
-            _seed_all(seed)
 
 
         print("[ENV] Resetting environment", flush=True)
-        self.rng = Random(seed)
-        self.np_rng = np.random.default_rng(seed)
         self.current_step = 0
         self.remaining_time = self.time_limit
         self.qualifying_time = None
@@ -405,6 +395,9 @@ class PolePositionEnv(gym.Env):
                 t.y = self.track.height / 2 + self.rng.uniform(-1.0, 1.0)
                 t.speed = 0.0
                 t.prev_x = t.x
+                if hasattr(t, "rng"):
+                    t.rng = Random(seed + i if seed is not None else None)
+                    t._lane_timer = t.rng.uniform(2.0, 4.0)
 
         self.prev_x = self.cars[0].x
         self.prev_y = self.cars[0].y

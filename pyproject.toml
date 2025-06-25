@@ -19,7 +19,7 @@ dependencies = [
 [project.optional-dependencies]
 graphics = ["pygame"]
 ai = ["torch", "transformers"]
-dev = ["pytest", "pytest-cov", "coverage", "pytest-timeout"]
+dev = ["pytest", "pytest-cov", "coverage", "pytest-timeout", "ruff", "mypy"]
 
 [project.scripts]
 super-pole-position = "super_pole_position.cli:main"

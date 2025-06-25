@@ -107,7 +107,7 @@ class Car:
 
         # Surface friction zones
         if track:
-            self.speed *= track.surface_friction(self)
+            self.speed *= track.friction_factor(self)
 
     def crash(self) -> None:
         """Stop the car and reset gear when a crash occurs."""

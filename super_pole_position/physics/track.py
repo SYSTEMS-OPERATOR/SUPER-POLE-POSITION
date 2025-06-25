@@ -352,14 +352,22 @@ class Track:
                 return True
         return False
 
-    def surface_friction(self, car) -> float:
-        """Return friction coefficient for ``car`` based on surface zones."""
+    def friction_factor(self, car) -> float:
+        """Return multiplicative friction factor for ``car``."""
+
+        factor = 1.0
         if self.in_puddle(car):
-            return self.get_puddle_factor()
+            factor *= self.get_puddle_factor()
         for s in self.surfaces:
             if s.x <= car.x <= s.x + s.width and s.y <= car.y <= s.y + s.height:
-                return s.friction
-        return 1.0
+                factor *= s.friction
+                break
+        return factor
+
+    def surface_friction(self, car) -> float:
+        """Return friction coefficient for ``car`` (legacy)."""
+
+        return self.friction_factor(car)
 
     def billboard_hit(self, car) -> bool:
         """Remove billboard obstacle when ``car`` collides with it."""

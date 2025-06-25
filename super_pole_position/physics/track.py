@@ -115,7 +115,7 @@ class Track:
     def track_hash(self) -> str:
         """Return deterministic hash representing the track."""
 
-        return self._hash
+        return self._compute_hash()
 
     # ------------------------------------------------------------------
     @staticmethod

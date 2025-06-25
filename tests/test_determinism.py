@@ -5,6 +5,7 @@ from super_pole_position.envs.pole_position import PolePositionEnv
 def collect_obs(seed: int, steps: int = 200):
     env = PolePositionEnv(render_mode="human", seed=seed)
     obs, info = env.reset(seed=seed)
+    steps = min(steps, env.max_steps)
     data = [obs.tobytes()]
     for _ in range(steps):
         obs, *_ = env.step({"throttle": False, "brake": False, "steer": 0.0})

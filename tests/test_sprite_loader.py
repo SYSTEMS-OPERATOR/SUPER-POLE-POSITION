@@ -1,6 +1,4 @@
-import pygame
 import pytest
-
 from super_pole_position.ui.sprites import load_sprite
 
 pygame = pytest.importorskip("pygame")

@@ -1,4 +1,3 @@
-import sys
 from super_pole_position.ui import menu
 
 

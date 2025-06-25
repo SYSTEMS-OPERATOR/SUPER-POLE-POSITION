@@ -1,4 +1,3 @@
-import numpy as np
 from super_pole_position.envs.pole_position import PolePositionEnv
 
 

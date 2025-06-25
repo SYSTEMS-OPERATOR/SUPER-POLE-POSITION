@@ -1,5 +1,6 @@
 import os
 import importlib
+from super_pole_position.envs.pole_position import PolePositionEnv
 
 
 def _load_env() -> None:

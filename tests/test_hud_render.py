@@ -10,7 +10,6 @@ Description: Test suite for test_hud_render.
 
 import pytest  # noqa: F401
 
-import pygame
 pygame = pytest.importorskip("pygame")  # noqa: E402
 
 from super_pole_position.envs.pole_position import PolePositionEnv  # noqa: E402

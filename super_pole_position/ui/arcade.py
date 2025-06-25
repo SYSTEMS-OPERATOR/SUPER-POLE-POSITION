@@ -649,6 +649,7 @@ class Pseudo3DRenderer:
             )
             px = width - map_w - 10 + (player.x / env.track.width) * map_w
             py = 10 + (player.y / env.track.height) * map_h
+            other = env.cars[1]
             ox = width - map_w - 10 + (other.x / env.track.width) * map_w
             oy = 10 + (other.y / env.track.height) * map_h
             pygame.draw.circle(surface, (255, 0, 0), (int(px), int(py)), 3)

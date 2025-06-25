@@ -1,7 +1,6 @@
 """Simple CPU opponent logic."""
 
 from dataclasses import dataclass, field
-import random
 from random import Random
 
 from .physics.car import Car

@@ -75,5 +75,5 @@ def submit_score_http(
     try:
         with request.urlopen(req, timeout=1) as resp:  # pragma: no cover - network
             return 200 <= resp.status < 300
-    except Exception:
+    except Exception:  # pragma: no cover - network failure
         return False

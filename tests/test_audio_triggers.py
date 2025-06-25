@@ -10,6 +10,8 @@ Description: Test suite for test_audio_triggers.
 
 import pytest  # noqa: F401
 
+pytest.importorskip("pygame", reason="pygame required for audio tests")
+
 from super_pole_position.envs.pole_position import PolePositionEnv
 
 

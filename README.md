@@ -129,7 +129,7 @@ entry in `config.arcade_parity.yaml`.
 - 🖥️ Python 3.8+  
 - 🏎️ Gymnasium (Reinforcement Learning framework)  
 - 🧠 PyTorch / TensorFlow (for AI models)  
-- 🎵 SimpleAudio (or fallback to Pygame's mixer)
+- 🎵 SimpleAudio or Pygame's mixer (optional, tests skip if absent)
 - 🎮 Pygame (for optional graphics)
 - 📡 ZeroMQ / WebSockets (for live AI telemetry)
 

@@ -20,6 +20,7 @@ dependencies = [
 graphics = ["pygame"]
 ai = ["torch", "transformers"]
 dev = ["pytest", "pytest-cov", "coverage", "pytest-timeout"]
+web = ["fastapi", "httpx"]
 
 [project.scripts]
 super-pole-position = "super_pole_position.cli:main"

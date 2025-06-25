@@ -314,6 +314,8 @@ class Track:
 
     def surface_friction(self, car) -> float:
         """Return friction coefficient for ``car`` based on surface zones."""
+        if self.in_puddle(car):
+            return float(_PARITY_CFG.get("puddle", {}).get("speed_factor", 0.65))
 
         if self.in_puddle(car):
             return float(_PARITY_CFG.get("puddle", {}).get("speed_factor", 0.65))

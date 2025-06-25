@@ -24,6 +24,7 @@ import pathlib
 
 from super_pole_position.ui.arcade import SCANLINE_ALPHA
 
+
 def measure_puddle_ratio() -> float:
     env = PolePositionEnv(render_mode="human")
     env.track = Track(width=200.0, height=200.0, puddles=[Puddle(x=50, y=50, radius=10)])

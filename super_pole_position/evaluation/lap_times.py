@@ -4,10 +4,12 @@
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import List, Dict
 from urllib import request
 
+logger = logging.getLogger(__name__)
 _DEFAULT_FILE = Path(__file__).resolve().parent / "lap_times.json"
 
 
@@ -32,7 +34,7 @@ def update_lap_times(file: Path | None, name: str, lap_ms: int) -> None:
     try:
         file.write_text(json.dumps({"laps": laps}, indent=2))
     except Exception as exc:  # pragma: no cover - file error
-        print(f"update_lap_times error: {exc}", flush=True)
+        logger.debug("update_lap_times error: %s", exc)
 
 
 def reset_lap_times(file: Path | None = None) -> None:
@@ -41,7 +43,7 @@ def reset_lap_times(file: Path | None = None) -> None:
     try:
         file.write_text(json.dumps({"laps": []}, indent=2))
     except Exception as exc:  # pragma: no cover - file error
-        print(f"reset_lap_times error: {exc}", flush=True)
+        logger.debug("reset_lap_times error: %s", exc)
 
 
 def submit_lap_time_http(
@@ -55,5 +57,5 @@ def submit_lap_time_http(
         with request.urlopen(req, timeout=1) as resp:  # pragma: no cover - network
             return 200 <= resp.status < 300
     except Exception as exc:  # pragma: no cover - network failure
-        print(f"submit_lap_time_http error: {exc}", flush=True)
+        logger.debug("submit_lap_time_http error: %s", exc)
         return False

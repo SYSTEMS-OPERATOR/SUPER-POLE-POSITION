@@ -53,6 +53,19 @@ FAST_TEST = bool(int(os.getenv("FAST_TEST", "0")))
 PARITY_CFG = load_parity_config()
 
 
+def _seed_all(seed: int) -> None:
+    """Seed all random generators used by the environment."""
+
+    random.seed(seed)
+    np.random.seed(seed)
+    try:  # pragma: no cover - optional dependency
+        import torch  # type: ignore
+
+        torch.manual_seed(seed)
+    except Exception:
+        pass
+
+
 def ordinal(n: int) -> str:
     """Return ordinal string for an integer (1 -> 1ST)."""
     if 10 <= n % 100 <= 20:
@@ -104,8 +117,7 @@ class PolePositionEnv(gym.Env):
 
         super().__init__()
         if seed is not None:
-            random.seed(seed)
-            np.random.seed(seed)
+            _seed_all(seed)
         self.render_mode = render_mode
         self.mode = mode
         self.hyper = hyper
@@ -315,8 +327,7 @@ class PolePositionEnv(gym.Env):
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
         if seed is not None:
-            random.seed(seed)
-            np.random.seed(seed)
+            _seed_all(seed)
         print("[ENV] Resetting environment", flush=True)
         self.current_step = 0
         self.remaining_time = self.time_limit
@@ -358,6 +369,9 @@ class PolePositionEnv(gym.Env):
         self.cars[1].y = self.track.y_at(self.cars[1].x)
         self.cars[1].angle = 0.0
         self.cars[1].speed = 0.0
+
+        # Recompute track hash after state reset for determinism
+        self.track._hash = self.track._compute_hash()
 
         if self.mode == "race":
             for i, t in enumerate(self.traffic):

@@ -354,10 +354,15 @@ class Track:
 
     def surface_friction(self, car) -> float:
         """Return friction coefficient for ``car`` based on surface zones."""
+        return self.base_friction_factor(car)
+
+    # ------------------------------------------------------------------
+    def base_friction_factor(self, obj) -> float:
+        """Return friction factor for ``obj`` based on surface properties."""
 
         factor = 1.0
 
-        if self.in_puddle(car):
+        if self.in_puddle(obj):
             factor *= self.get_puddle_factor()
 
         for zone in self.surfaces:
@@ -375,8 +380,13 @@ class Track:
         """Return combined friction factor for ``car``."""
 
         factor = self.surface_friction(car)
+
         if not self.on_road(car):
-            factor *= float(_PARITY_CFG.get("offroad_factor", 0.5))
+            if self.in_puddle(car):
+                factor *= float(_PARITY_CFG.get("offroad_factor", 0.5))
+            else:
+                factor *= float(_PARITY_CFG.get("offroad_speed_factor", 0.5))
+
         return factor
 
     def billboard_hit(self, car) -> bool:

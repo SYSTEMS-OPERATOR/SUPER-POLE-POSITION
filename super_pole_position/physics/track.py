@@ -317,6 +317,9 @@ class Track:
         if self.in_puddle(car):
             return float(_PARITY_CFG.get("puddle", {}).get("speed_factor", 0.65))
 
+        if self.in_puddle(car):
+            return float(_PARITY_CFG.get("puddle", {}).get("speed_factor", 0.65))
+
         for s in self.surfaces:
             if s.x <= car.x <= s.x + s.width and s.y <= car.y <= s.y + s.height:
                 return s.friction

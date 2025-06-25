@@ -7,8 +7,10 @@ import json
 from pathlib import Path
 from typing import List, Dict
 from urllib import request
+import logging
 
 _DEFAULT_FILE = Path(__file__).resolve().parent / "lap_times.json"
+logger = logging.getLogger(__name__)
 
 
 def load_lap_times(file: Path | None = None) -> List[Dict]:
@@ -55,5 +57,5 @@ def submit_lap_time_http(
         with request.urlopen(req, timeout=1) as resp:  # pragma: no cover - network
             return 200 <= resp.status < 300
     except Exception as exc:  # pragma: no cover - network failure
-        print(f"submit_lap_time_http error: {exc}", flush=True)
+        logger.debug("submit_lap_time_http error: %s", exc)
         return False

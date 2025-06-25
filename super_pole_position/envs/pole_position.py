@@ -30,6 +30,7 @@ from ..physics.car import Car
 from ..physics.track import Track
 from ..physics.traffic_car import TrafficCar
 import random
+from random import Random
 from ..ai_cpu import CPUCar
 from ..agents.controllers import GPTPlanner, LowLevelController, LearningAgent
 from ..ui.arcade import Pseudo3DRenderer
@@ -106,6 +107,8 @@ class PolePositionEnv(gym.Env):
         if seed is not None:
             random.seed(seed)
             np.random.seed(seed)
+        self.rng = Random(seed)
+        self.np_rng = np.random.default_rng(seed)
         self.render_mode = render_mode
         self.mode = mode
         self.hyper = hyper
@@ -139,14 +142,14 @@ class PolePositionEnv(gym.Env):
             for i in range(self.traffic_count):
                 x = (100 + (i + 1) * 10) % self.track.width
                 if i < 3:
-                    spd = random.uniform(5.0, 7.0)
+                    spd = self.rng.uniform(5.0, 7.0)
                 elif i < 5:
-                    spd = random.uniform(8.0, 10.0)
+                    spd = self.rng.uniform(8.0, 10.0)
                 else:
-                    spd = random.uniform(12.0, 15.0)
-                y = self.track.height / 2 + random.uniform(-1.0, 1.0)
+                    spd = self.rng.uniform(12.0, 15.0)
+                y = self.track.height / 2 + self.rng.uniform(-1.0, 1.0)
                 if i == 0:
-                    self.traffic.append(CPUCar(x=x, y=y, target_speed=spd))
+                    self.traffic.append(CPUCar(x=x, y=y, target_speed=spd, rng=self.rng))
                 else:
                     self.traffic.append(TrafficCar(x=x, y=y, target_speed=spd))
 
@@ -318,6 +321,8 @@ class PolePositionEnv(gym.Env):
             random.seed(seed)
             np.random.seed(seed)
         print("[ENV] Resetting environment", flush=True)
+        self.rng = Random(seed)
+        self.np_rng = np.random.default_rng(seed)
         self.current_step = 0
         self.remaining_time = self.time_limit
         self.qualifying_time = None
@@ -363,12 +368,12 @@ class PolePositionEnv(gym.Env):
             for i, t in enumerate(self.traffic):
                 t.x = (100 + (i + 1) * 10) % self.track.width
                 if i < 3:
-                    t.target_speed = random.uniform(5.0, 7.0)
+                    t.target_speed = self.rng.uniform(5.0, 7.0)
                 elif i < 5:
-                    t.target_speed = random.uniform(8.0, 10.0)
+                    t.target_speed = self.rng.uniform(8.0, 10.0)
                 else:
-                    t.target_speed = random.uniform(12.0, 15.0)
-                t.y = self.track.height / 2 + random.uniform(-1.0, 1.0)
+                    t.target_speed = self.rng.uniform(12.0, 15.0)
+                t.y = self.track.height / 2 + self.rng.uniform(-1.0, 1.0)
                 t.speed = 0.0
                 t.prev_x = t.x
 
@@ -575,7 +580,7 @@ class PolePositionEnv(gym.Env):
             factor = PARITY_CFG["puddle"].get("speed_factor", 0.7)
             jitter = PARITY_CFG["puddle"].get("angle_jitter", 0.2)
             self.cars[0].speed *= factor
-            self.cars[0].angle += np.random.uniform(-jitter, jitter)
+            self.cars[0].angle += self.np_rng.uniform(-jitter, jitter)
 
         if self.track.billboard_hit(self.cars[0]):
             self.remaining_time = max(self.remaining_time - 5.0, 0.0)
@@ -854,7 +859,7 @@ class PolePositionEnv(gym.Env):
             base = 0.3 * np.sin(2 * np.pi * mod_freq * t)
             harm2 = 0.2 * np.sin(2 * np.pi * mod_freq * 2 * t)
             harm3 = 0.1 * np.sin(2 * np.pi * mod_freq * 3 * t)
-            rumble = 0.05 * np.random.uniform(-1.0, 1.0, len(t))
+            rumble = 0.05 * self.np_rng.uniform(-1.0, 1.0, len(t))
             return base + harm2 + harm3 + rumble
 
         freq0 = engine_pitch(self.cars[0].rpm(), self.cars[0].gear)
@@ -996,7 +1001,7 @@ class PolePositionEnv(gym.Env):
         duration = 0.2
         sample_rate = 44100
         t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
-        noise = np.random.uniform(-1.0, 1.0, len(t))
+        noise = self.np_rng.uniform(-1.0, 1.0, len(t))
         pan = (self.cars[0].x - self.track.width / 2) / (self.track.width / 2)
         pan = max(-1.0, min(1.0, pan))
         left = 0.3 * noise * (1.0 - max(0.0, pan))

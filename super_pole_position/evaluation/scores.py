@@ -12,11 +12,14 @@ Description: Module for Super Pole Position.
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 from typing import List, Dict
 from urllib import request
+import os
 
 
+logger = logging.getLogger(__name__)
 _DEFAULT_FILE = Path(__file__).resolve().parent / "scores.json"
 
 
@@ -43,7 +46,7 @@ def update_scores(file: Path | None, name: str, score: int) -> None:
     try:
         file.write_text(json.dumps({"scores": scores}, indent=2))
     except Exception as exc:  # pragma: no cover - file error
-        print(f"update_scores error: {exc}", flush=True)
+        logger.debug("update_scores error: %s", exc)
 
 
 def reset_scores(file: Path | None = None) -> None:
@@ -53,7 +56,7 @@ def reset_scores(file: Path | None = None) -> None:
     try:
         file.write_text(json.dumps({"scores": []}, indent=2))
     except Exception as exc:  # pragma: no cover - file error
-        print(f"reset_scores error: {exc}", flush=True)
+        logger.debug("reset_scores error: %s", exc)
 
 
 def submit_score_http(
@@ -64,6 +67,8 @@ def submit_score_http(
     Returns ``True`` on success.
     """
 
+    if os.getenv("ALLOW_NET") != "1":
+        return False
     url = f"http://{host}:{port}/scores"
     data = json.dumps({"name": name, "score": int(score)}).encode()
     req = request.Request(url, data=data, headers={"Content-Type": "application/json"})

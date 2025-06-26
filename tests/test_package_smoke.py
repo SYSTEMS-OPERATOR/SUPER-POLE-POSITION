@@ -1,11 +1,17 @@
+import os
 import subprocess
 import sys
 import venv
 
-
 import pytest
 
+skip_slow = pytest.mark.skipif(
+    not os.environ.get("CI_SLOW_TESTS"),
+    reason="slow test",
+)
 
+
+@skip_slow
 @pytest.mark.timeout(30)
 def test_wheel_smoke(tmp_path):
     wheel_dir = tmp_path / "wheel"

@@ -1,8 +1,9 @@
 import types
 import pytest
-from src.render.pseudo3d_renderer import Renderer, WIDTH, HEIGHT
 
 pygame = pytest.importorskip("pygame")
+
+from src.render.pseudo3d_renderer import Renderer, WIDTH, HEIGHT  # noqa: E402
 
 
 def test_center_stripe_drawn() -> None:

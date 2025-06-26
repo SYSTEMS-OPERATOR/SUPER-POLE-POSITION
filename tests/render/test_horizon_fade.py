@@ -1,7 +1,8 @@
 import pytest
-from src.render.pseudo3d_renderer import Renderer
 
 pygame = pytest.importorskip("pygame")
+
+from src.render.pseudo3d_renderer import Renderer  # noqa: E402
 
 
 def test_sprite_alpha_reduces_near_horizon() -> None:

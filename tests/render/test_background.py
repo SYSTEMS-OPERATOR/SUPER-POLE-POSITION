@@ -1,8 +1,10 @@
 import pathlib
 
-import pygame
+import pytest
 
-from src.render.background import Background
+pygame = pytest.importorskip("pygame")
+
+from src.render.background import Background  # noqa: E402
 
 pygame.display.init()
 pygame.display.set_mode((1, 1))

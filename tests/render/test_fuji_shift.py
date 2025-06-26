@@ -1,8 +1,9 @@
 import pytest
-from pathlib import Path
-from src.render.background import Background
 
 pygame = pytest.importorskip("pygame")
+
+from pathlib import Path  # noqa: E402
+from src.render.background import Background  # noqa: E402
 
 
 def test_fuji_shift_lut() -> None:

@@ -93,6 +93,9 @@
   root_cause: pygame not installed
   fix_plan: add pygame dependency
   runtime: 0.00
+- run: 2025-06-26
+  status: all-pass
+  runtime: 1.02
 - test: tests/test_cli_headless.py::test_cli_headless
   status: pass
   root_cause: CLI start-up time

@@ -801,7 +801,7 @@ class PolePositionEnv(gym.Env):
         info = {"track_hash": self.track.track_hash}
         return obs, reward, done, False, info
 
-    def render(self):
+    def render(self) -> None:
         """Render the environment."""
         global pygame
         if self.render_mode != "human":

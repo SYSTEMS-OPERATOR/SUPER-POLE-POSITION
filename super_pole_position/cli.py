@@ -22,7 +22,7 @@ from .agents.keyboard_agent import KeyboardAgent
 from .agents.joystick_agent import JoystickAgent
 
 from .envs.pole_position import PolePositionEnv, FAST_TEST
-from .matchmaking.arena import run_episode, update_leaderboard
+from .matchmaking.arena import run_episode as _run_episode, update_leaderboard
 from .utils import safe_run_episode
 from .evaluation.metrics import summary
 from .evaluation.scores import load_scores, reset_scores, update_scores
@@ -35,6 +35,11 @@ AGENT_MAP = {
     "keyboard": KeyboardAgent,
     "joystick": JoystickAgent,
 }
+
+
+def run_episode(env: PolePositionEnv, agents) -> None:
+    """Compatibility wrapper invoking arena.run_episode."""
+    _run_episode(env, agents)
 
 
 def main() -> None:

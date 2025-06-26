@@ -1,4 +1,3 @@
-import pygame
 import pytest
 from pathlib import Path
 from src.render.background import Background

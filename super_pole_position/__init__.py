@@ -13,6 +13,8 @@ import os
 # Hide pygame's greeting for cleaner logs
 os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
 
+__version__ = "1.0.0-rc1"
+
 # Ensure pygame can initialise even without a display
 if os.name != "nt" and "DISPLAY" not in os.environ:
     os.environ.setdefault("SDL_VIDEODRIVER", "dummy")

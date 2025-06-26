@@ -1,8 +1,7 @@
-import os
 import pytest
+from super_pole_position.ui import menu
 
 pygame = pytest.importorskip('pygame')
-from super_pole_position.ui import menu
 
 
 def test_attract_mode_cycles_scores(monkeypatch):

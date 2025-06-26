@@ -1,6 +1,7 @@
 import pytest
-pygame = pytest.importorskip("pygame")
 from src.render.pseudo3d_renderer import Renderer
+
+pygame = pytest.importorskip("pygame")
 
 def test_surface_size():
     r = Renderer(None)

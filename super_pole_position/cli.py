@@ -21,12 +21,15 @@ from .agents.mistral_agent import MistralAgent
 from .agents.keyboard_agent import KeyboardAgent
 from .agents.joystick_agent import JoystickAgent
 
-from .envs.pole_position import PolePositionEnv, FAST_TEST
-from .matchmaking.arena import run_episode, update_leaderboard
-from .utils import safe_run_episode
 from .evaluation.metrics import summary
 from .evaluation.scores import load_scores, reset_scores, update_scores
 from .ui.menu import show_race_outro
+from .envs.pole_position import PolePositionEnv, FAST_TEST
+from .matchmaking.arena import update_leaderboard
+from .utils import safe_run_episode
+
+# Backwards-compat: tests patch `run_episode`
+run_episode = safe_run_episode
 
 AGENT_MAP = {
     "null": NullAgent,

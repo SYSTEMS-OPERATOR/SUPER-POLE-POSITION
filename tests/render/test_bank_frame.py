@@ -1,7 +1,8 @@
 import types
 import pytest
-pygame = pytest.importorskip("pygame")
 from src.render.pseudo3d_renderer import Renderer, WIDTH
+
+pygame = pytest.importorskip("pygame")
 
 
 def _env(steer: float):
@@ -18,9 +19,12 @@ def test_bank_frame_switch() -> None:
     pygame.display.set_mode((1, 1))
     env = _env(0.6)
     r = Renderer(None)
-    surf_r = pygame.Surface((10, 10)); surf_r.fill((10, 0, 0))
-    surf_l = pygame.Surface((10, 10)); surf_l.fill((0, 10, 0))
-    base = pygame.Surface((10, 10)); base.fill((0, 0, 10))
+    surf_r = pygame.Surface((10, 10))
+    surf_r.fill((10, 0, 0))
+    surf_l = pygame.Surface((10, 10))
+    surf_l.fill((0, 10, 0))
+    base = pygame.Surface((10, 10))
+    base.fill((0, 0, 10))
     r.sprites = {"player_car_bankR": surf_r, "player_car_bankL": surf_l, "player_car": base}
     r.draw(env)
     color = r.surface.get_at((WIDTH // 2 - 4, 202))[:3]

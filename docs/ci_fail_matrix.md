@@ -74,3 +74,9 @@
   runtime: 0.15
 ```
 
+
+```yaml
+- run: 2025-06-26
+  status: all-pass
+  runtime: 2.18
+```

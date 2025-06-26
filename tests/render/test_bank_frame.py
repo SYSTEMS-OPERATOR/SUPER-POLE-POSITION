@@ -1,8 +1,9 @@
 import types
 import pytest
-from src.render.pseudo3d_renderer import Renderer, WIDTH
 
 pygame = pytest.importorskip("pygame")
+
+from src.render.pseudo3d_renderer import Renderer, WIDTH  # noqa: E402
 
 
 def _env(steer: float):

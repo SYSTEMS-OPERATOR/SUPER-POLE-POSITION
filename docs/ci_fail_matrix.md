@@ -57,3 +57,8 @@
   status: pass
   runtime: 5.04
 ```
+- test: tests/render/test_background.py::test_no_bg_flag
+  status: skip
+  root_cause: optional pygame dependency missing
+  fix_plan: use importorskip and skip if pygame absent
+  runtime: 0.00

@@ -5,6 +5,8 @@
 
 """Controller helpers for Super Pole Position.
 
+controllers.py
+ 
 Houses:
 - GPTPlanner: High-level strategy using a GPT model.
 - LowLevelController: Basic speed/steering control.
@@ -46,8 +48,8 @@ class GPTPlanner:
         """Optionally set up the GPT model lazily."""
 
         self.model_name = model_name
-        self.tokenizer = None
-        self.model = None
+        self.tokenizer: Any | None = None
+        self.model: Any | None = None
         if autoload:
             self.load_model()
 

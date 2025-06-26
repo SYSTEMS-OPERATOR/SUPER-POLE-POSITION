@@ -3,7 +3,7 @@ import pytest  # noqa: F401
 from super_pole_position import cli
 
 
-def test_cli_invokes_outro(monkeypatch):
+def test_cli_invokes_outro(monkeypatch: pytest.MonkeyPatch) -> None:
     calls = []
 
     class DummyEnv:
@@ -11,7 +11,7 @@ def test_cli_invokes_outro(monkeypatch):
             self.score = 123
             self.screen = None
 
-        def close(self):
+        def close(self) -> None:
             pass
 
     monkeypatch.setitem(sys.modules, "pygame", None)

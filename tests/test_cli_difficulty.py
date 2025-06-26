@@ -3,14 +3,15 @@ import pytest  # noqa: F401
 from super_pole_position import cli
 
 
-def test_cli_difficulty_option(monkeypatch):
+def test_cli_difficulty_option(monkeypatch: pytest.MonkeyPatch) -> None:
     recorded = {}
 
     class DummyEnv:
-        def __init__(self, *_, difficulty="beginner", **__):
+        def __init__(self, *_, difficulty: str = "beginner", **__):
             recorded["difficulty"] = difficulty
             self.score = 0
-        def close(self):
+
+        def close(self) -> None:
             pass
 
     monkeypatch.setitem(sys.modules, "pygame", None)

@@ -9,7 +9,7 @@ import pytest  # noqa: F401
 from super_pole_position import cli
 
 
-def test_cli_player_name(monkeypatch):
+def test_cli_player_name(monkeypatch: pytest.MonkeyPatch) -> None:
     recorded = {}
 
     class DummyEnv:
@@ -17,7 +17,7 @@ def test_cli_player_name(monkeypatch):
             recorded["name"] = player_name
             self.score = 0
 
-        def close(self):
+        def close(self) -> None:
             pass
 
     monkeypatch.setitem(sys.modules, "pygame", None)

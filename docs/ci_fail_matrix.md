@@ -122,3 +122,11 @@
   fix_plan: load modules via importlib and annotate optionals
   runtime: 0.0
 ```
+
+- run: 2025-06-26
+  status: all-pass
+  runtime: 1.71
+
+- run: 2025-06-26-a
+  status: all-pass
+  runtime: 1.00

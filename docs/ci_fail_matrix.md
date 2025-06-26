@@ -74,3 +74,16 @@
   runtime: 0.15
 ```
 
+
+```yaml
+- test: tests/test_api_server.py::test_scores_endpoints
+  status: skip
+  root_cause: fastapi not installed
+  fix_plan: install fastapi
+  runtime: 0.00
+- test: tests/render/test_fuji_shift.py::test_fuji_shift
+  status: skip
+  root_cause: pygame not installed
+  fix_plan: add pygame dependency
+  runtime: 0.00
+```

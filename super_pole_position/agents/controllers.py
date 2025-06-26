@@ -3,20 +3,15 @@
 # Copyright (c) 2025 MIND INTERFACES, INC. All rights reserved.
 # Licensed under the MIT License.
 
-"""
-controllers.py
-Description: Module for Super Pole Position.
-"""
+"""Controller helpers for Super Pole Position.
 
-
-"""
-controllers.py
- 
 Houses:
 - GPTPlanner: High-level strategy using a GPT model.
 - LowLevelController: Basic speed/steering control.
 - LearningAgent: Placeholder for real-time learning / RL logic.
 """
+
+from typing import Any, Dict, Iterable, Tuple
 
 torch = None
 AutoTokenizer = None
@@ -66,7 +61,7 @@ class GPTPlanner:
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
             self.model = AutoModelForCausalLM.from_pretrained(self.model_name)
 
-    def generate_plan(self, state_dict):
+    def generate_plan(self, state_dict: Dict[str, Any]) -> str:
         """Return a textual plan for the next action."""
         if self.tokenizer is None or self.model is None:
             # Fallback behavior if transformers is unavailable
@@ -88,7 +83,12 @@ class LowLevelController:
     A simple controller that tries to match a target speed and minimal steering logic.
     This can be expanded or replaced by a proper RL or PID controller.
     """
-    def compute_controls(self, current_speed, target_speed, heading_error=0.0):
+    def compute_controls(
+        self,
+        current_speed: float,
+        target_speed: float,
+        heading_error: float = 0.0,
+    ) -> Tuple[bool, bool, float]:
         """
         :param current_speed: The car's current speed.
         :param target_speed: Desired speed from the high-level planner.
@@ -112,13 +112,15 @@ class LearningAgent:
     Placeholder for real-time learning (RL) approach.
     In a real system, you'd manage experience buffers, do forward/backprop, etc.
     """
-    def __init__(self):
+    def __init__(self) -> None:
         # Simple experience buffer for demonstration purposes
         self.buffer = []
         self.total_reward = 0.0
         self.avg_reward = 0.0
 
-    def update_on_experience(self, experience_batch):
+    def update_on_experience(
+        self, experience_batch: Iterable[Tuple[Any, Any, float, Any]]
+    ) -> None:
         """
         Stub method showing where you'd do gradient updates each step/lap.
         :param experience_batch: e.g. [(state, action, reward, next_state), ...]

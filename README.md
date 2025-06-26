@@ -30,7 +30,8 @@ rrrrr
 
 ## Quick Start
 ```bash
-pip install -r requirements.txt && python run_game.py
+pip install super-pole-position
+pole-position --headless --steps 120 --seed 42
 # or dive into the CLI
 spp qualify --agent null --track fuji
 # try the new curved Fuji circuit

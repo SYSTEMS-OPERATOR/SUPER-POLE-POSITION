@@ -21,9 +21,11 @@ from .agents.mistral_agent import MistralAgent
 from .agents.keyboard_agent import KeyboardAgent
 from .agents.joystick_agent import JoystickAgent
 
-from .envs.pole_position import PolePositionEnv, FAST_TEST
-from .matchmaking.arena import run_episode, update_leaderboard
+from .envs.pole_position import FAST_TEST, PolePositionEnv
+from .matchmaking.arena import update_leaderboard
 from .utils import safe_run_episode
+
+run_episode = safe_run_episode
 from .evaluation.metrics import summary
 from .evaluation.scores import load_scores, reset_scores, update_scores
 from .ui.menu import show_race_outro
@@ -179,7 +181,7 @@ def main() -> None:
         )
         agent_cls = AGENT_MAP.get(args.agent, NullAgent)
         agent = agent_cls()
-        safe_run_episode(env, (agent, agent))
+        run_episode(env, (agent, agent))
         metrics = summary(env)
         update_leaderboard(
             Path(__file__).parent / "evaluation" / "leaderboard.json",
@@ -235,7 +237,7 @@ def main() -> None:
         )
         agent_cls = AGENT_MAP.get(args.agent, NullAgent)
         agent = agent_cls()
-        safe_run_episode(env, (agent, agent))
+        run_episode(env, (agent, agent))
         metrics = summary(env)
         update_leaderboard(
             Path(__file__).parent / "evaluation" / "leaderboard.json",

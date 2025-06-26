@@ -1,4 +1,3 @@
-import os
 import pytest
 
 pygame = pytest.importorskip('pygame')

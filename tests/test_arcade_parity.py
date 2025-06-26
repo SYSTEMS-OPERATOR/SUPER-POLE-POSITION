@@ -20,8 +20,6 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 from super_pole_position.envs.pole_position import PolePositionEnv
 from super_pole_position.physics.track import Track, Puddle
 
-import pathlib
-
 
 
 def measure_puddle_ratio() -> float:

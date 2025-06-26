@@ -4,7 +4,7 @@ import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
-from src.physics.car import Car, KMH_TO_MS
+from src.physics.car import Car
 
 
 def run_to_speed(target_kmh):

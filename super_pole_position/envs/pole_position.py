@@ -108,6 +108,7 @@ class PolePositionEnv(gym.Env):
         difficulty: str = "beginner",
         start_position: int | None = None,
         seed: int | None = None,
+        mode_2600: bool = False,
     ) -> None:
         """Create a Pole Position environment.
 
@@ -133,6 +134,7 @@ class PolePositionEnv(gym.Env):
         self.slipstream_enabled = slipstream
         self.difficulty = difficulty
         self.start_position = start_position
+        self.mode_2600 = mode_2600
         self._start_pos_shown = False
         self.track_file = track_file
 
@@ -142,6 +144,8 @@ class PolePositionEnv(gym.Env):
         }
         self.time_limit = limits.get(difficulty, limits["beginner"])[self.mode]
         self.traffic_count = 7 if self.mode == "race" else 0
+        if self.mode_2600:
+            self.traffic_count = 0
         if FAST_TEST:
             self.time_limit = min(self.time_limit, 3.0)
             self.traffic_count = 1
@@ -160,6 +164,9 @@ class PolePositionEnv(gym.Env):
                 car.max_speed = car.gear_max[-1]
                 # Remove speed clamp for Hyper mode
                 car.unlimited = True
+        if self.mode_2600:
+            self._2600_offsets = [-2.0, 0.0, 2.0, -1.0, 1.0]
+            self._next_spawn_step = 150
         self.traffic: list[Car] = []
         if self.mode == "race":
             for i in range(self.traffic_count):
@@ -436,6 +443,12 @@ class PolePositionEnv(gym.Env):
             if len(self.traffic) > self.traffic_count:
                 self.traffic = self.traffic[: self.traffic_count]
         self.current_step += 1
+        if getattr(self, "mode_2600", False) and self.current_step >= getattr(self, "_next_spawn_step", 0):
+            idx = ((self.current_step - self._next_spawn_step) // 150) % len(self._2600_offsets)
+            y = self.track.height / 2 + self._2600_offsets[idx]
+            x = (100 + self.current_step) % self.track.width
+            self.traffic.append(TrafficCar(x=x, y=y, target_speed=8.0))
+            self._next_spawn_step += 150
         dt = 1.0 / self.metadata.get("render_fps", 60)
         if FAST_TEST:
             dt = 1.0

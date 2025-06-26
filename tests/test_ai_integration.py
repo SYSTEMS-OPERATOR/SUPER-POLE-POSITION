@@ -1,5 +1,3 @@
-import pytest
-
 from super_pole_position.envs.pole_position import PolePositionEnv
 from super_pole_position.agents.openai_agent import OpenAIAgent
 from super_pole_position.agents.mistral_agent import MistralAgent

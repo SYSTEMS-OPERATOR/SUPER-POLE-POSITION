@@ -1,5 +1,4 @@
 import sys
-from pathlib import Path
 import pytest  # noqa: F401
 from super_pole_position import cli
 

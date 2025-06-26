@@ -77,8 +77,10 @@
   root_cause: PolePositionEnv lacked episode_reward attribute
   fix_plan: define episode_reward in env init and reset
   runtime: 0.00
-```
-
+- run: 2025-06-26
+  status: all-pass
+  runtime: 2.18
 - test: all
   status: pass
   runtime: 2.46
+```

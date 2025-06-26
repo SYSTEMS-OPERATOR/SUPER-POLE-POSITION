@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 try:
-    import yaml
+    import yaml  # type: ignore
 except Exception:  # pragma: no cover - PyYAML optional
     yaml = None
 

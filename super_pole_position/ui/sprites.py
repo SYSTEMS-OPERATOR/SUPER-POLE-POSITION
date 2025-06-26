@@ -94,10 +94,10 @@ def load_sprite(name: str, ascii_art: list[str] | None = None) -> "pygame.Surfac
     if base:
         path = Path(base) / f"{name}.png"
     else:
-        path = Path(__file__).resolve().parents[1] / "assets" / "sprites" / f"{name}.png"
+        path = Path(__file__).resolve().parents[2] / "assets" / "sprites" / f"{name}.png"
 
     if not path.exists() or path.stat().st_size == 0:
-        gen_path = Path(__file__).resolve().parents[1] / "assets" / "sprites" / "generate_placeholders.py"
+        gen_path = Path(__file__).resolve().parents[2] / "assets" / "sprites" / "generate_placeholders.py"
         if gen_path.exists():
             spec = importlib.util.spec_from_file_location("generate_placeholders", gen_path)
             if spec and spec.loader:

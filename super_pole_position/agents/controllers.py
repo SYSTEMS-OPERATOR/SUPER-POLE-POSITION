@@ -8,6 +8,8 @@ controllers.py
 Description: Module for Super Pole Position.
 """
 
+from typing import Any
+
 
 """
 controllers.py
@@ -51,8 +53,8 @@ class GPTPlanner:
         """Optionally set up the GPT model lazily."""
 
         self.model_name = model_name
-        self.tokenizer = None
-        self.model = None
+        self.tokenizer: Any | None = None
+        self.model: Any | None = None
         if autoload:
             self.load_model()
 
@@ -66,7 +68,7 @@ class GPTPlanner:
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
             self.model = AutoModelForCausalLM.from_pretrained(self.model_name)
 
-    def generate_plan(self, state_dict):
+    def generate_plan(self, state_dict: dict[str, float]) -> str:
         """Return a textual plan for the next action."""
         if self.tokenizer is None or self.model is None:
             # Fallback behavior if transformers is unavailable
@@ -88,7 +90,9 @@ class LowLevelController:
     A simple controller that tries to match a target speed and minimal steering logic.
     This can be expanded or replaced by a proper RL or PID controller.
     """
-    def compute_controls(self, current_speed, target_speed, heading_error=0.0):
+    def compute_controls(
+        self, current_speed: float, target_speed: float, heading_error: float = 0.0
+    ) -> tuple[bool, bool, float]:
         """
         :param current_speed: The car's current speed.
         :param target_speed: Desired speed from the high-level planner.
@@ -118,7 +122,7 @@ class LearningAgent:
         self.total_reward = 0.0
         self.avg_reward = 0.0
 
-    def update_on_experience(self, experience_batch):
+    def update_on_experience(self, experience_batch: list[tuple[Any, ...]]) -> None:
         """
         Stub method showing where you'd do gradient updates each step/lap.
         :param experience_batch: e.g. [(state, action, reward, next_state), ...]

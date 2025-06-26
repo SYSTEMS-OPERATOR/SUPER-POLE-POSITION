@@ -17,12 +17,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from .metrics import summary
+from typing import Any
 
 # Root directory for benchmark files (can be patched in tests)
 BENCH_ROOT = Path("benchmarks")
 
 
-def log_episode(env, file: Path | None = None, step_file: Path | None = None) -> Path:
+def log_episode(env: Any, file: Path | None = None, step_file: Path | None = None) -> Path:
     """Write a JSON summary and step CSV for ``env``.
 
     :param env: Environment with metrics attributes.

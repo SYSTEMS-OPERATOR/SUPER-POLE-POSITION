@@ -31,6 +31,7 @@ from ..physics.track import Track
 from ..physics.traffic_car import TrafficCar
 import random
 from random import Random
+from typing import Any
 from ..ai_cpu import CPUCar
 from ..agents.controllers import GPTPlanner, LowLevelController, LearningAgent
 from ..ui.arcade import Pseudo3DRenderer
@@ -347,7 +348,9 @@ class PolePositionEnv(gym.Env):
                 print(f"Load failed: {exc}", flush=True)
 
 
-    def reset(self, seed=None, options=None):
+    def reset(
+        self, seed: int | None = None, options: dict | None = None
+    ) -> tuple[np.ndarray, dict]:
         super().reset(seed=seed)
         _seed_all(seed)
         print("[ENV] Resetting environment", flush=True)
@@ -429,7 +432,7 @@ class PolePositionEnv(gym.Env):
         info = {"track_hash": self.track.track_hash}
         return obs, info
 
-    def step(self, action):
+    def step(self, action: Any) -> tuple[np.ndarray, float, bool, bool, dict]:
         """
         Step the environment.
 
@@ -1092,7 +1095,7 @@ class PolePositionEnv(gym.Env):
         except Exception:  # pragma: no cover - audio may fail
             pass
 
-    def close(self):
+    def close(self) -> None:
         """Clean up resources like audio streams."""
         if self.audio_stream is not None:
             try:

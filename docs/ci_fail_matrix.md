@@ -124,4 +124,15 @@
   root_cause: 135 mypy errors; missing stubs for pygame, openai, mistralai
   fix_plan: add conditional imports or install stub packages
   runtime: 0.00
+- test: typing
+  status: fixed
+  root_cause: optional deps lacked type hints
+  fix_plan: load modules via importlib and annotate optionals
+  runtime: 0.0
+- run: 2025-06-26
+  status: all-pass
+  runtime: 1.71
+- run: 2025-06-26-a
+  status: all-pass
+  runtime: 1.00
 ```

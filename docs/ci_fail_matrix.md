@@ -116,4 +116,9 @@
   root_cause: environment spin-up
   fix_plan: mark slow and gate behind CI_SLOW_TESTS
   runtime: 2.78
+- test: typing
+  status: fixed
+  root_cause: optional deps lacked type hints
+  fix_plan: load modules via importlib and annotate optionals
+  runtime: 0.0
 ```

@@ -3,16 +3,17 @@
 # Copyright (c) 2025 MIND INTERFACES, INC. All rights reserved.
 # Licensed under the MIT License.
 
-"""
-car.py
-Description: Module for Super Pole Position.
-"""
+"""car.py
+Description: Module for Super Pole Position."""
 
 
+
+from __future__ import annotations
 
 import math
 
 from ..config import load_arcade_parity
+from .track import Track
 
 _ARC_CFG = load_arcade_parity()
 
@@ -66,8 +67,8 @@ class Car:
         brake: float,
         steering: float,
         dt: float = 1.0,
-        track=None,
-    ):
+        track: "Track | None" = None,
+    ) -> None:
         """
         Updates the car's speed and angle based on throttle/brake/steering inputs.
         :param throttle: 0..1 amount of acceleration.

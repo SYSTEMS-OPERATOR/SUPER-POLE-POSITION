@@ -13,11 +13,11 @@ Houses:
 - LearningAgent: Placeholder for real-time learning / RL logic.
 """
 
-from typing import Any, Dict, Iterable, Tuple
+from typing import Any, Dict, Iterable, Tuple, cast
 
-torch = None
-AutoTokenizer = None
-AutoModelForCausalLM = None
+torch: Any | None = None
+AutoTokenizer: Any | None = None
+AutoModelForCausalLM: Any | None = None
 
 
 def _import_llm_deps() -> None:
@@ -27,11 +27,12 @@ def _import_llm_deps() -> None:
     if AutoTokenizer is not None and AutoModelForCausalLM is not None:
         return
     try:  # pragma: no cover - optional dependency may be missing
-        import torch  # noqa: F401
-        from transformers import AutoTokenizer as _AutoTokenizer
-        from transformers import AutoModelForCausalLM as _AutoModel
-        AutoTokenizer = _AutoTokenizer
-        AutoModelForCausalLM = _AutoModel
+        import importlib
+
+        torch = importlib.import_module("torch")
+        transformers = importlib.import_module("transformers")
+        AutoTokenizer = getattr(transformers, "AutoTokenizer", None)
+        AutoModelForCausalLM = getattr(transformers, "AutoModelForCausalLM", None)
     except Exception:
         torch = None
         AutoTokenizer = None
@@ -60,6 +61,8 @@ class GPTPlanner:
         if AutoTokenizer is None:
             return
         if self.tokenizer is None or self.model is None:
+            assert AutoTokenizer is not None
+            assert AutoModelForCausalLM is not None
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
             self.model = AutoModelForCausalLM.from_pretrained(self.model_name)
 
@@ -77,7 +80,7 @@ class GPTPlanner:
         )
         inputs = self.tokenizer(prompt, return_tensors="pt")
         outputs = self.model.generate(**inputs, max_length=30, do_sample=False)
-        plan_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+        plan_text = cast(str, self.tokenizer.decode(outputs[0], skip_special_tokens=True))
         return plan_text
 
 class LowLevelController:
@@ -116,7 +119,7 @@ class LearningAgent:
     """
     def __init__(self) -> None:
         # Simple experience buffer for demonstration purposes
-        self.buffer = []
+        self.buffer: list[Tuple[Any, Any, float, Any]] = []
         self.total_reward = 0.0
         self.avg_reward = 0.0
 

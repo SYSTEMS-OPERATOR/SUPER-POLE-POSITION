@@ -13,7 +13,7 @@ from __future__ import annotations
 from typing import Any, Dict, List
 
 
-def summary(env: Any) -> Dict[str, float | int | None]:
+def summary(env: Any) -> Dict[str, float | int | str | None]:
     """Extract metrics from ``env`` for leaderboard."""
 
     return {

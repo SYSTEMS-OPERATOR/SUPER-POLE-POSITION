@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import List, Dict
+from typing import Any, List
 from urllib import request
 import logging
 import os
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 _DEFAULT_FILE = Path(__file__).resolve().parent / "scores.json"
 
 
-def load_scores(file: Path | None = None) -> List[Dict]:
+def load_scores(file: Path | None = None) -> List[dict[str, Any]]:
     """Return list of score dicts from ``file``."""
 
     file = file or _DEFAULT_FILE

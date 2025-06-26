@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Tuple
+from typing import Any, Dict, Tuple
 
 from ..envs.pole_position import PolePositionEnv
 from ..agents.base_llm_agent import BaseLLMAgent
@@ -63,14 +63,19 @@ def run_episode(
     return total
 
 
-def update_leaderboard(file: Path, name: str, metrics: dict) -> None:
+def update_leaderboard(
+    file: Path, name: str, metrics: Dict[str, float | int | None]
+) -> None:
     """Append ``metrics`` for ``name`` to ``file`` in leaderboard format."""
 
-    data = {"schema_version": 2, "results": []}
+    data: Dict[str, Any] = {"schema_version": 2, "results": []}
     if file.exists():
         data = json.loads(file.read_text())
-    entry = {"name": name}
+
+    entry: Dict[str, Any] = {"name": name}
     entry.update(metrics)
-    data["results"].append(entry)
-    data["results"] = sorted(data["results"], key=lambda r: -r.get("reward", 0))[:10]
+
+    results: list[Dict[str, Any]] = data.get("results", [])
+    results.append(entry)
+    data["results"] = sorted(results, key=lambda r: -float(r.get("reward", 0)))[:10]
     file.write_text(json.dumps(data, indent=2))

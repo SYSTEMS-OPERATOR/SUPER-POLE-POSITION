@@ -1,5 +1,6 @@
 name: CI
 on: [push, pull_request]
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -12,34 +13,18 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          key: "${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}"
           restore-keys: ${{ runner.os }}-pip-
       - name: Install
         run: |
           pip install pygame~=2.5.2 --only-binary=:all:
-          pip install ruff mypy
-          pip install -e .[dev]
+          pip install -e .[dev,graphics]
       - name: Lint
         run: |
-          ruff check --select E,F,I super_pole_position tests
+          ruff check super_pole_position tests
           mypy --strict super_pole_position || true
       - name: Test
-        run: |
-          pytest -n auto --cov=super_pole_position | tee result.log
-          passed=$(grep -oE '\d+ passed' result.log | awk '{print $1}')
-          failed=$(grep -oE '\d+ failed' result.log | awk '{print $1}' || echo 0)
-          total=$((passed+failed))
-          rate=$(python - <<EOF
-import sys
-p=int('$passed'); f=int('$failed'); t=p+f
-print(p/t if t else 0)
-EOF
-)
-          python - <<EOF
-import sys
-rate=float('$rate')
-sys.exit(0 if rate >= 0.8 else 1)
-EOF
+        run: pytest --cov=super_pole_position
 
   ai-test:
     runs-on: ubuntu-latest
@@ -52,31 +37,16 @@ EOF
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-ai-${{ hashFiles('requirements.txt') }}
+          key: "${{ runner.os }}-pip-ai-${{ hashFiles('requirements.txt') }}"
           restore-keys: ${{ runner.os }}-pip-ai-
       - name: Install AI extras
         run: |
           pip install pygame~=2.5.2 --only-binary=:all:
-          pip install ruff mypy
-          pip install -e .[dev,ai]
+          pip install -e .[dev,ai,graphics]
       - name: Lint
         run: |
-          ruff check --select E,F,I super_pole_position tests
+          ruff check super_pole_position tests
           mypy --strict super_pole_position || true
       - name: Test
-        run: |
-          pytest -n auto --cov=super_pole_position | tee result.log
-          passed=$(grep -oE '\d+ passed' result.log | awk '{print $1}')
-          failed=$(grep -oE '\d+ failed' result.log | awk '{print $1}' || echo 0)
-          total=$((passed+failed))
-          rate=$(python - <<EOF
-import sys
-p=int('$passed'); f=int('$failed'); t=p+f
-print(p/t if t else 0)
-EOF
-)
-          python - <<EOF
-import sys
-rate=float('$rate')
-sys.exit(0 if rate >= 0.8 else 1)
-EOF
+        run: pytest --cov=super_pole_position
+

@@ -116,4 +116,12 @@
   root_cause: environment spin-up
   fix_plan: mark slow and gate behind CI_SLOW_TESTS
   runtime: 2.78
+- test: tests/test_determinism.py::test_determinism_seeded
+  status: pass
+  runtime: 0.20
+- test: typing
+  status: fail
+  root_cause: 135 mypy errors; missing stubs for pygame, openai, mistralai
+  fix_plan: add conditional imports or install stub packages
+  runtime: 0.00
 ```

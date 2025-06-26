@@ -72,6 +72,11 @@
   root_cause: idle_limit set too high under FAST_TEST causing slow loop
   fix_plan: reduce idle_limit to 0.1 seconds when FAST_TEST=1
   runtime: 0.15
+- test: typing
+  status: fixed
+  root_cause: PolePositionEnv lacked episode_reward attribute
+  fix_plan: define episode_reward in env init and reset
+  runtime: 0.00
 ```
 
 - test: all

@@ -236,6 +236,8 @@ class PolePositionEnv(gym.Env):
         self.start_phase = "READY"
         self.lap = 0
         self.score = 0.0
+        # Cumulative reward for the current episode
+        self.episode_reward: float = 0.0
         self.overtakes = 0
         self.prev_progress = 0.0
         self.prev_x = 0.0
@@ -366,6 +368,7 @@ class PolePositionEnv(gym.Env):
         self.start_phase = "READY"
         self.lap = 0
         self.score = 0.0
+        self.episode_reward = 0.0
         self.overtakes = 0
         self.prev_progress = 0.0
         self.prev_x = 0.0

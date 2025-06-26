@@ -1,5 +1,9 @@
 # 📜 Changelog
 
+## v1.0.0-rc1
+- First release candidate with `--2600-mode` for deterministic traffic.
+- Golden observation hash locked in for CI.
+
 ## Arcade Parity Improvements
 - Adjust scanline intensity for stronger CRT-style effect.
 - Adjust puddle traction slowdown to 0.65 for stickier puddles.

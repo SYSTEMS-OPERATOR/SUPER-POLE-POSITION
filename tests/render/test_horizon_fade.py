@@ -1,4 +1,3 @@
-import pygame
 import pytest
 from src.render.pseudo3d_renderer import Renderer
 

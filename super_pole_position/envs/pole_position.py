@@ -972,14 +972,14 @@ class PolePositionEnv(gym.Env):
             pass
 
     def _play_bgm_loop(self) -> None:
-        """Start background music playback once."""
+        """Start looping background music playback."""
 
         if os.environ.get("MUTE_BGM", "0") == "1":
             return
         if pg_mixer is None or self.bgm_wave is None:
             return
         try:
-            self.bgm_wave.play(loops=0)
+            self.bgm_wave.play(loops=-1)
         except Exception:  # pragma: no cover
             pass
 

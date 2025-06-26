@@ -56,4 +56,7 @@
 - test: tests/test_attract_mode.py::test_attract_mode_cycles_scores
   status: pass
   runtime: 5.04
+- test: tests/test_attract_mode.py::test_attract_mode_cycles_scores
+  status: pass
+  runtime: 0.01
 ```

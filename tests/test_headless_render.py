@@ -1,6 +1,9 @@
 import os
-import pygame
-from src.render.pseudo3d_renderer import Renderer
+import pytest
+
+pygame = pytest.importorskip("pygame")
+
+from src.render.pseudo3d_renderer import Renderer  # noqa: E402
 
 
 def test_headless_render_smoke():

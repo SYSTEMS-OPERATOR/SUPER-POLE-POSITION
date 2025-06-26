@@ -1,8 +1,10 @@
 import hashlib
 import pathlib
-import pygame
+import pytest
 
-from src.ui.hud import HUD
+pygame = pytest.importorskip("pygame")
+
+from src.ui.hud import HUD  # noqa: E402
 
 
 def test_digits_checksum() -> None:

@@ -59,4 +59,18 @@
 - test: tests/test_attract_mode.py::test_attract_mode_cycles_scores
   status: pass
   runtime: 0.01
+  root_cause: attract mode cycles through high scores slowly
+  fix_plan: mark slow and gate behind CI_SLOW_TESTS
+  runtime: 5.06
+- test: tests/render/test_background.py::test_no_bg_flag
+  status: skip
+  root_cause: optional pygame dependency missing
+  fix_plan: use importorskip and skip if pygame absent
+  runtime: 0.00
+- test: tests/test_attract_mode.py::test_attract_mode_cycles_scores
+  status: fixed
+  root_cause: idle_limit set too high under FAST_TEST causing slow loop
+  fix_plan: reduce idle_limit to 0.1 seconds when FAST_TEST=1
+  runtime: 0.15
 ```
+

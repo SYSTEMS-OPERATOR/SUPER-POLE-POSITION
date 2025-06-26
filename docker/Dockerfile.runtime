@@ -1,0 +1,4 @@
+FROM python:3.12-slim
+COPY dist/super_pole_position-1.0.0rc1-py3-none-any.whl /tmp/
+RUN pip install /tmp/super_pole_position-1.0.0rc1-py3-none-any.whl
+CMD ["pole-position", "--headless", "--steps", "120", "--seed", "42"]

@@ -117,3 +117,11 @@
   fix_plan: mark slow and gate behind CI_SLOW_TESTS
   runtime: 2.78
 ```
+
+- run: 2025-06-26
+  status: all-pass
+  runtime: 1.71
+
+- run: 2025-06-26-a
+  status: all-pass
+  runtime: 1.00

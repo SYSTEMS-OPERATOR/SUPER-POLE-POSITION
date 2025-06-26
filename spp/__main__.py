@@ -1,6 +1,5 @@
 import argparse
 import os
-import sys
 from super_pole_position.envs.pole_position import PolePositionEnv
 
 

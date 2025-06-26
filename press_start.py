@@ -8,7 +8,6 @@ from __future__ import annotations
 from super_pole_position.agents.keyboard_agent import KeyboardAgent
 from super_pole_position.agents.joystick_agent import JoystickAgent
 from super_pole_position.evaluation.metrics import summary
-from super_pole_position.utils import safe_run_episode
 from super_pole_position.matchmaking.arena import run_episode
 
 try:  # optional deps may be missing on fresh installs

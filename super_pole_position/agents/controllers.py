@@ -13,7 +13,12 @@ Houses:
 - LearningAgent: Placeholder for real-time learning / RL logic.
 """
 
-from typing import Any, Dict, Iterable, Tuple, cast
+from typing import Any, Dict, Iterable, Tuple, TYPE_CHECKING, cast
+
+if TYPE_CHECKING:  # pragma: no cover - optional heavy deps
+    from typing import Any as _torch  # noqa: F401
+    from typing import Any as _HFModel  # noqa: F401
+    from typing import Any as _HFTokenizer  # noqa: F401
 
 torch: Any | None = None
 AutoTokenizer: Any | None = None
@@ -28,11 +33,10 @@ def _import_llm_deps() -> None:
         return
     try:  # pragma: no cover - optional dependency may be missing
         import importlib
-
         torch = importlib.import_module("torch")
         transformers = importlib.import_module("transformers")
-        AutoTokenizer = getattr(transformers, "AutoTokenizer", None)
-        AutoModelForCausalLM = getattr(transformers, "AutoModelForCausalLM", None)
+        AutoTokenizer = getattr(transformers, "AutoTokenizer")
+        AutoModelForCausalLM = getattr(transformers, "AutoModelForCausalLM")
     except Exception:
         torch = None
         AutoTokenizer = None
@@ -58,7 +62,7 @@ class GPTPlanner:
         """Load the tokenizer and model when dependencies are available."""
 
         _import_llm_deps()
-        if AutoTokenizer is None:
+        if AutoTokenizer is None or AutoModelForCausalLM is None:
             return
         if self.tokenizer is None or self.model is None:
             assert AutoTokenizer is not None

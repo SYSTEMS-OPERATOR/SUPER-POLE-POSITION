@@ -96,4 +96,24 @@
 - run: 2025-06-26
   status: all-pass
   runtime: 1.02
+- test: tests/test_cli_headless.py::test_cli_headless
+  status: pass
+  root_cause: CLI start-up time
+  fix_plan: mark slow and gate behind CI_SLOW_TESTS
+  runtime: 3.16
+- test: tests/test_cli_stub.py::test_cli_stub
+  status: pass
+  root_cause: CLI start-up time
+  fix_plan: mark slow and gate behind CI_SLOW_TESTS
+  runtime: 3.07
+- test: tests/test_cli_smoke.py::test_cli_smoke
+  status: pass
+  root_cause: CLI start-up time
+  fix_plan: mark slow and gate behind CI_SLOW_TESTS
+  runtime: 2.81
+- test: tests/test_ai_integration.py::test_openai_agent_fallback
+  status: pass
+  root_cause: environment spin-up
+  fix_plan: mark slow and gate behind CI_SLOW_TESTS
+  runtime: 2.78
 ```

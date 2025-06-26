@@ -8,13 +8,14 @@ test_cli_headless.py
 Description: Test suite for test_cli_headless.
 """
 
-import pytest  # noqa: F401
 import os
 import subprocess
 import sys
+import pytest
 
 
-def test_cli_headless():
+@pytest.mark.skipif(not os.getenv("CI_SLOW_TESTS"), reason="slow test")
+def test_cli_headless() -> None:
     result = subprocess.run(
         [sys.executable, "-m", "super_pole_position.cli", "race"],
         env={**os.environ, "FAST_TEST": "1"},

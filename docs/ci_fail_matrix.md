@@ -57,3 +57,8 @@
   status: pass
   runtime: 5.04
 ```
+- test: tests/test_attract_mode.py::test_attract_mode_cycles_scores
+  status: fixed
+  root_cause: idle_limit set too high under FAST_TEST causing slow loop
+  fix_plan: reduce idle_limit to 0.1 seconds when FAST_TEST=1
+  runtime: 0.15

@@ -208,7 +208,7 @@ def main_loop(screen, seed: int | None = None) -> dict | None:
         tick_sfx = None
     x_offset = 0
     attract = os.getenv("ATTRACT_MODE", "0") == "1"
-    idle_limit = 5.0 if os.getenv("FAST_TEST", "0") == "1" else 10.0
+    idle_limit = 0.1 if os.getenv("FAST_TEST", "0") == "1" else 10.0
     last_input = pygame.time.get_ticks()
     running = True
     while running:

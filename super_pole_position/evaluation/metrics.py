@@ -11,10 +11,10 @@ Description: Module for Super Pole Position.
 
 from __future__ import annotations
 
-from typing import List
+from typing import Any, List
 
 
-def summary(env) -> dict:
+def summary(env: Any) -> dict[str, Any]:
     """Extract metrics from env for leaderboard."""
     return {
         "reward": getattr(env, "episode_reward", 0.0),

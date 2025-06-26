@@ -18,7 +18,7 @@ from typing import Any
 from .base_llm_agent import BaseLLMAgent, NullAgent
 
 try:
-    from mistralai.client import MistralClient  # type: ignore
+    from mistralai.client import MistralClient
 except Exception:  # pragma: no cover
     MistralClient = None
 

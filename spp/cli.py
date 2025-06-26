@@ -1,6 +1,5 @@
 import argparse
 import os
-import sys
 from super_pole_position.envs.pole_position import PolePositionEnv
 
 
@@ -11,11 +10,9 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--2600-mode", dest="mode_2600", action="store_true")
     args = parser.parse_args()
-
     if args.headless:
         os.environ["SDL_VIDEODRIVER"] = "dummy"
         os.environ.setdefault("FAST_TEST", "1")
-
     env = PolePositionEnv(render_mode="human", mode_2600=args.mode_2600)
     env.reset(seed=args.seed)
     for _ in range(args.steps):

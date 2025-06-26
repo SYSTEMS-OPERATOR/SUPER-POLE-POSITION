@@ -64,6 +64,8 @@ class TrackCurve:
         if not self._points:
             return 0.0, 0.0
         s = max(0.0, min(s, self.total_length))
+        if s <= 0.0:
+            return self._points[0]
         for i, d in enumerate(self._lengths):
             if d >= s:
                 return self._points[i + 1]

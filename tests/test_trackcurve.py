@@ -12,6 +12,7 @@ from super_pole_position.physics.track import Track
 def test_straight_curve():
     curve = TrackCurve.from_tuples([(0.0, 0.0, 0.0, 10.0)])
     assert curve.total_length == pytest.approx(10.0)
+    assert curve.point_at(0.0) == pytest.approx((0.0, 0.0))
     assert curve.point_at(5.0) == pytest.approx((5.0, 0.0))
     tx, ty = curve.tangent_at(5.0)
     nx, ny = curve.normal_at(5.0)

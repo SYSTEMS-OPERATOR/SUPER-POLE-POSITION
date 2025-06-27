@@ -45,5 +45,3 @@ line-length = 88
 [tool.black]
 line-length = 88
 
-[tool.pytest.ini_options]
-timeout = 10

@@ -17,21 +17,21 @@ import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from super_pole_position.envs.pole_position import PolePositionEnv
+from super_pole_position.physics.car import Car
 from super_pole_position.physics.track import Track, Puddle
 
 
 
 
 def measure_puddle_ratio() -> float:
-    env = PolePositionEnv(render_mode="human")
-    env.track = Track(width=200.0, height=200.0, puddles=[Puddle(x=50, y=50, radius=10)])
-    env.reset()
-    env.cars[0].y = 50
-    env.step({"throttle": True, "brake": False, "steer": 0.0})
-    pre = env.cars[0].speed
-    env.step({"throttle": False, "brake": False, "steer": 0.0})
-    post = env.cars[0].speed
+    """Return slowdown ratio when a car drives through a puddle."""
+
+    track = Track(width=200.0, height=200.0, puddles=[Puddle(x=50, y=50, radius=10)])
+    car = Car(x=50, y=50)
+    car.apply_controls(throttle=1.0, brake=0.0, steering=0.0, track=track, dt=1.0)
+    pre = car.speed
+    car.apply_controls(throttle=0.0, brake=0.0, steering=0.0, track=track, dt=1.0)
+    post = car.speed
     return post / pre
 
 

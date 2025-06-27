@@ -1,0 +1,9 @@
+fail: 0
+xfail: 0
+skip: 8
+slow: [test_arcade_parity.py::test_puddle_slowdown_improved, test_api_server.py::test_scores_endpoints]
+coverage: 80
+lint_errors: 0
+mypy_errors: 313
+wheel_kb: 122
+mem_delta_mb: NA

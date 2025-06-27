@@ -258,3 +258,4 @@ python examples/animated_sprite.py
 🚗 Happy racing! 🏁
 
 For a code overview see [docs/GAME_FLOW.md](docs/GAME_FLOW.md).
+For playtest info see [docs/playtest_guide.md](docs/playtest_guide.md).

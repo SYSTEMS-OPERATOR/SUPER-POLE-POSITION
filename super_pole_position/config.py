@@ -38,7 +38,11 @@ def load_parity_config() -> dict[str, Any]:
             data = {}
     cfg = DEFAULTS | data
     if "puddle" in data:
-        cfg["puddle"] = DEFAULTS["puddle"] | data.get("puddle", {})
+        puddle = data.get("puddle", {})
+        if isinstance(puddle, dict):
+            cfg["puddle"] = DEFAULTS["puddle"] | puddle
+        else:
+            cfg["puddle"] = DEFAULTS["puddle"]
     if "audio_volume" in data:
         try:
             cfg["audio_volume"] = float(data["audio_volume"])

@@ -59,13 +59,15 @@ class Car:
 
     # ------------------------------------------------------------------
     def shift_high(self) -> None:
-        self.gear = "HIGH"
-        self.shift_count += 1
+        if self.gear != "HIGH":
+            self.gear = "HIGH"
+            self.shift_count += 1
 
     # ------------------------------------------------------------------
     def shift_low(self) -> None:
-        self.gear = "LOW"
-        self.shift_count += 1
+        if self.gear != "LOW":
+            self.gear = "LOW"
+            self.shift_count += 1
 
 
 """

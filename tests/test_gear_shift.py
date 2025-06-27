@@ -38,3 +38,11 @@ def test_env_shift_increments_once():
     after = env.cars[0].shift_count
     assert after - before == 1
     env.close()
+
+
+def test_shift_no_increment_at_limit():
+    car = Car()
+    car.shift(1)
+    before = car.shift_count
+    car.shift(1)
+    assert car.shift_count == before

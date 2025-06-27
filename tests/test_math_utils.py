@@ -31,6 +31,11 @@ def test_factorial_negative():
         factorial(-1)
 
 
+def test_factorial_type_error():
+    with pytest.raises(TypeError):
+        factorial(3.5)
+
+
 def test_factorial_large():
     import math
     assert factorial(100) == math.factorial(100)

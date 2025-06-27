@@ -6,6 +6,8 @@ from __future__ import annotations
 def factorial(n: int) -> int:
     """Return the factorial of ``n`` using an iterative algorithm."""
 
+    if not isinstance(n, int):
+        raise TypeError("n must be an integer")
     if n < 0:
         raise ValueError("n must be non-negative")
     result = 1

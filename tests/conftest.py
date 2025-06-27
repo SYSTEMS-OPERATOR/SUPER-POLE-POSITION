@@ -8,7 +8,13 @@ conftest.py
 Description: Test suite for conftest.
 """
 
+import sys
+from pathlib import Path
+
 import pytest  # noqa: F401
+
+# Ensure project root is on ``sys.path`` so the local gymnasium module is found
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 # Skip the entire suite if gymnasium is unavailable
 pytest.importorskip("gymnasium")

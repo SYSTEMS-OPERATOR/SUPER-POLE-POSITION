@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Any, Dict, TYPE_CHECKING
+from typing import Any, Dict
 
 from .base_llm_agent import BaseLLMAgent, NullAgent
 
@@ -42,8 +42,6 @@ try:  # pragma: no cover - the import is environment-dependent
 except Exception:  # pragma: no cover - handled by falling back to ``None``
     openai = None
 
-if TYPE_CHECKING:  # pragma: no cover - type hints only
-    import openai as _openai  # noqa: F401
 
 
 class OpenAIAgent(BaseLLMAgent):

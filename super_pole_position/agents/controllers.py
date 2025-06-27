@@ -13,12 +13,7 @@ Houses:
 - LearningAgent: Placeholder for real-time learning / RL logic.
 """
 
-from typing import Any, Dict, Iterable, Tuple, TYPE_CHECKING, cast
-
-if TYPE_CHECKING:  # pragma: no cover - optional heavy deps
-    from typing import Any as _torch  # noqa: F401
-    from typing import Any as _HFModel  # noqa: F401
-    from typing import Any as _HFTokenizer  # noqa: F401
+from typing import Any, Dict, Iterable, Tuple, cast
 
 torch: Any | None = None
 AutoTokenizer: Any | None = None

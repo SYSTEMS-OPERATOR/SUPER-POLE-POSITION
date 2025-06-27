@@ -54,11 +54,15 @@ class Car:
 
     def shift(self, change: int) -> bool:
         """Change gear by ``change`` amount and return ``True`` if shifted."""
-        if change:
+
+        if change == 0:
+            return False
+
+        prev = self.gear
+        self.gear = min(max(self.gear + change, 0), len(self.gear_max) - 1)
+        if self.gear != prev:
             self.shift_count += 1
-            prev = self.gear
-            self.gear = min(max(self.gear + change, 0), len(self.gear_max) - 1)
-            return self.gear != prev
+            return True
         return False
 
     def apply_controls(

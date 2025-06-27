@@ -43,3 +43,11 @@ def test_shift_count_increments():
     assert car.shift_count == 1
     car.shift_low()
     assert car.shift_count == 2
+
+
+def test_shift_count_no_increment_when_unchanged():
+    car = Car()
+    car.shift_high()
+    before = car.shift_count
+    car.shift_high()
+    assert car.shift_count == before

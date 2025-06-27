@@ -135,4 +135,5 @@
 - run: 2025-06-26-a
   status: all-pass
   runtime: 1.00
-```
+- test: tests/test_arcade_parity.py::test_puddle_slowdown_improved
+  status: done

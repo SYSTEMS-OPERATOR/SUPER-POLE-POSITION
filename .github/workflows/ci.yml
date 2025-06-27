@@ -25,6 +25,9 @@ jobs:
           mypy --strict super_pole_position || true
       - name: Test
         run: pytest --cov=super_pole_position
+      - name: Parity Audit (non-strict)
+        run: python tools/parity_audit.py --seed 42 --frames 200 --audio 5 --dump build/parity_run.json
+        continue-on-error: true
 
   ai-test:
     runs-on: ubuntu-latest

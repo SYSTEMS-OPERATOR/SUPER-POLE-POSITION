@@ -104,6 +104,7 @@ class Car:
 
         if track:
             self.speed *= track.friction_factor(self)
+            self.angle += track.slip_angle(self, dt)
 
     def crash(self) -> None:
         """Stop the car and reset gear when a crash occurs."""

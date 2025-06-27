@@ -18,6 +18,11 @@ import gymnasium as gym
 import time
 from pathlib import Path
 import importlib.util
+import json
+import platform
+from urllib import request
+import subprocess
+import sys
 
 try:
     import pygame  # optional dependency for graphics
@@ -36,8 +41,12 @@ from ..ai_cpu import CPUCar
 from ..agents.controllers import GPTPlanner, LowLevelController, LearningAgent
 from ..ui.arcade import Pseudo3DRenderer
 
-from ..config import load_parity_config
-from ..config import load_arcade_parity
+from ..config import (
+    load_parity_config,
+    load_arcade_parity,
+    load_default_config,
+    load_release_config,
+)
 from ..evaluation import submit_score_http, submit_lap_time_http
 
 _PARITY_CONFIG = load_arcade_parity()
@@ -53,6 +62,8 @@ def engine_pitch(rpm: float, gear: int = 0) -> float:
 
 FAST_TEST = bool(int(os.getenv("FAST_TEST", "0")))
 PARITY_CFG = load_parity_config()
+RELEASE_MODE = os.getenv("SPP_RELEASE", "0") == "1"
+CONFIG = load_release_config() if RELEASE_MODE else load_default_config()
 
 
 def _seed_all(seed: int) -> None:
@@ -124,6 +135,7 @@ class PolePositionEnv(gym.Env):
 
         super().__init__()
         _seed_all(seed)
+        self.seed = seed
         self.rng = Random(seed)
         self.np_rng = np.random.default_rng(seed)
 
@@ -136,6 +148,7 @@ class PolePositionEnv(gym.Env):
         self.difficulty = difficulty
         self.start_position = start_position
         self.mode_2600 = mode_2600
+        self.upload = os.getenv("SPP_UPLOAD", "0") == "1"
         self._start_pos_shown = False
         self.track_file = track_file
 
@@ -823,8 +836,10 @@ class PolePositionEnv(gym.Env):
         if self.screen is None:
             try:
                 pygame.init()
-                size = (256, 224)
-                self.screen = pygame.display.set_mode(size)
+                w = int(CONFIG.get("window_width", 256))
+                h = int(CONFIG.get("window_height", 224))
+                vs = CONFIG.get("vsync", False)
+                self.screen = pygame.display.set_mode((w, h), vsync=1 if vs else 0)
                 pygame.display.set_caption("Super Pole Position")
                 self.clock = pygame.time.Clock()
                 self.renderer = Pseudo3DRenderer(self.screen)
@@ -833,8 +848,10 @@ class PolePositionEnv(gym.Env):
                     os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
                     try:
                         pygame.init()
-                        size = (256, 224)
-                        self.screen = pygame.display.set_mode(size)
+                        w = int(CONFIG.get("window_width", 256))
+                        h = int(CONFIG.get("window_height", 224))
+                        vs = CONFIG.get("vsync", False)
+                        self.screen = pygame.display.set_mode((w, h), vsync=1 if vs else 0)
                         pygame.display.set_caption("Super Pole Position")
                         self.clock = pygame.time.Clock()
                         self.renderer = Pseudo3DRenderer(self.screen)
@@ -856,6 +873,10 @@ class PolePositionEnv(gym.Env):
                     return
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_m:
                     self.configure_planner()
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_F12:
+                    self._dump_bug_report()
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    self._show_pause_menu()
         except Exception as exc:  # pragma: no cover - event error
             print(f"pygame event error: {exc}", flush=True)
             return
@@ -1119,6 +1140,7 @@ class PolePositionEnv(gym.Env):
         if pygame is not None and self.screen is not None:
             pygame.quit()
             self.screen = None
+        self._dump_play_log()
 
     def _get_obs(self):
         """Return observation array including nearest traffic cars."""
@@ -1144,3 +1166,117 @@ class PolePositionEnv(gym.Env):
         while len(traffic_rel) < 2 * self.k_traffic:
             traffic_rel.extend([0.0, 0.0])
         return np.array(base + traffic_rel, dtype=np.float32)
+
+    def _dump_play_log(self) -> None:
+        """Write play session metrics to ``logs``."""
+
+        from datetime import datetime
+        import json
+        import platform
+        from urllib import request
+
+        log_dir = Path("logs")
+        log_dir.mkdir(exist_ok=True)
+        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+        path = log_dir / f"play_{ts}.json"
+        best = min(self.lap_times) if self.lap_times else 0.0
+        fps = 0.0
+        if self.step_durations:
+            avg = sum(self.step_durations) / len(self.step_durations)
+            if avg:
+                fps = 1.0 / avg
+        data = {
+            "version": "1.0.0-pt",
+            "laps": self.lap,
+            "best_lap_time": round(best, 2),
+            "crashes": self.crashes,
+            "fps_avg": round(fps, 1),
+            "seed": self.seed,
+        }
+        try:
+            path.write_text(json.dumps(data, indent=2))
+        except Exception:
+            return
+        if self.upload:
+            url = os.getenv("SCOREBOARD_URL", "http://127.0.0.1:8000") + "/telemetry"
+            if os.getenv("ALLOW_NET") == "1":
+                try:
+                    req = request.Request(
+                        url,
+                        data=json.dumps(data).encode(),
+                        headers={"Content-Type": "application/json"},
+                    )
+                    request.urlopen(req, timeout=1)
+                except Exception:
+                    pass
+
+    def _dump_bug_report(self) -> None:
+        """Save screenshot and recent log lines."""
+
+        if pygame is None or self.screen is None:
+            return
+        from datetime import datetime
+
+        report_dir = Path("playtest_reports") / datetime.now().strftime(
+            "%Y%m%d_%H%M%S"
+        )
+        report_dir.mkdir(parents=True, exist_ok=True)
+        pygame.image.save(self.screen, str(report_dir / "screenshot.png"))
+        log_file = Path("logs") / "session.log"
+        if log_file.exists():
+            lines = log_file.read_text().splitlines()[-300:]
+            (report_dir / "log.txt").write_text("\n".join(lines))
+        info = {
+            "system": platform.platform(),
+            "gpu": pygame.display.get_driver() if pygame else "unknown",
+        }
+        (report_dir / "info.txt").write_text(json.dumps(info, indent=2))
+        print(f"Bug report saved to {report_dir}", flush=True)
+
+    def _open_config_folder(self) -> None:
+        """Open the config folder in the system file explorer."""
+
+        path = (Path(__file__).resolve().parents[2] / "config").resolve()
+        path.mkdir(exist_ok=True)
+        try:
+            if sys.platform.startswith("darwin"):
+                subprocess.Popen(["open", str(path)])
+            elif sys.platform.startswith("win"):
+                subprocess.Popen(["explorer", str(path)])
+            else:
+                subprocess.Popen(["xdg-open", str(path)])
+        except Exception:
+            print(f"Config folder: {path}", flush=True)
+
+    def _show_pause_menu(self) -> None:
+        """Display pause overlay until ESC pressed."""
+
+        if pygame is None or self.screen is None:
+            return
+        font = pygame.font.SysFont(None, 24)
+        clock = pygame.time.Clock()
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key in {pygame.K_ESCAPE, pygame.K_RETURN}:
+                        running = False
+                    if event.key == pygame.K_o:
+                        self._open_config_folder()
+            self.screen.fill((0, 0, 0))
+            lines = [
+                "PAUSED",
+                "Controls:",
+                "Arrows = steer/accel",
+                "Z/X = gear",
+                "ESC = pause",
+                "F12 = bug report",
+                "O = Open Config Folder",
+            ]
+            y = 40
+            for text in lines:
+                img = font.render(text, True, (255, 255, 255))
+                self.screen.blit(img, (40, y))
+                y += 25
+            pygame.display.flip()
+            clock.tick(30)

@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import os
 from pathlib import Path
+from .log_utils import init_playtest_logger
 
 from .agents.base_llm_agent import NullAgent
 from .agents.openai_agent import OpenAIAgent
@@ -46,6 +47,8 @@ def main() -> None:
     """Entry point for the ``super-pole-position`` command line interface."""
 
     parser = argparse.ArgumentParser(prog="spp")
+    parser.add_argument("--release", action="store_true")
+    parser.add_argument("--upload", action="store_true")
     sub = parser.add_subparsers(dest="cmd")
     q = sub.add_parser("qualify")
     q.add_argument("--agent", choices=list(AGENT_MAP.keys()), default="null")
@@ -116,7 +119,24 @@ def main() -> None:
     s.add_argument("--host", default="127.0.0.1")
     s.add_argument("--port", type=int, default=8000)
     s.add_argument("--interval", type=float, default=60.0)
+    def _installed_via_wheel() -> bool:
+        from pathlib import Path
+
+        return "site-packages" in Path(__file__).resolve().parts
+
     args = parser.parse_args()
+    if not args.release and _installed_via_wheel():
+        args.release = True
+    if args.release or os.getenv("ENV") == "production":
+        os.environ["SPP_RELEASE"] = "1"
+        os.environ["PERF_HUD"] = "0"
+        os.environ["AUDIO"] = "1"
+        os.environ.setdefault("WINDOW_W", "1280")
+        os.environ.setdefault("WINDOW_H", "720")
+        os.environ.setdefault("VSYNC", "1")
+        init_playtest_logger()
+    if args.upload:
+        os.environ["SPP_UPLOAD"] = "1"
     if getattr(args, "mute_bgm", False):
         os.environ["MUTE_BGM"] = "1"
     else:

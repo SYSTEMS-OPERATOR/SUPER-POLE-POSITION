@@ -34,6 +34,7 @@ def update_lap_times(file: Path | None, name: str, lap_ms: int) -> None:
     laps.append({"name": name, "lap_ms": int(lap_ms)})
     laps = sorted(laps, key=lambda s: s["lap_ms"])[:10]
     try:
+        file.parent.mkdir(parents=True, exist_ok=True)
         file.write_text(json.dumps({"laps": laps}, indent=2))
     except Exception as exc:  # pragma: no cover - file error
         logger.debug("update_lap_times error: %s", exc)
@@ -43,6 +44,7 @@ def reset_lap_times(file: Path | None = None) -> None:
     """Clear all lap times in ``file``."""
     file = file or _DEFAULT_FILE
     try:
+        file.parent.mkdir(parents=True, exist_ok=True)
         file.write_text(json.dumps({"laps": []}, indent=2))
     except Exception as exc:  # pragma: no cover - file error
         logger.debug("reset_lap_times error: %s", exc)

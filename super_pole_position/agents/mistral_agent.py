@@ -13,14 +13,17 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from .base_llm_agent import BaseLLMAgent, NullAgent
 
 try:
     from mistralai.client import MistralClient
-except Exception:  # pragma: no cover
+except Exception:  # pragma: no cover - optional dependency
     MistralClient = None
+
+if TYPE_CHECKING:  # pragma: no cover - type hints only
+    from mistralai.client import MistralClient as _MistralClient  # noqa: F401
 
 
 class MistralAgent(BaseLLMAgent):
@@ -35,7 +38,7 @@ class MistralAgent(BaseLLMAgent):
             MistralClient(os.getenv("MISTRAL_API_KEY")) if self._enabled else None
         )
 
-    def act(self, observation: Any) -> dict:
+    def act(self, observation: Any) -> dict[str, float | int]:
         """Query the model and return an action dict."""
 
         if not self._enabled or self.client is None:

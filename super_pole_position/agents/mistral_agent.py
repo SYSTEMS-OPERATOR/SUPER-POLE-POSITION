@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Any, TYPE_CHECKING
+from typing import Any
 
 from .base_llm_agent import BaseLLMAgent, NullAgent
 
@@ -22,8 +22,6 @@ try:
 except Exception:  # pragma: no cover - optional dependency
     MistralClient = None
 
-if TYPE_CHECKING:  # pragma: no cover - type hints only
-    from mistralai.client import MistralClient as _MistralClient  # noqa: F401
 
 
 class MistralAgent(BaseLLMAgent):

@@ -66,3 +66,12 @@ try:
     ArcadeRenderer.draw = lambda self, env: None
 except Exception:
     pass
+
+
+def pytest_configure(config):
+    """Register custom markers when optional plugins are missing."""
+    if not config.pluginmanager.hasplugin("timeout"):
+        config.addinivalue_line(
+            "markers",
+            "timeout(timeout): no-op marker, pytest-timeout not installed",
+        )

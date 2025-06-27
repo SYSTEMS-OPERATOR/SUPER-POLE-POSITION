@@ -27,14 +27,14 @@ class KeyboardAgent(BaseLLMAgent):
         self.disable_brake = os.getenv("DISABLE_BRAKE", "0") == "1"
         if os.getenv("VIRTUAL_JOYSTICK", "0") == "1" and pygame is not None:
             try:  # pragma: no cover - optional dependency
-                import pygame_virtual_joystick as pvj  # type: ignore
+                import pygame_virtual_joystick as pvj
 
                 pvj.init()
                 self.use_virtual = True
             except Exception:
                 self.use_virtual = False
 
-    def act(self, observation) -> dict:
+    def act(self, observation: object) -> dict[str, int | float]:
         """Return a steering command based on pressed keys."""
         if pygame is None:
             # Without pygame we return a neutral action. 🤖
@@ -42,7 +42,7 @@ class KeyboardAgent(BaseLLMAgent):
 
         if self.use_virtual:
             try:  # pragma: no cover - optional dependency
-                import pygame_virtual_joystick as pvj  # type: ignore
+                import pygame_virtual_joystick as pvj
 
                 pvj.update()
             except Exception:

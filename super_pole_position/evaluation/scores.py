@@ -44,6 +44,7 @@ def update_scores(file: Path | None, name: str, score: int) -> None:
     scores.append({"name": name, "score": int(score)})
     scores = sorted(scores, key=lambda s: -s["score"])[:10]
     try:
+        file.parent.mkdir(parents=True, exist_ok=True)
         file.write_text(json.dumps({"scores": scores}, indent=2))
     except Exception as exc:  # pragma: no cover - file error
         logger.debug("update_scores error: %s", exc)
@@ -54,6 +55,7 @@ def reset_scores(file: Path | None = None) -> None:
 
     file = file or _DEFAULT_FILE
     try:
+        file.parent.mkdir(parents=True, exist_ok=True)
         file.write_text(json.dumps({"scores": []}, indent=2))
     except Exception as exc:  # pragma: no cover - file error
         logger.debug("reset_scores error: %s", exc)

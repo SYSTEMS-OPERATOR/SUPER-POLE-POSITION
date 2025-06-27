@@ -22,6 +22,8 @@ DEFAULTS = {
 
 CONFIG_PATH = Path(__file__).resolve().parent.parent / "config.arcade_parity.yaml"
 
+CONFIG_DIR = Path(__file__).resolve().parents[1] / "config"
+
 
 def load_parity_config() -> dict[str, Any]:
     """Return arcade parity parameters from YAML or defaults."""
@@ -78,3 +80,38 @@ def load_arcade_parity() -> dict[str, float]:
                 except ValueError:
                     continue
     return data
+
+
+def load_default_config() -> dict[str, Any]:
+    """Return development defaults from ``config/default.yaml``."""
+
+    if not yaml:
+        return {}
+    file = CONFIG_DIR / "default.yaml"
+    if not file.exists():
+        return {}
+    try:
+        with file.open() as fh:
+            data = yaml.safe_load(fh)
+            return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+
+def load_release_config() -> dict[str, Any]:
+    """Return release settings overriding defaults."""
+
+    cfg = load_default_config()
+    if not yaml:
+        return cfg
+    file = CONFIG_DIR / "release.yaml"
+    if not file.exists():
+        return cfg
+    try:
+        with file.open() as fh:
+            data = yaml.safe_load(fh)
+            if isinstance(data, dict):
+                cfg.update(data)
+    except Exception:
+        pass
+    return cfg

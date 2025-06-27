@@ -43,6 +43,7 @@ spp race --start-pos 3 --player AAA
 # load a custom track
 spp race --track-file my_track.json
 ```
+See [docs/playtest_guide.md](docs/playtest_guide.md) for play-test instructions.
 ![](docs.gif)
 
 

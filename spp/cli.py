@@ -12,12 +12,20 @@ def main() -> None:
     race.add_argument("--headless", action="store_true")
     race.add_argument("--steps", type=int, default=3)
     race.add_argument("--seed", type=int, default=0)
+    race.add_argument("--release", action="store_true")
+    race.add_argument("--upload", action="store_true")
     race.add_argument("--2600-mode", dest="mode_2600", action="store_true")
 
     args = parser.parse_args()
     if getattr(args, "headless", False):
         os.environ["SDL_VIDEODRIVER"] = "dummy"
         os.environ.setdefault("FAST_TEST", "1")
+
+    if getattr(args, "release", False) or os.getenv("ENV") == "production":
+        os.environ.setdefault("RELEASE", "1")
+
+    if getattr(args, "upload", False):
+        os.environ.setdefault("UPLOAD_LOG", "1")
 
     env = PolePositionEnv(render_mode="human", mode_2600=getattr(args, "mode_2600", False))
     env.reset(seed=getattr(args, "seed", 0))

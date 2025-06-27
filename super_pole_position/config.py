@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict
+import os
 
 try:
     import yaml  # type: ignore
@@ -78,3 +79,26 @@ def load_arcade_parity() -> dict[str, float]:
                 except ValueError:
                     continue
     return data
+
+
+def load_config() -> Dict[str, Any]:
+    """Return merged configuration from ``config/default.yaml`` and
+    ``config/release.yaml`` when in release mode."""
+
+    base = Path(__file__).resolve().parent.parent / "config"
+    config: Dict[str, Any] = {}
+    if yaml:
+        default_file = base / "default.yaml"
+        if default_file.exists():
+            with default_file.open() as fh:
+                data = yaml.safe_load(fh) or {}
+                if isinstance(data, dict):
+                    config.update(data)
+        if os.getenv("ENV") == "production" or os.getenv("RELEASE") == "1":
+            release_file = base / "release.yaml"
+            if release_file.exists():
+                with release_file.open() as fh:
+                    data = yaml.safe_load(fh) or {}
+                    if isinstance(data, dict):
+                        config.update(data)
+    return config

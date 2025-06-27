@@ -1,0 +1,33 @@
+name: "Playtest Bug Report"
+about: "Report issues found during the play-test"
+labels: bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please provide details about the bug and attach any logs.
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+    validations:
+      required: true
+  - type: input
+    id: gpu
+    attributes:
+      label: GPU
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction Steps
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: "Drag and drop files from playtest_reports/"
+    validations:
+      required: true

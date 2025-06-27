@@ -53,3 +53,19 @@ jobs:
       - name: Test
         run: pytest --cov=super_pole_position
 
+  playtest-install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Build
+        run: |
+          pip install build
+          python -m build
+      - name: Playtest install check
+        run: |
+          python -m pip install dist/*whl
+          pole-position --release --headless --steps 120 --seed 7
+

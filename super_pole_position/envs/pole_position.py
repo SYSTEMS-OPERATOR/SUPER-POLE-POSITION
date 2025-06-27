@@ -36,8 +36,7 @@ from ..ai_cpu import CPUCar
 from ..agents.controllers import GPTPlanner, LowLevelController, LearningAgent
 from ..ui.arcade import Pseudo3DRenderer
 
-from ..config import load_parity_config
-from ..config import load_arcade_parity
+from ..config import load_parity_config, load_arcade_parity, load_config
 from ..evaluation import submit_score_http, submit_lap_time_http
 
 _PARITY_CONFIG = load_arcade_parity()
@@ -126,6 +125,13 @@ class PolePositionEnv(gym.Env):
         _seed_all(seed)
         self.rng = Random(seed)
         self.np_rng = np.random.default_rng(seed)
+        self.seed = seed
+        cfg = load_config()
+        for key, val in cfg.items():
+            if isinstance(val, list):
+                os.environ.setdefault(key, ",".join(map(str, val)))
+            else:
+                os.environ.setdefault(key, str(val))
 
 
         self.render_mode = render_mode
@@ -854,8 +860,11 @@ class PolePositionEnv(gym.Env):
                 if event.type == pygame.QUIT:
                     self.close()
                     return
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_m:
-                    self.configure_planner()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_m:
+                        self.configure_planner()
+                    if event.key == pygame.K_F12:
+                        self._dump_bug_report()
         except Exception as exc:  # pragma: no cover - event error
             print(f"pygame event error: {exc}", flush=True)
             return
@@ -1119,6 +1128,65 @@ class PolePositionEnv(gym.Env):
         if pygame is not None and self.screen is not None:
             pygame.quit()
             self.screen = None
+
+        self._dump_telemetry()
+
+    def _dump_telemetry(self) -> None:
+        """Write a JSON summary of the play session."""
+        from datetime import datetime
+        import json
+        from pathlib import Path
+        from super_pole_position import __version__
+
+        log_dir = Path("logs")
+        log_dir.mkdir(exist_ok=True)
+        data = {
+            "version": __version__,
+            "laps": int(self.lap),
+            "best_lap_time": min(self.lap_times) if self.lap_times else None,
+            "crashes": int(self.crashes),
+            "fps_avg": float(sum(self.step_durations) / len(self.step_durations)) if self.step_durations else 0.0,
+            "seed": getattr(self, "seed", None),
+        }
+        path = log_dir / f"play_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        try:
+            path.write_text(json.dumps(data, indent=2))
+        except Exception:
+            return
+        if os.getenv("UPLOAD_LOG") == "1" and os.getenv("SCOREBOARD_URL"):
+            import requests
+
+            url = os.getenv("SCOREBOARD_URL") + "/telemetry"
+            try:
+                requests.post(url, json=data, timeout=5)
+            except Exception:
+                pass
+
+    def _dump_bug_report(self) -> None:
+        """Capture screenshot and logs for bug reporting."""
+        from datetime import datetime
+        import json
+        import platform
+        from pathlib import Path
+
+        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+        report_dir = Path("playtest_reports") / ts
+        report_dir.mkdir(parents=True, exist_ok=True)
+        if pygame is not None and self.screen is not None:
+            try:
+                pygame.image.save(self.screen, report_dir / "screenshot.png")
+            except Exception:
+                pass
+        log_path = report_dir / "log.json"
+        data = self.step_log[-300:]
+        info = {
+            "platform": platform.platform(),
+        }
+        try:
+            with log_path.open("w") as fh:
+                json.dump({"info": info, "steps": data}, fh, indent=2)
+        except Exception:
+            pass
 
     def _get_obs(self):
         """Return observation array including nearest traffic cars."""

@@ -5,7 +5,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import hashlib
 import sys
+import numpy as np
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -28,18 +30,27 @@ def parse_args() -> argparse.Namespace:
 
 
 def run_env(seed: int, frames: int, audio_frames: int) -> Dict[str, Any]:
-    """Execute an episode and capture hashes."""
+    """Execute an episode and capture deterministic hashes."""
 
     env = spp.PolePositionEnv(render_mode="human")
     obs, _ = env.reset(seed=seed)
+    rng = np.random.default_rng(seed)
     frame_hashes: List[int] = []
     audio_hashes: List[int] = []
     info: Dict[str, Any] = {}
     for i in range(frames):
-        obs, _, done, _, info = env.step(env.action_space.sample())
-        frame_hashes.append(hash(obs.tobytes()) & 0xFFFFFFFF)
+        action = {
+            "throttle": float(rng.random()),
+            "brake": float(rng.random()),
+            "steer": float(rng.uniform(-1.0, 1.0)),
+        }
+        obs, _, done, _, info = env.step(action)
+        frame_hash = int(hashlib.md5(obs.tobytes()).hexdigest(), 16) & 0xFFFFFFFF
+        frame_hashes.append(frame_hash)
         if i < audio_frames:
-            audio_hashes.append(hash(info.get("audio_frame")) & 0xFFFFFFFF)
+            audio_bytes = str(info.get("audio_frame", "")).encode()
+            audio_hash = int(hashlib.md5(audio_bytes).hexdigest(), 16) & 0xFFFFFFFF
+            audio_hashes.append(audio_hash)
         if done:
             break
     lap_time = getattr(env, "last_lap_time", None)

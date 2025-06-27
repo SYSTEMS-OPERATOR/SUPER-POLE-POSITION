@@ -62,7 +62,7 @@ class JoystickAgent(BaseLLMAgent):
             return 0.0
         return val
 
-    def act(self, observation) -> dict:
+    def act(self, observation: object) -> dict[str, float | int]:
         """Return action based on joystick input."""
         if pygame is None or self.joystick is None:
             return {"throttle": 0, "brake": 0, "steer": 0.0, "gear": 0}

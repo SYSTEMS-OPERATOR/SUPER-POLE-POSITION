@@ -36,6 +36,8 @@
 - [x] Optional attract mode cycling the leaderboard
 - [x] Finish-line check when timer hits exactly zero
 - [x] Puddles placed at original track corners
+- [x] Snow Mountain track with icy patches; drift approximated via
+  deterministic slip angle when crossing ice
 
 ## Graphics Fidelity Tasks
 

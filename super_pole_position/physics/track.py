@@ -43,6 +43,16 @@ class Puddle:
 
 
 @dataclass
+class IcyPatch:
+    """Circular patch of ice introducing drift."""
+
+    x: float
+    y: float
+    radius: float
+    drift: float = 0.1
+
+
+@dataclass
 class Obstacle:
     """Static obstacle placed on the track."""
 
@@ -64,6 +74,7 @@ class Track:
         obstacles: list[Obstacle] | None = None,
         puddles: list[Puddle] | None = None,
         surfaces: list[SurfaceZone] | None = None,
+        icy_patches: list[IcyPatch] | None = None,
         segments: list[tuple[float, float]] | None = None,
         curve: TrackCurve | None = None,
     ) -> None:
@@ -84,6 +95,7 @@ class Track:
         self.obstacles = obstacles or []
         self.puddles = puddles or []
         self.surfaces = surfaces or []
+        self.icy_patches = icy_patches or []
         self.segments = segments or [(0.0, height / 2), (width, height / 2)]
         self.curve = curve
         self._curve_lengths: list[float] = []
@@ -104,6 +116,9 @@ class Track:
             "puddles": [(p.x, p.y, p.radius) for p in self.puddles],
             "surfaces": [
                 (s.x, s.y, s.width, s.height, s.friction) for s in self.surfaces
+            ],
+            "icy_patches": [
+                (i.x, i.y, i.radius, i.drift) for i in self.icy_patches
             ],
             "segments": self.segments,
             "curve": getattr(self.curve, "_points", None),
@@ -201,6 +216,7 @@ class Track:
             obstacles = [Obstacle(**o) for o in data.get("obstacles", [])]
             puddles = [Puddle(**p) for p in data.get("puddles", [])]
             surfaces = [SurfaceZone(**s) for s in data.get("surfaces", [])]
+            icy_patches = [IcyPatch(**i) for i in data.get("icy_patches", [])]
             road_w = float(data.get("road_width", 10.0))
             if seg:
                 if len(seg[0]) == 4:
@@ -213,6 +229,7 @@ class Track:
                         obstacles=obstacles,
                         puddles=puddles,
                         surfaces=surfaces,
+                        icy_patches=icy_patches,
                         segments=None,
                         curve=curve,
                         road_width=road_w,
@@ -226,14 +243,16 @@ class Track:
                         obstacles=obstacles,
                         puddles=puddles,
                         surfaces=surfaces,
+                        icy_patches=icy_patches,
                         segments=[tuple(p) for p in seg],
                         road_width=road_w,
                     )
-            if obstacles or puddles or surfaces:
+            if obstacles or puddles or surfaces or icy_patches:
                 return cls(
                     obstacles=obstacles,
                     puddles=puddles,
                     surfaces=surfaces,
+                    icy_patches=icy_patches,
                     road_width=road_w,
                 )
         return cls()
@@ -252,6 +271,7 @@ class Track:
             obstacles = [Obstacle(**o) for o in data.get("obstacles", [])]
             puddles = [Puddle(**p) for p in data.get("puddles", [])]
             surfaces = [SurfaceZone(**s) for s in data.get("surfaces", [])]
+            icy_patches = [IcyPatch(**i) for i in data.get("icy_patches", [])]
             road_w = float(data.get("road_width", 10.0))
             if seg:
                 if len(seg[0]) == 4:
@@ -264,6 +284,7 @@ class Track:
                         obstacles=obstacles,
                         puddles=puddles,
                         surfaces=surfaces,
+                        icy_patches=icy_patches,
                         segments=None,
                         curve=curve,
                         road_width=road_w,
@@ -277,14 +298,16 @@ class Track:
                         obstacles=obstacles,
                         puddles=puddles,
                         surfaces=surfaces,
+                        icy_patches=icy_patches,
                         segments=[tuple(p) for p in seg],
                         road_width=road_w,
                     )
-            if obstacles or puddles or surfaces:
+            if obstacles or puddles or surfaces or icy_patches:
                 return cls(
                     obstacles=obstacles,
                     puddles=puddles,
                     surfaces=surfaces,
+                    icy_patches=icy_patches,
                     road_width=road_w,
                 )
         return cls()
@@ -308,6 +331,7 @@ class Track:
             obstacles = [Obstacle(**o) for o in data.get("obstacles", [])]
             puddles = [Puddle(**p) for p in data.get("puddles", [])]
             surfaces = [SurfaceZone(**s) for s in data.get("surfaces", [])]
+            icy_patches = [IcyPatch(**i) for i in data.get("icy_patches", [])]
             road_w = float(data.get("road_width", 10.0))
             if seg:
                 if len(seg[0]) == 4:
@@ -320,6 +344,7 @@ class Track:
                         obstacles=obstacles,
                         puddles=puddles,
                         surfaces=surfaces,
+                        icy_patches=icy_patches,
                         segments=None,
                         curve=curve,
                         road_width=road_w,
@@ -333,14 +358,16 @@ class Track:
                         obstacles=obstacles,
                         puddles=puddles,
                         surfaces=surfaces,
+                        icy_patches=icy_patches,
                         segments=[tuple(p) for p in seg],
                         road_width=road_w,
                     )
-            if obstacles or puddles or surfaces:
+            if obstacles or puddles or surfaces or icy_patches:
                 return cls(
                     obstacles=obstacles,
                     puddles=puddles,
                     surfaces=surfaces,
+                    icy_patches=icy_patches,
                     road_width=road_w,
                 )
         raise FileNotFoundError(name)
@@ -402,6 +429,25 @@ class Track:
             if dx * dx + dy * dy <= p.radius * p.radius:
                 return True
         return False
+
+    def in_icy_patch(self, car) -> IcyPatch | None:
+        """Return icy patch instance if ``car`` is inside one."""
+
+        for patch in self.icy_patches:
+            dx = car.x - patch.x
+            dy = car.y - patch.y
+            if dx * dx + dy * dy <= patch.radius * patch.radius:
+                return patch
+        return None
+
+    def slip_angle(self, car, dt: float = 1.0) -> float:
+        """Return deterministic drift angle when on an icy patch."""
+
+        patch = self.in_icy_patch(car)
+        if not patch:
+            return 0.0
+        sign = 1 if int(car.x + car.y) % 2 == 0 else -1
+        return sign * patch.drift * dt
 
     def surface_friction(self, car) -> float:
         """Return friction coefficient for ``car`` based on surface zones."""

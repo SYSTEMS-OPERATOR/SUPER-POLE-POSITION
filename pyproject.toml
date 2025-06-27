@@ -36,6 +36,9 @@ pole-position = "spp.cli:main"
 [tool.setuptools.packages.find]
 exclude = ["assets*"]
 
+[tool.setuptools.package-data]
+"super_pole_position" = ["config.arcade_parity.yaml"]
+
 [tool.ruff]
 line-length = 88
 

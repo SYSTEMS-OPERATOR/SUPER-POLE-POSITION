@@ -1,0 +1,738 @@
+* Creating isolated environment: venv+pip...
+* Installing packages in isolated environment:
+  - setuptools>=61
+  - wheel
+* Getting build dependencies for sdist...
+running egg_info
+creating super_pole_position.egg-info
+writing super_pole_position.egg-info/PKG-INFO
+writing dependency_links to super_pole_position.egg-info/dependency_links.txt
+writing entry points to super_pole_position.egg-info/entry_points.txt
+writing requirements to super_pole_position.egg-info/requires.txt
+writing top-level names to super_pole_position.egg-info/top_level.txt
+writing manifest file 'super_pole_position.egg-info/SOURCES.txt'
+reading manifest file 'super_pole_position.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'super_pole_position.egg-info/SOURCES.txt'
+* Building sdist...
+running sdist
+running egg_info
+writing super_pole_position.egg-info/PKG-INFO
+writing dependency_links to super_pole_position.egg-info/dependency_links.txt
+writing entry points to super_pole_position.egg-info/entry_points.txt
+writing requirements to super_pole_position.egg-info/requires.txt
+writing top-level names to super_pole_position.egg-info/top_level.txt
+reading manifest file 'super_pole_position.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'super_pole_position.egg-info/SOURCES.txt'
+running check
+creating super_pole_position-1.0.0rc1
+creating super_pole_position-1.0.0rc1/examples
+creating super_pole_position-1.0.0rc1/gymnasium
+creating super_pole_position-1.0.0rc1/spp
+creating super_pole_position-1.0.0rc1/src
+creating super_pole_position-1.0.0rc1/src/audio
+creating super_pole_position-1.0.0rc1/src/physics
+creating super_pole_position-1.0.0rc1/src/render
+creating super_pole_position-1.0.0rc1/src/ui
+creating super_pole_position-1.0.0rc1/super_pole_position
+creating super_pole_position-1.0.0rc1/super_pole_position.egg-info
+creating super_pole_position-1.0.0rc1/super_pole_position/agents
+creating super_pole_position-1.0.0rc1/super_pole_position/envs
+creating super_pole_position-1.0.0rc1/super_pole_position/evaluation
+creating super_pole_position-1.0.0rc1/super_pole_position/matchmaking
+creating super_pole_position-1.0.0rc1/super_pole_position/physics
+creating super_pole_position-1.0.0rc1/super_pole_position/server
+creating super_pole_position-1.0.0rc1/super_pole_position/ui
+creating super_pole_position-1.0.0rc1/super_pole_position/utils
+creating super_pole_position-1.0.0rc1/tests
+creating super_pole_position-1.0.0rc1/tests/data
+creating super_pole_position-1.0.0rc1/tests/physics
+creating super_pole_position-1.0.0rc1/tests/render
+creating super_pole_position-1.0.0rc1/tests/ui
+creating super_pole_position-1.0.0rc1/tools
+copying files to super_pole_position-1.0.0rc1...
+copying LICENSE -> super_pole_position-1.0.0rc1
+copying README.md -> super_pole_position-1.0.0rc1
+copying pyproject.toml -> super_pole_position-1.0.0rc1
+copying setup.cfg -> super_pole_position-1.0.0rc1
+copying examples/animated_sprite.py -> super_pole_position-1.0.0rc1/examples
+copying examples/reset_high_scores.py -> super_pole_position-1.0.0rc1/examples
+copying gymnasium/__init__.py -> super_pole_position-1.0.0rc1/gymnasium
+copying spp/__init__.py -> super_pole_position-1.0.0rc1/spp
+copying spp/__main__.py -> super_pole_position-1.0.0rc1/spp
+copying spp/cli.py -> super_pole_position-1.0.0rc1/spp
+copying src/__init__.py -> super_pole_position-1.0.0rc1/src
+copying src/cli.py -> super_pole_position-1.0.0rc1/src
+copying src/audio/__init__.py -> super_pole_position-1.0.0rc1/src/audio
+copying src/audio/sfx.py -> super_pole_position-1.0.0rc1/src/audio
+copying src/physics/__init__.py -> super_pole_position-1.0.0rc1/src/physics
+copying src/physics/car.py -> super_pole_position-1.0.0rc1/src/physics
+copying src/physics/constants.py -> super_pole_position-1.0.0rc1/src/physics
+copying src/physics/track.py -> super_pole_position-1.0.0rc1/src/physics
+copying src/physics/traffic_car.py -> super_pole_position-1.0.0rc1/src/physics
+copying src/render/__init__.py -> super_pole_position-1.0.0rc1/src/render
+copying src/render/background.py -> super_pole_position-1.0.0rc1/src/render
+copying src/render/post_effects.py -> super_pole_position-1.0.0rc1/src/render
+copying src/render/pseudo3d_renderer.py -> super_pole_position-1.0.0rc1/src/render
+copying src/ui/__init__.py -> super_pole_position-1.0.0rc1/src/ui
+copying src/ui/hud.py -> super_pole_position-1.0.0rc1/src/ui
+copying super_pole_position/__init__.py -> super_pole_position-1.0.0rc1/super_pole_position
+copying super_pole_position/__main__.py -> super_pole_position-1.0.0rc1/super_pole_position
+copying super_pole_position/ai_cpu.py -> super_pole_position-1.0.0rc1/super_pole_position
+copying super_pole_position/cli.py -> super_pole_position-1.0.0rc1/super_pole_position
+copying super_pole_position/config.arcade_parity.yaml -> super_pole_position-1.0.0rc1/super_pole_position
+copying super_pole_position/config.py -> super_pole_position-1.0.0rc1/super_pole_position
+copying super_pole_position/physics.py -> super_pole_position-1.0.0rc1/super_pole_position
+copying super_pole_position.egg-info/PKG-INFO -> super_pole_position-1.0.0rc1/super_pole_position.egg-info
+copying super_pole_position.egg-info/SOURCES.txt -> super_pole_position-1.0.0rc1/super_pole_position.egg-info
+copying super_pole_position.egg-info/dependency_links.txt -> super_pole_position-1.0.0rc1/super_pole_position.egg-info
+copying super_pole_position.egg-info/entry_points.txt -> super_pole_position-1.0.0rc1/super_pole_position.egg-info
+copying super_pole_position.egg-info/requires.txt -> super_pole_position-1.0.0rc1/super_pole_position.egg-info
+copying super_pole_position.egg-info/top_level.txt -> super_pole_position-1.0.0rc1/super_pole_position.egg-info
+copying super_pole_position/agents/__init__.py -> super_pole_position-1.0.0rc1/super_pole_position/agents
+copying super_pole_position/agents/base_llm_agent.py -> super_pole_position-1.0.0rc1/super_pole_position/agents
+copying super_pole_position/agents/controllers.py -> super_pole_position-1.0.0rc1/super_pole_position/agents
+copying super_pole_position/agents/joystick_agent.py -> super_pole_position-1.0.0rc1/super_pole_position/agents
+copying super_pole_position/agents/keyboard_agent.py -> super_pole_position-1.0.0rc1/super_pole_position/agents
+copying super_pole_position/agents/mistral_agent.py -> super_pole_position-1.0.0rc1/super_pole_position/agents
+copying super_pole_position/agents/openai_agent.py -> super_pole_position-1.0.0rc1/super_pole_position/agents
+copying super_pole_position/envs/__init__.py -> super_pole_position-1.0.0rc1/super_pole_position/envs
+copying super_pole_position/envs/pole_position.py -> super_pole_position-1.0.0rc1/super_pole_position/envs
+copying super_pole_position/evaluation/__init__.py -> super_pole_position-1.0.0rc1/super_pole_position/evaluation
+copying super_pole_position/evaluation/lap_times.py -> super_pole_position-1.0.0rc1/super_pole_position/evaluation
+copying super_pole_position/evaluation/logger.py -> super_pole_position-1.0.0rc1/super_pole_position/evaluation
+copying super_pole_position/evaluation/metrics.py -> super_pole_position-1.0.0rc1/super_pole_position/evaluation
+copying super_pole_position/evaluation/scores.py -> super_pole_position-1.0.0rc1/super_pole_position/evaluation
+copying super_pole_position/matchmaking/__init__.py -> super_pole_position-1.0.0rc1/super_pole_position/matchmaking
+copying super_pole_position/matchmaking/arena.py -> super_pole_position-1.0.0rc1/super_pole_position/matchmaking
+copying super_pole_position/physics/__init__.py -> super_pole_position-1.0.0rc1/super_pole_position/physics
+copying super_pole_position/physics/car.py -> super_pole_position-1.0.0rc1/super_pole_position/physics
+copying super_pole_position/physics/state.py -> super_pole_position-1.0.0rc1/super_pole_position/physics
+copying super_pole_position/physics/track.py -> super_pole_position-1.0.0rc1/super_pole_position/physics
+copying super_pole_position/physics/track_curve.py -> super_pole_position-1.0.0rc1/super_pole_position/physics
+copying super_pole_position/physics/track_info.py -> super_pole_position-1.0.0rc1/super_pole_position/physics
+copying super_pole_position/physics/traffic_car.py -> super_pole_position-1.0.0rc1/super_pole_position/physics
+copying super_pole_position/server/__init__.py -> super_pole_position-1.0.0rc1/super_pole_position/server
+copying super_pole_position/server/api.py -> super_pole_position-1.0.0rc1/super_pole_position/server
+copying super_pole_position/server/sync.py -> super_pole_position-1.0.0rc1/super_pole_position/server
+copying super_pole_position/ui/__init__.py -> super_pole_position-1.0.0rc1/super_pole_position/ui
+copying super_pole_position/ui/arcade.py -> super_pole_position-1.0.0rc1/super_pole_position/ui
+copying super_pole_position/ui/menu.py -> super_pole_position-1.0.0rc1/super_pole_position/ui
+copying super_pole_position/ui/sprites.py -> super_pole_position-1.0.0rc1/super_pole_position/ui
+copying super_pole_position/utils/__init__.py -> super_pole_position-1.0.0rc1/super_pole_position/utils
+copying super_pole_position/utils/logging.py -> super_pole_position-1.0.0rc1/super_pole_position/utils
+copying super_pole_position/utils/math.py -> super_pole_position-1.0.0rc1/super_pole_position/utils
+copying tests/conftest.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_2600_mode.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_ai_integration.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_api_server.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_arcade_parity.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_ascii_sprites.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_attract_mode.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_audio_triggers.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_benchmark_logger.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_billboard_collision.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_car.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_carstate.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_cli_difficulty.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_cli_headless.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_cli_mute_bgm.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_cli_no_brake.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_cli_outro.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_cli_player_name.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_cli_render_skip.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_cli_smoke.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_cli_stub.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_cli_track_file.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_cpucar.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_crash_animation.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_curvilinear_coords.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_determinism.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_difficulty.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_docs.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_env.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_env_seeding.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_explosion_anim.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_friction_factor.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_gear_shift.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_golden_obs.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_headless_render.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_hiscore_persistence.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_horizon_sway.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_hud_render.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_hud_score.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_icy_patch.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_is_on_road.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_lap_counter.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_lap_persistence.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_lap_timer_edge.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_leaderboard.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_llm_agents.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_math_utils.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_menu_config.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_nullagent.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_obstacles.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_offroad_speed.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_outro_fallback.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_package_smoke.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_parity_audit.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_parse_action.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_physics_dt.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_render.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_score_accumulates.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_scoreboard_sync.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_slipstream_boost.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_sprite_loader.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_start_sequence.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_surface_friction.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_timer_checkpoint.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_timer_grace.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_track.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_track_info.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_track_namco.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_trackcurve.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_traffic_collision.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_traffic_pathing.py -> super_pole_position-1.0.0rc1/tests
+copying tests/test_ui.py -> super_pole_position-1.0.0rc1/tests
+copying tests/data/test_track_fuji.py -> super_pole_position-1.0.0rc1/tests/data
+copying tests/physics/test_car_physics.py -> super_pole_position-1.0.0rc1/tests/physics
+copying tests/physics/test_track_loader.py -> super_pole_position-1.0.0rc1/tests/physics
+copying tests/physics/test_traffic.py -> super_pole_position-1.0.0rc1/tests/physics
+copying tests/render/test_background.py -> super_pole_position-1.0.0rc1/tests/render
+copying tests/render/test_bank_frame.py -> super_pole_position-1.0.0rc1/tests/render
+copying tests/render/test_center_stripe.py -> super_pole_position-1.0.0rc1/tests/render
+copying tests/render/test_fuji_shift.py -> super_pole_position-1.0.0rc1/tests/render
+copying tests/render/test_horizon_fade.py -> super_pole_position-1.0.0rc1/tests/render
+copying tests/render/test_surface.py -> super_pole_position-1.0.0rc1/tests/render
+copying tests/ui/test_hud.py -> super_pole_position-1.0.0rc1/tests/ui
+copying tools/parity_audit.py -> super_pole_position-1.0.0rc1/tools
+copying super_pole_position.egg-info/SOURCES.txt -> super_pole_position-1.0.0rc1/super_pole_position.egg-info
+Writing super_pole_position-1.0.0rc1/setup.cfg
+Creating tar archive
+removing 'super_pole_position-1.0.0rc1' (and everything under it)
+* Creating isolated environment: venv+pip...
+* Installing packages in isolated environment:
+  - setuptools>=61
+  - wheel
+* Getting build dependencies for wheel...
+running egg_info
+writing super_pole_position.egg-info/PKG-INFO
+writing dependency_links to super_pole_position.egg-info/dependency_links.txt
+writing entry points to super_pole_position.egg-info/entry_points.txt
+writing requirements to super_pole_position.egg-info/requires.txt
+writing top-level names to super_pole_position.egg-info/top_level.txt
+reading manifest file 'super_pole_position.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'super_pole_position.egg-info/SOURCES.txt'
+* Building wheel...
+running bdist_wheel
+running build
+running build_py
+creating build/lib/gymnasium
+copying gymnasium/__init__.py -> build/lib/gymnasium
+creating build/lib/tools
+copying tools/parity_audit.py -> build/lib/tools
+creating build/lib/spp
+copying spp/__main__.py -> build/lib/spp
+copying spp/__init__.py -> build/lib/spp
+copying spp/cli.py -> build/lib/spp
+creating build/lib/super_pole_position
+copying super_pole_position/ai_cpu.py -> build/lib/super_pole_position
+copying super_pole_position/__main__.py -> build/lib/super_pole_position
+copying super_pole_position/__init__.py -> build/lib/super_pole_position
+copying super_pole_position/physics.py -> build/lib/super_pole_position
+copying super_pole_position/config.py -> build/lib/super_pole_position
+copying super_pole_position/cli.py -> build/lib/super_pole_position
+creating build/lib/src
+copying src/__init__.py -> build/lib/src
+copying src/cli.py -> build/lib/src
+creating build/lib/examples
+copying examples/reset_high_scores.py -> build/lib/examples
+copying examples/animated_sprite.py -> build/lib/examples
+creating build/lib/tests
+copying tests/test_benchmark_logger.py -> build/lib/tests
+copying tests/test_cli_stub.py -> build/lib/tests
+copying tests/test_hiscore_persistence.py -> build/lib/tests
+copying tests/test_is_on_road.py -> build/lib/tests
+copying tests/test_leaderboard.py -> build/lib/tests
+copying tests/test_gear_shift.py -> build/lib/tests
+copying tests/test_hud_score.py -> build/lib/tests
+copying tests/test_cpucar.py -> build/lib/tests
+copying tests/test_track_namco.py -> build/lib/tests
+copying tests/test_sprite_loader.py -> build/lib/tests
+copying tests/test_hud_render.py -> build/lib/tests
+copying tests/test_cli_difficulty.py -> build/lib/tests
+copying tests/test_cli_outro.py -> build/lib/tests
+copying tests/test_cli_track_file.py -> build/lib/tests
+copying tests/test_cli_player_name.py -> build/lib/tests
+copying tests/test_friction_factor.py -> build/lib/tests
+copying tests/test_start_sequence.py -> build/lib/tests
+copying tests/test_track.py -> build/lib/tests
+copying tests/test_2600_mode.py -> build/lib/tests
+copying tests/test_env_seeding.py -> build/lib/tests
+copying tests/test_billboard_collision.py -> build/lib/tests
+copying tests/test_horizon_sway.py -> build/lib/tests
+copying tests/test_slipstream_boost.py -> build/lib/tests
+copying tests/test_parity_audit.py -> build/lib/tests
+copying tests/test_audio_triggers.py -> build/lib/tests
+copying tests/test_difficulty.py -> build/lib/tests
+copying tests/test_curvilinear_coords.py -> build/lib/tests
+copying tests/test_lap_persistence.py -> build/lib/tests
+copying tests/test_attract_mode.py -> build/lib/tests
+copying tests/test_crash_animation.py -> build/lib/tests
+copying tests/test_carstate.py -> build/lib/tests
+copying tests/test_physics_dt.py -> build/lib/tests
+copying tests/test_api_server.py -> build/lib/tests
+copying tests/test_package_smoke.py -> build/lib/tests
+copying tests/test_determinism.py -> build/lib/tests
+copying tests/test_docs.py -> build/lib/tests
+copying tests/test_score_accumulates.py -> build/lib/tests
+copying tests/test_lap_timer_edge.py -> build/lib/tests
+copying tests/test_ui.py -> build/lib/tests
+copying tests/test_timer_grace.py -> build/lib/tests
+copying tests/test_math_utils.py -> build/lib/tests
+copying tests/test_surface_friction.py -> build/lib/tests
+copying tests/test_parse_action.py -> build/lib/tests
+copying tests/test_traffic_collision.py -> build/lib/tests
+copying tests/test_menu_config.py -> build/lib/tests
+copying tests/test_golden_obs.py -> build/lib/tests
+copying tests/test_llm_agents.py -> build/lib/tests
+copying tests/test_offroad_speed.py -> build/lib/tests
+copying tests/test_lap_counter.py -> build/lib/tests
+copying tests/test_render.py -> build/lib/tests
+copying tests/test_cli_mute_bgm.py -> build/lib/tests
+copying tests/test_car.py -> build/lib/tests
+copying tests/test_trackcurve.py -> build/lib/tests
+copying tests/test_cli_render_skip.py -> build/lib/tests
+copying tests/test_cli_no_brake.py -> build/lib/tests
+copying tests/test_cli_headless.py -> build/lib/tests
+copying tests/test_obstacles.py -> build/lib/tests
+copying tests/test_env.py -> build/lib/tests
+copying tests/test_arcade_parity.py -> build/lib/tests
+copying tests/conftest.py -> build/lib/tests
+copying tests/test_traffic_pathing.py -> build/lib/tests
+copying tests/test_ascii_sprites.py -> build/lib/tests
+copying tests/test_cli_smoke.py -> build/lib/tests
+copying tests/test_headless_render.py -> build/lib/tests
+copying tests/test_icy_patch.py -> build/lib/tests
+copying tests/test_timer_checkpoint.py -> build/lib/tests
+copying tests/test_scoreboard_sync.py -> build/lib/tests
+copying tests/test_explosion_anim.py -> build/lib/tests
+copying tests/test_track_info.py -> build/lib/tests
+copying tests/test_outro_fallback.py -> build/lib/tests
+copying tests/test_nullagent.py -> build/lib/tests
+copying tests/test_ai_integration.py -> build/lib/tests
+creating build/lib/super_pole_position/utils
+copying super_pole_position/utils/logging.py -> build/lib/super_pole_position/utils
+copying super_pole_position/utils/__init__.py -> build/lib/super_pole_position/utils
+copying super_pole_position/utils/math.py -> build/lib/super_pole_position/utils
+creating build/lib/super_pole_position/ui
+copying super_pole_position/ui/sprites.py -> build/lib/super_pole_position/ui
+copying super_pole_position/ui/__init__.py -> build/lib/super_pole_position/ui
+copying super_pole_position/ui/menu.py -> build/lib/super_pole_position/ui
+copying super_pole_position/ui/arcade.py -> build/lib/super_pole_position/ui
+creating build/lib/super_pole_position/agents
+copying super_pole_position/agents/controllers.py -> build/lib/super_pole_position/agents
+copying super_pole_position/agents/__init__.py -> build/lib/super_pole_position/agents
+copying super_pole_position/agents/keyboard_agent.py -> build/lib/super_pole_position/agents
+copying super_pole_position/agents/base_llm_agent.py -> build/lib/super_pole_position/agents
+copying super_pole_position/agents/openai_agent.py -> build/lib/super_pole_position/agents
+copying super_pole_position/agents/mistral_agent.py -> build/lib/super_pole_position/agents
+copying super_pole_position/agents/joystick_agent.py -> build/lib/super_pole_position/agents
+creating build/lib/super_pole_position/physics
+copying super_pole_position/physics/traffic_car.py -> build/lib/super_pole_position/physics
+copying super_pole_position/physics/track_info.py -> build/lib/super_pole_position/physics
+copying super_pole_position/physics/__init__.py -> build/lib/super_pole_position/physics
+copying super_pole_position/physics/state.py -> build/lib/super_pole_position/physics
+copying super_pole_position/physics/track_curve.py -> build/lib/super_pole_position/physics
+copying super_pole_position/physics/car.py -> build/lib/super_pole_position/physics
+copying super_pole_position/physics/track.py -> build/lib/super_pole_position/physics
+creating build/lib/super_pole_position/server
+copying super_pole_position/server/api.py -> build/lib/super_pole_position/server
+copying super_pole_position/server/__init__.py -> build/lib/super_pole_position/server
+copying super_pole_position/server/sync.py -> build/lib/super_pole_position/server
+creating build/lib/super_pole_position/matchmaking
+copying super_pole_position/matchmaking/arena.py -> build/lib/super_pole_position/matchmaking
+copying super_pole_position/matchmaking/__init__.py -> build/lib/super_pole_position/matchmaking
+creating build/lib/super_pole_position/envs
+copying super_pole_position/envs/__init__.py -> build/lib/super_pole_position/envs
+copying super_pole_position/envs/pole_position.py -> build/lib/super_pole_position/envs
+creating build/lib/super_pole_position/evaluation
+copying super_pole_position/evaluation/logger.py -> build/lib/super_pole_position/evaluation
+copying super_pole_position/evaluation/__init__.py -> build/lib/super_pole_position/evaluation
+copying super_pole_position/evaluation/lap_times.py -> build/lib/super_pole_position/evaluation
+copying super_pole_position/evaluation/metrics.py -> build/lib/super_pole_position/evaluation
+copying super_pole_position/evaluation/scores.py -> build/lib/super_pole_position/evaluation
+creating build/lib/src/ui
+copying src/ui/hud.py -> build/lib/src/ui
+copying src/ui/__init__.py -> build/lib/src/ui
+creating build/lib/src/physics
+copying src/physics/traffic_car.py -> build/lib/src/physics
+copying src/physics/__init__.py -> build/lib/src/physics
+copying src/physics/car.py -> build/lib/src/physics
+copying src/physics/track.py -> build/lib/src/physics
+copying src/physics/constants.py -> build/lib/src/physics
+creating build/lib/src/render
+copying src/render/__init__.py -> build/lib/src/render
+copying src/render/post_effects.py -> build/lib/src/render
+copying src/render/pseudo3d_renderer.py -> build/lib/src/render
+copying src/render/background.py -> build/lib/src/render
+creating build/lib/src/audio
+copying src/audio/sfx.py -> build/lib/src/audio
+copying src/audio/__init__.py -> build/lib/src/audio
+creating build/lib/tests/ui
+copying tests/ui/test_hud.py -> build/lib/tests/ui
+creating build/lib/tests/physics
+copying tests/physics/test_track_loader.py -> build/lib/tests/physics
+copying tests/physics/test_traffic.py -> build/lib/tests/physics
+copying tests/physics/test_car_physics.py -> build/lib/tests/physics
+creating build/lib/tests/render
+copying tests/render/test_bank_frame.py -> build/lib/tests/render
+copying tests/render/test_fuji_shift.py -> build/lib/tests/render
+copying tests/render/test_horizon_fade.py -> build/lib/tests/render
+copying tests/render/test_center_stripe.py -> build/lib/tests/render
+copying tests/render/test_surface.py -> build/lib/tests/render
+copying tests/render/test_background.py -> build/lib/tests/render
+creating build/lib/tests/data
+copying tests/data/test_track_fuji.py -> build/lib/tests/data
+running egg_info
+writing super_pole_position.egg-info/PKG-INFO
+writing dependency_links to super_pole_position.egg-info/dependency_links.txt
+writing entry points to super_pole_position.egg-info/entry_points.txt
+writing requirements to super_pole_position.egg-info/requires.txt
+writing top-level names to super_pole_position.egg-info/top_level.txt
+reading manifest file 'super_pole_position.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'super_pole_position.egg-info/SOURCES.txt'
+copying super_pole_position/config.arcade_parity.yaml -> build/lib/super_pole_position
+installing to build/bdist.linux-x86_64/wheel
+running install
+running install_lib
+creating build/bdist.linux-x86_64/wheel
+creating build/bdist.linux-x86_64/wheel/gymnasium
+copying build/lib/gymnasium/__init__.py -> build/bdist.linux-x86_64/wheel/./gymnasium
+creating build/bdist.linux-x86_64/wheel/tools
+copying build/lib/tools/parity_audit.py -> build/bdist.linux-x86_64/wheel/./tools
+creating build/bdist.linux-x86_64/wheel/spp
+copying build/lib/spp/__main__.py -> build/bdist.linux-x86_64/wheel/./spp
+copying build/lib/spp/__init__.py -> build/bdist.linux-x86_64/wheel/./spp
+copying build/lib/spp/cli.py -> build/bdist.linux-x86_64/wheel/./spp
+creating build/bdist.linux-x86_64/wheel/super_pole_position
+creating build/bdist.linux-x86_64/wheel/super_pole_position/utils
+copying build/lib/super_pole_position/utils/logging.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/utils
+copying build/lib/super_pole_position/utils/__init__.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/utils
+copying build/lib/super_pole_position/utils/math.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/utils
+copying build/lib/super_pole_position/ai_cpu.py -> build/bdist.linux-x86_64/wheel/./super_pole_position
+creating build/bdist.linux-x86_64/wheel/super_pole_position/ui
+copying build/lib/super_pole_position/ui/sprites.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/ui
+copying build/lib/super_pole_position/ui/__init__.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/ui
+copying build/lib/super_pole_position/ui/menu.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/ui
+copying build/lib/super_pole_position/ui/arcade.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/ui
+creating build/bdist.linux-x86_64/wheel/super_pole_position/agents
+copying build/lib/super_pole_position/agents/controllers.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/agents
+copying build/lib/super_pole_position/agents/__init__.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/agents
+copying build/lib/super_pole_position/agents/keyboard_agent.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/agents
+copying build/lib/super_pole_position/agents/base_llm_agent.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/agents
+copying build/lib/super_pole_position/agents/openai_agent.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/agents
+copying build/lib/super_pole_position/agents/mistral_agent.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/agents
+copying build/lib/super_pole_position/agents/joystick_agent.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/agents
+copying build/lib/super_pole_position/__main__.py -> build/bdist.linux-x86_64/wheel/./super_pole_position
+creating build/bdist.linux-x86_64/wheel/super_pole_position/physics
+copying build/lib/super_pole_position/physics/traffic_car.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/physics
+copying build/lib/super_pole_position/physics/track_info.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/physics
+copying build/lib/super_pole_position/physics/__init__.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/physics
+copying build/lib/super_pole_position/physics/state.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/physics
+copying build/lib/super_pole_position/physics/track_curve.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/physics
+copying build/lib/super_pole_position/physics/car.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/physics
+copying build/lib/super_pole_position/physics/track.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/physics
+copying build/lib/super_pole_position/__init__.py -> build/bdist.linux-x86_64/wheel/./super_pole_position
+creating build/bdist.linux-x86_64/wheel/super_pole_position/server
+copying build/lib/super_pole_position/server/api.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/server
+copying build/lib/super_pole_position/server/__init__.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/server
+copying build/lib/super_pole_position/server/sync.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/server
+copying build/lib/super_pole_position/physics.py -> build/bdist.linux-x86_64/wheel/./super_pole_position
+creating build/bdist.linux-x86_64/wheel/super_pole_position/matchmaking
+copying build/lib/super_pole_position/matchmaking/arena.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/matchmaking
+copying build/lib/super_pole_position/matchmaking/__init__.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/matchmaking
+creating build/bdist.linux-x86_64/wheel/super_pole_position/envs
+copying build/lib/super_pole_position/envs/__init__.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/envs
+copying build/lib/super_pole_position/envs/pole_position.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/envs
+copying build/lib/super_pole_position/config.arcade_parity.yaml -> build/bdist.linux-x86_64/wheel/./super_pole_position
+copying build/lib/super_pole_position/config.py -> build/bdist.linux-x86_64/wheel/./super_pole_position
+copying build/lib/super_pole_position/cli.py -> build/bdist.linux-x86_64/wheel/./super_pole_position
+creating build/bdist.linux-x86_64/wheel/super_pole_position/evaluation
+copying build/lib/super_pole_position/evaluation/logger.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/evaluation
+copying build/lib/super_pole_position/evaluation/__init__.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/evaluation
+copying build/lib/super_pole_position/evaluation/lap_times.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/evaluation
+copying build/lib/super_pole_position/evaluation/metrics.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/evaluation
+copying build/lib/super_pole_position/evaluation/scores.py -> build/bdist.linux-x86_64/wheel/./super_pole_position/evaluation
+creating build/bdist.linux-x86_64/wheel/src
+creating build/bdist.linux-x86_64/wheel/src/ui
+copying build/lib/src/ui/hud.py -> build/bdist.linux-x86_64/wheel/./src/ui
+copying build/lib/src/ui/__init__.py -> build/bdist.linux-x86_64/wheel/./src/ui
+creating build/bdist.linux-x86_64/wheel/src/physics
+copying build/lib/src/physics/traffic_car.py -> build/bdist.linux-x86_64/wheel/./src/physics
+copying build/lib/src/physics/__init__.py -> build/bdist.linux-x86_64/wheel/./src/physics
+copying build/lib/src/physics/car.py -> build/bdist.linux-x86_64/wheel/./src/physics
+copying build/lib/src/physics/track.py -> build/bdist.linux-x86_64/wheel/./src/physics
+copying build/lib/src/physics/constants.py -> build/bdist.linux-x86_64/wheel/./src/physics
+copying build/lib/src/__init__.py -> build/bdist.linux-x86_64/wheel/./src
+creating build/bdist.linux-x86_64/wheel/src/render
+copying build/lib/src/render/__init__.py -> build/bdist.linux-x86_64/wheel/./src/render
+copying build/lib/src/render/post_effects.py -> build/bdist.linux-x86_64/wheel/./src/render
+copying build/lib/src/render/pseudo3d_renderer.py -> build/bdist.linux-x86_64/wheel/./src/render
+copying build/lib/src/render/background.py -> build/bdist.linux-x86_64/wheel/./src/render
+copying build/lib/src/cli.py -> build/bdist.linux-x86_64/wheel/./src
+creating build/bdist.linux-x86_64/wheel/src/audio
+copying build/lib/src/audio/sfx.py -> build/bdist.linux-x86_64/wheel/./src/audio
+copying build/lib/src/audio/__init__.py -> build/bdist.linux-x86_64/wheel/./src/audio
+creating build/bdist.linux-x86_64/wheel/examples
+copying build/lib/examples/reset_high_scores.py -> build/bdist.linux-x86_64/wheel/./examples
+copying build/lib/examples/animated_sprite.py -> build/bdist.linux-x86_64/wheel/./examples
+creating build/bdist.linux-x86_64/wheel/tests
+copying build/lib/tests/test_benchmark_logger.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_cli_stub.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_hiscore_persistence.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_is_on_road.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_leaderboard.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_gear_shift.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_hud_score.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_cpucar.py -> build/bdist.linux-x86_64/wheel/./tests
+creating build/bdist.linux-x86_64/wheel/tests/ui
+copying build/lib/tests/ui/test_hud.py -> build/bdist.linux-x86_64/wheel/./tests/ui
+copying build/lib/tests/test_track_namco.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_sprite_loader.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_hud_render.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_cli_difficulty.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_cli_outro.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_cli_track_file.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_cli_player_name.py -> build/bdist.linux-x86_64/wheel/./tests
+creating build/bdist.linux-x86_64/wheel/tests/physics
+copying build/lib/tests/physics/test_track_loader.py -> build/bdist.linux-x86_64/wheel/./tests/physics
+copying build/lib/tests/physics/test_traffic.py -> build/bdist.linux-x86_64/wheel/./tests/physics
+copying build/lib/tests/physics/test_car_physics.py -> build/bdist.linux-x86_64/wheel/./tests/physics
+copying build/lib/tests/test_friction_factor.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_start_sequence.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_track.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_2600_mode.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_env_seeding.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_billboard_collision.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_horizon_sway.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_slipstream_boost.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_parity_audit.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_audio_triggers.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_difficulty.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_curvilinear_coords.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_lap_persistence.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_attract_mode.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_crash_animation.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_carstate.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_physics_dt.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_api_server.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_package_smoke.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_determinism.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_docs.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_score_accumulates.py -> build/bdist.linux-x86_64/wheel/./tests
+creating build/bdist.linux-x86_64/wheel/tests/render
+copying build/lib/tests/render/test_bank_frame.py -> build/bdist.linux-x86_64/wheel/./tests/render
+copying build/lib/tests/render/test_fuji_shift.py -> build/bdist.linux-x86_64/wheel/./tests/render
+copying build/lib/tests/render/test_horizon_fade.py -> build/bdist.linux-x86_64/wheel/./tests/render
+copying build/lib/tests/render/test_center_stripe.py -> build/bdist.linux-x86_64/wheel/./tests/render
+copying build/lib/tests/render/test_surface.py -> build/bdist.linux-x86_64/wheel/./tests/render
+copying build/lib/tests/render/test_background.py -> build/bdist.linux-x86_64/wheel/./tests/render
+copying build/lib/tests/test_lap_timer_edge.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_ui.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_timer_grace.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_math_utils.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_surface_friction.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_parse_action.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_traffic_collision.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_menu_config.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_golden_obs.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_llm_agents.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_offroad_speed.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_lap_counter.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_render.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_cli_mute_bgm.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_car.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_trackcurve.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_cli_render_skip.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_cli_no_brake.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_cli_headless.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_obstacles.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_env.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_arcade_parity.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/conftest.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_traffic_pathing.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_ascii_sprites.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_cli_smoke.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_headless_render.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_icy_patch.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_timer_checkpoint.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_scoreboard_sync.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_explosion_anim.py -> build/bdist.linux-x86_64/wheel/./tests
+creating build/bdist.linux-x86_64/wheel/tests/data
+copying build/lib/tests/data/test_track_fuji.py -> build/bdist.linux-x86_64/wheel/./tests/data
+copying build/lib/tests/test_track_info.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_outro_fallback.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_nullagent.py -> build/bdist.linux-x86_64/wheel/./tests
+copying build/lib/tests/test_ai_integration.py -> build/bdist.linux-x86_64/wheel/./tests
+running install_egg_info
+Copying super_pole_position.egg-info to build/bdist.linux-x86_64/wheel/./super_pole_position-1.0.0rc1-py3.12.egg-info
+running install_scripts
+creating build/bdist.linux-x86_64/wheel/super_pole_position-1.0.0rc1.dist-info/WHEEL
+creating '/workspace/SUPER-POLE-POSITION/dist/.tmp-f__eu312/super_pole_position-1.0.0rc1-py3-none-any.whl' and adding 'build/bdist.linux-x86_64/wheel' to it
+adding 'examples/animated_sprite.py'
+adding 'examples/reset_high_scores.py'
+adding 'gymnasium/__init__.py'
+adding 'spp/__init__.py'
+adding 'spp/__main__.py'
+adding 'spp/cli.py'
+adding 'src/__init__.py'
+adding 'src/cli.py'
+adding 'src/audio/__init__.py'
+adding 'src/audio/sfx.py'
+adding 'src/physics/__init__.py'
+adding 'src/physics/car.py'
+adding 'src/physics/constants.py'
+adding 'src/physics/track.py'
+adding 'src/physics/traffic_car.py'
+adding 'src/render/__init__.py'
+adding 'src/render/background.py'
+adding 'src/render/post_effects.py'
+adding 'src/render/pseudo3d_renderer.py'
+adding 'src/ui/__init__.py'
+adding 'src/ui/hud.py'
+adding 'super_pole_position/__init__.py'
+adding 'super_pole_position/__main__.py'
+adding 'super_pole_position/ai_cpu.py'
+adding 'super_pole_position/cli.py'
+adding 'super_pole_position/config.arcade_parity.yaml'
+adding 'super_pole_position/config.py'
+adding 'super_pole_position/physics.py'
+adding 'super_pole_position/agents/__init__.py'
+adding 'super_pole_position/agents/base_llm_agent.py'
+adding 'super_pole_position/agents/controllers.py'
+adding 'super_pole_position/agents/joystick_agent.py'
+adding 'super_pole_position/agents/keyboard_agent.py'
+adding 'super_pole_position/agents/mistral_agent.py'
+adding 'super_pole_position/agents/openai_agent.py'
+adding 'super_pole_position/envs/__init__.py'
+adding 'super_pole_position/envs/pole_position.py'
+adding 'super_pole_position/evaluation/__init__.py'
+adding 'super_pole_position/evaluation/lap_times.py'
+adding 'super_pole_position/evaluation/logger.py'
+adding 'super_pole_position/evaluation/metrics.py'
+adding 'super_pole_position/evaluation/scores.py'
+adding 'super_pole_position/matchmaking/__init__.py'
+adding 'super_pole_position/matchmaking/arena.py'
+adding 'super_pole_position/physics/__init__.py'
+adding 'super_pole_position/physics/car.py'
+adding 'super_pole_position/physics/state.py'
+adding 'super_pole_position/physics/track.py'
+adding 'super_pole_position/physics/track_curve.py'
+adding 'super_pole_position/physics/track_info.py'
+adding 'super_pole_position/physics/traffic_car.py'
+adding 'super_pole_position/server/__init__.py'
+adding 'super_pole_position/server/api.py'
+adding 'super_pole_position/server/sync.py'
+adding 'super_pole_position/ui/__init__.py'
+adding 'super_pole_position/ui/arcade.py'
+adding 'super_pole_position/ui/menu.py'
+adding 'super_pole_position/ui/sprites.py'
+adding 'super_pole_position/utils/__init__.py'
+adding 'super_pole_position/utils/logging.py'
+adding 'super_pole_position/utils/math.py'
+adding 'super_pole_position-1.0.0rc1.dist-info/licenses/LICENSE'
+adding 'tests/conftest.py'
+adding 'tests/test_2600_mode.py'
+adding 'tests/test_ai_integration.py'
+adding 'tests/test_api_server.py'
+adding 'tests/test_arcade_parity.py'
+adding 'tests/test_ascii_sprites.py'
+adding 'tests/test_attract_mode.py'
+adding 'tests/test_audio_triggers.py'
+adding 'tests/test_benchmark_logger.py'
+adding 'tests/test_billboard_collision.py'
+adding 'tests/test_car.py'
+adding 'tests/test_carstate.py'
+adding 'tests/test_cli_difficulty.py'
+adding 'tests/test_cli_headless.py'
+adding 'tests/test_cli_mute_bgm.py'
+adding 'tests/test_cli_no_brake.py'
+adding 'tests/test_cli_outro.py'
+adding 'tests/test_cli_player_name.py'
+adding 'tests/test_cli_render_skip.py'
+adding 'tests/test_cli_smoke.py'
+adding 'tests/test_cli_stub.py'
+adding 'tests/test_cli_track_file.py'
+adding 'tests/test_cpucar.py'
+adding 'tests/test_crash_animation.py'
+adding 'tests/test_curvilinear_coords.py'
+adding 'tests/test_determinism.py'
+adding 'tests/test_difficulty.py'
+adding 'tests/test_docs.py'
+adding 'tests/test_env.py'
+adding 'tests/test_env_seeding.py'
+adding 'tests/test_explosion_anim.py'
+adding 'tests/test_friction_factor.py'
+adding 'tests/test_gear_shift.py'
+adding 'tests/test_golden_obs.py'
+adding 'tests/test_headless_render.py'
+adding 'tests/test_hiscore_persistence.py'
+adding 'tests/test_horizon_sway.py'
+adding 'tests/test_hud_render.py'
+adding 'tests/test_hud_score.py'
+adding 'tests/test_icy_patch.py'
+adding 'tests/test_is_on_road.py'
+adding 'tests/test_lap_counter.py'
+adding 'tests/test_lap_persistence.py'
+adding 'tests/test_lap_timer_edge.py'
+adding 'tests/test_leaderboard.py'
+adding 'tests/test_llm_agents.py'
+adding 'tests/test_math_utils.py'
+adding 'tests/test_menu_config.py'
+adding 'tests/test_nullagent.py'
+adding 'tests/test_obstacles.py'
+adding 'tests/test_offroad_speed.py'
+adding 'tests/test_outro_fallback.py'
+adding 'tests/test_package_smoke.py'
+adding 'tests/test_parity_audit.py'
+adding 'tests/test_parse_action.py'
+adding 'tests/test_physics_dt.py'
+adding 'tests/test_render.py'
+adding 'tests/test_score_accumulates.py'
+adding 'tests/test_scoreboard_sync.py'
+adding 'tests/test_slipstream_boost.py'
+adding 'tests/test_sprite_loader.py'
+adding 'tests/test_start_sequence.py'
+adding 'tests/test_surface_friction.py'
+adding 'tests/test_timer_checkpoint.py'
+adding 'tests/test_timer_grace.py'
+adding 'tests/test_track.py'
+adding 'tests/test_track_info.py'
+adding 'tests/test_track_namco.py'
+adding 'tests/test_trackcurve.py'
+adding 'tests/test_traffic_collision.py'
+adding 'tests/test_traffic_pathing.py'
+adding 'tests/test_ui.py'
+adding 'tests/data/test_track_fuji.py'
+adding 'tests/physics/test_car_physics.py'
+adding 'tests/physics/test_track_loader.py'
+adding 'tests/physics/test_traffic.py'
+adding 'tests/render/test_background.py'
+adding 'tests/render/test_bank_frame.py'
+adding 'tests/render/test_center_stripe.py'
+adding 'tests/render/test_fuji_shift.py'
+adding 'tests/render/test_horizon_fade.py'
+adding 'tests/render/test_surface.py'
+adding 'tests/ui/test_hud.py'
+adding 'tools/parity_audit.py'
+adding 'super_pole_position-1.0.0rc1.dist-info/METADATA'
+adding 'super_pole_position-1.0.0rc1.dist-info/WHEEL'
+adding 'super_pole_position-1.0.0rc1.dist-info/entry_points.txt'
+adding 'super_pole_position-1.0.0rc1.dist-info/top_level.txt'
+adding 'super_pole_position-1.0.0rc1.dist-info/RECORD'
+removing build/bdist.linux-x86_64/wheel
+Successfully built super_pole_position-1.0.0rc1.tar.gz and super_pole_position-1.0.0rc1-py3-none-any.whl

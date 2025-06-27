@@ -1,0 +1,21 @@
+# Arcade parity tuning parameters
+puddle:
+  speed_factor: 0.65
+  angle_jitter: 0.2
+
+offroad_speed_factor: 0.5
+
+engine_base_freq: 400.0
+engine_pitch_factor: 3100.0
+scanline_step: 2
+scanline_spacing: 2
+scanline_alpha: 60
+audio_volume: 0.8
+engine_volume: 0.8
+voice_volume: 1.0
+effects_volume: 0.8
+engine_pan_spread: 0.8
+horizon_sway: 0.12
+
+
+turn_rate: 2.5

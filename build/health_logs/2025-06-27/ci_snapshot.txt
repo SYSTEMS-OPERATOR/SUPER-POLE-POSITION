@@ -1,0 +1,582 @@
+................ssss..F....F......s.....ss...................s......F... [ 63%]
+...........s..s..................Fs.......                               [100%]
+=================================== FAILURES ===================================
+_______________________ test_scanline_intensity_improved _______________________
+
+    def test_scanline_intensity_improved():
+        baseline = _read_baseline()
+        cfg = arcade._load_arcade_config()
+>       assert cfg["scanline_alpha"] <= baseline - 10
+E       assert 255 <= (255 - 10)
+
+tests/test_arcade_parity.py:61: AssertionError
+_________________________ test_checkpoint_sound_loaded _________________________
+
+    def test_checkpoint_sound_loaded():
+        env = PolePositionEnv(render_mode="human")
+>       assert env.checkpoint_wave is not None
+E       assert None is not None
+E        +  where None = <super_pole_position.envs.pole_position.PolePositionEnv object at 0x7f0d8f118bf0>.checkpoint_wave
+
+tests/test_audio_triggers.py:34: AssertionError
+_____________________________ test_load_snow_track _____________________________
+
+    def test_load_snow_track() -> None:
+        track = Track.load("snow_mountain")
+>       assert track.icy_patches
+E       assert []
+E        +  where [] = <super_pole_position.physics.track.Track object at 0x7f0d8ed6d2e0>.icy_patches
+
+tests/test_icy_patch.py:16: AssertionError
+_____________________________ test_load_track_info _____________________________
+
+    def test_load_track_info():
+>       info = load_track_info("fuji_namco")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_track_info.py:10: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/root/.pyenv/versions/3.12.10/lib/python3.12/site-packages/super_pole_position/physics/track_info.py:36: in load_track_info
+    data = json.loads(path.read_text())
+                      ^^^^^^^^^^^^^^^^
+/root/.pyenv/versions/3.12.10/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/root/.pyenv/versions/3.12.10/lib/python3.12/site-packages/assets/tracks/fuji_namco.json')
+mode = 'r', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/root/.pyenv/versions/3.12.10/lib/python3.12/site-packages/assets/tracks/fuji_namco.json'
+
+/root/.pyenv/versions/3.12.10/lib/python3.12/pathlib.py:1013: FileNotFoundError
+==================================== PASSES ====================================
+_______________________ test_attract_mode_cycles_scores ________________________
+----------------------------- Captured stderr call -----------------------------
+ALSA lib confmisc.c:855:(parse_card) cannot find card '0'
+ALSA lib conf.c:5204:(_snd_config_evaluate) function snd_func_card_inum returned error: No such file or directory
+ALSA lib confmisc.c:422:(snd_func_concat) error evaluating strings
+ALSA lib conf.c:5204:(_snd_config_evaluate) function snd_func_concat returned error: No such file or directory
+ALSA lib confmisc.c:1342:(snd_func_refer) error evaluating name
+ALSA lib conf.c:5204:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
+ALSA lib conf.c:5727:(snd_config_expand) Evaluate error: No such file or directory
+ALSA lib pcm.c:2721:(snd_pcm_open_noupdate) Unknown PCM default
+_________________________ test_prepare_voice_on_reset __________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+______________________ test_step_with_audio_no_exception _______________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+________________________ test_log_episode_creates_files ________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+[ENV] Race finished
+_____________________ test_billboard_collision_time_bleed ______________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+[ENV] Race finished
+__________________________ test_cli_difficulty_option __________________________
+----------------------------- Captured stdout call -----------------------------
+{}
+______________________________ test_cli_mute_bgm _______________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+{'reward': 0.0, 'qualifying_time': None, 'passes': 0, 'crashes': 0, 'gear_shifts': 0, 'ai_offtrack': 0, 'avg_plan_ms': 0.0, 'avg_step_ms': 0.0, 'tokens': 0}
+______________________________ test_cli_no_brake _______________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+{'reward': 0.0, 'qualifying_time': None, 'passes': 0, 'crashes': 0, 'gear_shifts': 0, 'ai_offtrack': 0, 'avg_plan_ms': 0.0, 'avg_step_ms': 0.0, 'tokens': 0}
+____________________________ test_cli_invokes_outro ____________________________
+----------------------------- Captured stdout call -----------------------------
+{}
+_____________________________ test_cli_player_name _____________________________
+----------------------------- Captured stdout call -----------------------------
+episode error: 'DummyEnv' object has no attribute 'reset'
+{}
+_____________________________ test_cli_render_skip _____________________________
+----------------------------- Captured stdout call -----------------------------
+pygame required for --render
+_____________________________ test_cli_track_file ______________________________
+----------------------------- Captured stdout call -----------------------------
+{}
+_________________________ test_crash_animation_trigger _________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+[ENV] Crash!
+___________________________ test_determinism_seeded ____________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+[ENV] Race finished
+[ENV] Race finished
+[ENV] GO!
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Resetting environment
+[ENV] Race finished
+[ENV] Race finished
+[ENV] GO!
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+____________________________ test_seed_passthrough _____________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+[ENV] Resetting environment
+_____________________________ test_reset_and_step ______________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+____________________________ test_custom_parameters ____________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+_________________________ test_reset_seed_determinism __________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+[ENV] Resetting environment
+________________________ test_env_shift_increments_once ________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+___________________________ test_horizon_sway_factor ___________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+____________________________ test_hud_render_smoke _____________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+_______________________________ test_lap_counter _______________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+[ENV] Completed lap 1 in 2.00s
+[ENV] Completed lap 2 in 2.00s
+[ENV] Completed lap 3 in 2.00s
+[ENV] Completed lap 4 in 2.00s
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Completed lap 5 in 2.00s
+[ENV] Race finished
+____________________________ test_lap_timer_resets _____________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+[ENV] Completed lap 1 in 2.00s
+________________________ test_null_agent_completes_lap _________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Completed lap 1 in 41.00s
+______________________________ test_offroad_speed ______________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+___________________________ test_step_uses_clock_dt ____________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+____________________________ test_score_accumulates ____________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+[ENV] Completed lap 1 in 2.00s
+____________________________ test_slipstream_boost _____________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+___________________________ test_start_sequence_draw ___________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+________________________ test_checkpoint_timer_rollover ________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+[ENV] Completed lap 1 in 2.00s
+____________________________ test_finish_line_grace ____________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+[ENV] Completed lap 1 in 1.00s
+____________________________ test_traffic_collision ____________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+[ENV] Crash!
+___________________________ test_traffic_ai_pathing ____________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+[ENV] Race finished
+_____________________________ test_traffic_looping _____________________________
+----------------------------- Captured stdout call -----------------------------
+[ENV] Resetting environment
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.12.10-final-0 _______________
+
+Name                                 Stmts   Miss  Cover   Missing
+------------------------------------------------------------------
+src/__init__.py                          0      0   100%
+src/audio/__init__.py                    0      0   100%
+src/audio/sfx.py                        31     16    48%   32-34, 40-44, 49-51, 56-60
+src/physics/__init__.py                  0      0   100%
+src/physics/car.py                      46      7    85%   35-38, 54-56
+src/physics/constants.py                 2      0   100%
+src/physics/track.py                    75     14    81%   60-63, 86-88, 95, 101-106
+src/physics/traffic_car.py              37      2    95%   43-44
+src/render/__init__.py                   0      0   100%
+src/render/background.py                32      9    72%   34-37, 40-54
+src/render/pseudo3d_renderer.py        108     12    89%   60, 111, 199, 221-226, 229-233
+src/ui/__init__.py                       0      0   100%
+src/ui/hud.py                           48     14    71%   93, 121, 139-155
+super_pole_position/physics.py          13      0   100%
+super_pole_position/utils/math.py        8      0   100%
+tests/conftest.py                       32      3    91%   45, 61-62
+tests/data/test_track_fuji.py            7      0   100%
+tests/physics/test_car_physics.py       33      0   100%
+tests/physics/test_track_loader.py      18      0   100%
+tests/physics/test_traffic.py           29      0   100%
+tests/render/test_background.py         10      0   100%
+tests/render/test_bank_frame.py         26      0   100%
+tests/render/test_center_stripe.py      16      0   100%
+tests/render/test_fuji_shift.py         12      3    75%   14-16
+tests/render/test_horizon_fade.py       10      0   100%
+tests/render/test_surface.py             6      0   100%
+tests/test_2600_mode.py                 17     13    24%   7-21
+tests/test_ai_integration.py            22     12    45%   9-16, 21-22, 27-28
+tests/test_api_server.py                36     26    28%   23-54
+tests/test_arcade_parity.py             37      1    97%   55
+tests/test_ascii_sprites.py              9      0   100%
+tests/test_attract_mode.py              15      0   100%
+tests/test_audio_triggers.py            17      1    94%   35
+tests/test_benchmark_logger.py          17      0   100%
+tests/test_billboard_collision.py       19      0   100%
+tests/test_car.py                       12      0   100%
+tests/test_carstate.py                  12      0   100%
+tests/test_cli_difficulty.py            21      0   100%
+tests/test_cli_headless.py               8      2    75%   19-26
+tests/test_cli_mute_bgm.py              13      1    92%   8
+tests/test_cli_no_brake.py              13      1    92%   8
+tests/test_cli_outro.py                 24      0   100%
+tests/test_cli_player_name.py           26      0   100%
+tests/test_cli_render_skip.py            9      0   100%
+tests/test_cli_smoke.py                  8      2    75%   9-16
+tests/test_cli_stub.py                   8      2    75%   9-13
+tests/test_cli_track_file.py            23      0   100%
+tests/test_cpucar.py                    10      0   100%
+tests/test_crash_animation.py            9      0   100%
+tests/test_curvilinear_coords.py        33      0   100%
+tests/test_determinism.py               16      0   100%
+tests/test_difficulty.py                23      0   100%
+tests/test_docs.py                       5      0   100%
+tests/test_env.py                       31      0   100%
+tests/test_env_seeding.py                8      0   100%
+tests/test_explosion_anim.py            20      0   100%
+tests/test_friction_factor.py           18      0   100%
+tests/test_gear_shift.py                23      0   100%
+tests/test_golden_obs.py                22     16    27%   9-24
+tests/test_headless_render.py           12      0   100%
+tests/test_hiscore_persistence.py       13      0   100%
+tests/test_horizon_sway.py              18      0   100%
+tests/test_hud_render.py                12      0   100%
+tests/test_hud_score.py                 23      0   100%
+tests/test_icy_patch.py                 12      0   100%
+tests/test_is_on_road.py                 5      0   100%
+tests/test_lap_counter.py               16      0   100%
+tests/test_lap_persistence.py           12      0   100%
+tests/test_lap_timer_edge.py            13      0   100%
+tests/test_leaderboard.py                9      0   100%
+tests/test_llm_agents.py                14      0   100%
+tests/test_math_utils.py                22      0   100%
+tests/test_menu_config.py               16      0   100%
+tests/test_nullagent.py                 19      0   100%
+tests/test_obstacles.py                  8      1    88%   20
+tests/test_offroad_speed.py             14      0   100%
+tests/test_outro_fallback.py             8      0   100%
+tests/test_package_smoke.py             19     10    47%   17-26
+tests/test_parity_audit.py              11      0   100%
+tests/test_parse_action.py               8      0   100%
+tests/test_physics_dt.py                14      0   100%
+tests/test_render.py                    23      0   100%
+tests/test_score_accumulates.py         18      0   100%
+tests/test_scoreboard_sync.py           17      0   100%
+tests/test_slipstream_boost.py          23      0   100%
+tests/test_sprite_loader.py             13      0   100%
+tests/test_start_sequence.py            13      0   100%
+tests/test_surface_friction.py          13      0   100%
+tests/test_timer_checkpoint.py          21      2    90%   34-35
+tests/test_timer_grace.py               16      0   100%
+tests/test_track.py                     29      0   100%
+tests/test_track_info.py                 6      2    67%   11-12
+tests/test_track_namco.py                8      1    88%   20
+tests/test_trackcurve.py                20      0   100%
+tests/test_traffic_collision.py         15      0   100%
+tests/test_traffic_pathing.py           26      0   100%
+tests/test_ui.py                         4      0   100%
+tests/ui/test_hud.py                    15      0   100%
+tools/parity_audit.py                   78     23    71%   51-53, 70-75, 81-90, 105-106, 110, 125
+------------------------------------------------------------------
+TOTAL                                 1839    196    89%
+============================= slowest 20 durations =============================
+1.09s call     tests/test_parity_audit.py::test_parity_audit_runs
+0.22s call     tests/test_determinism.py::test_determinism_seeded
+0.14s call     tests/test_attract_mode.py::test_attract_mode_cycles_scores
+0.10s call     tests/test_nullagent.py::test_null_agent_completes_lap
+0.03s call     tests/test_cli_mute_bgm.py::test_cli_mute_bgm
+0.02s call     tests/test_traffic_pathing.py::test_traffic_ai_pathing
+0.02s call     tests/test_lap_counter.py::test_lap_counter
+0.02s call     tests/test_audio_triggers.py::test_prepare_voice_on_reset
+0.01s call     tests/test_horizon_sway.py::test_horizon_sway_factor
+0.01s call     tests/test_hud_render.py::test_hud_render_smoke
+0.01s call     tests/test_start_sequence.py::test_start_sequence_draw
+0.01s call     tests/test_cli_no_brake.py::test_cli_no_brake
+0.01s call     tests/test_difficulty.py::test_expert_time_limit
+0.01s call     tests/test_physics_dt.py::test_step_uses_clock_dt
+0.01s call     tests/test_difficulty.py::test_beginner_time_limit_qualify
+0.01s call     tests/test_timer_checkpoint.py::test_checkpoint_timer_rollover
+0.01s call     tests/test_benchmark_logger.py::test_log_episode_creates_files
+0.01s call     tests/test_score_accumulates.py::test_score_accumulates
+0.01s call     tests/test_crash_animation.py::test_crash_animation_trigger
+0.01s call     tests/render/test_bank_frame.py::test_bank_frame_switch
+=========================== short test summary info ============================
+PASSED tests/data/test_track_fuji.py::test_fuji_json_loads
+PASSED tests/physics/test_car_physics.py::test_0_100_time
+PASSED tests/physics/test_car_physics.py::test_top_speed
+PASSED tests/physics/test_car_physics.py::test_steering_limit
+PASSED tests/physics/test_car_physics.py::test_shift_count_increments
+PASSED tests/physics/test_track_loader.py::test_total_length
+PASSED tests/physics/test_track_loader.py::test_angle_wrap
+PASSED tests/physics/test_track_loader.py::test_curvature_left_right
+PASSED tests/physics/test_traffic.py::test_lane_switch
+PASSED tests/physics/test_traffic.py::test_respawn
+PASSED tests/render/test_background.py::test_no_bg_flag
+PASSED tests/render/test_bank_frame.py::test_bank_frame_switch
+PASSED tests/render/test_center_stripe.py::test_center_stripe_drawn
+PASSED tests/render/test_fuji_shift.py::test_fuji_shift_lut
+PASSED tests/render/test_horizon_fade.py::test_sprite_alpha_reduces_near_horizon
+PASSED tests/render/test_surface.py::test_surface_size
+PASSED tests/test_arcade_parity.py::test_puddle_slowdown_improved
+PASSED tests/test_arcade_parity.py::test_engine_pitch_improved
+PASSED tests/test_ascii_sprites.py::test_ascii_surface
+PASSED tests/test_attract_mode.py::test_attract_mode_cycles_scores
+PASSED tests/test_audio_triggers.py::test_prepare_voice_on_reset
+PASSED tests/test_audio_triggers.py::test_step_with_audio_no_exception
+PASSED tests/test_benchmark_logger.py::test_log_episode_creates_files
+PASSED tests/test_billboard_collision.py::test_billboard_collision_time_bleed
+PASSED tests/test_car.py::test_apply_controls_throttle_brake
+PASSED tests/test_carstate.py::test_carstate_defaults
+PASSED tests/test_carstate.py::test_distance_along_track
+PASSED tests/test_cli_difficulty.py::test_cli_difficulty_option
+PASSED tests/test_cli_mute_bgm.py::test_cli_mute_bgm
+PASSED tests/test_cli_no_brake.py::test_cli_no_brake
+PASSED tests/test_cli_outro.py::test_cli_invokes_outro
+PASSED tests/test_cli_player_name.py::test_cli_player_name
+PASSED tests/test_cli_render_skip.py::test_cli_render_skip
+PASSED tests/test_cli_track_file.py::test_cli_track_file
+PASSED tests/test_cpucar.py::test_cpucar_blocking
+PASSED tests/test_crash_animation.py::test_crash_animation_trigger
+PASSED tests/test_curvilinear_coords.py::test_curvilinear_coords_straight
+PASSED tests/test_curvilinear_coords.py::test_curvilinear_coords_curved
+PASSED tests/test_determinism.py::test_determinism_seeded
+PASSED tests/test_difficulty.py::test_expert_time_limit
+PASSED tests/test_difficulty.py::test_beginner_time_limit_qualify
+PASSED tests/test_docs.py::test_readme_instructions
+PASSED tests/test_env.py::test_seed_passthrough
+PASSED tests/test_env.py::test_reset_and_step
+PASSED tests/test_env.py::test_custom_parameters
+PASSED tests/test_env_seeding.py::test_reset_seed_determinism
+PASSED tests/test_explosion_anim.py::test_explosion_frame_indices
+PASSED tests/test_friction_factor.py::test_offroad_factor
+PASSED tests/test_friction_factor.py::test_puddle_factor
+PASSED tests/test_friction_factor.py::test_surface_zone_factor
+PASSED tests/test_gear_shift.py::test_shift_changes_max_speed
+PASSED tests/test_gear_shift.py::test_env_shift_increments_once
+PASSED tests/test_headless_render.py::test_headless_render_smoke
+PASSED tests/test_hiscore_persistence.py::test_hiscore_persistence
+PASSED tests/test_horizon_sway.py::test_horizon_sway_factor
+PASSED tests/test_hud_render.py::test_hud_render_smoke
+PASSED tests/test_hud_score.py::test_hud_high_score_updates
+PASSED tests/test_icy_patch.py::test_icy_patch_drift
+PASSED tests/test_is_on_road.py::test_is_on_road_basic
+PASSED tests/test_lap_counter.py::test_lap_counter
+PASSED tests/test_lap_persistence.py::test_lap_persistence
+PASSED tests/test_lap_timer_edge.py::test_lap_timer_resets
+PASSED tests/test_leaderboard.py::test_update_leaderboard
+PASSED tests/test_llm_agents.py::test_openai_agent_offline
+PASSED tests/test_llm_agents.py::test_mistral_agent_offline
+PASSED tests/test_math_utils.py::test_factorial_base_cases
+PASSED tests/test_math_utils.py::test_factorial_positive
+PASSED tests/test_math_utils.py::test_factorial_negative
+PASSED tests/test_math_utils.py::test_factorial_large
+PASSED tests/test_menu_config.py::test_menu_navigation_and_config
+PASSED tests/test_menu_config.py::test_menu_escape_returns_none
+PASSED tests/test_nullagent.py::test_null_agent_completes_lap
+PASSED tests/test_offroad_speed.py::test_offroad_speed
+PASSED tests/test_outro_fallback.py::test_show_race_outro_fallback
+PASSED tests/test_parity_audit.py::test_parity_audit_runs
+PASSED tests/test_parse_action.py::test_parse_action_valid
+PASSED tests/test_parse_action.py::test_parse_action_invalid
+PASSED tests/test_physics_dt.py::test_step_uses_clock_dt
+PASSED tests/test_render.py::test_draw_road_polygon_offset
+PASSED tests/test_render.py::test_ground_color_green
+PASSED tests/test_score_accumulates.py::test_score_accumulates
+PASSED tests/test_scoreboard_sync.py::test_sync_once
+PASSED tests/test_slipstream_boost.py::test_slipstream_boost
+PASSED tests/test_sprite_loader.py::test_load_sprite_png
+PASSED tests/test_start_sequence.py::test_start_sequence_draw
+PASSED tests/test_surface_friction.py::test_surface_zone_friction
+PASSED tests/test_timer_checkpoint.py::test_checkpoint_timer_rollover
+PASSED tests/test_timer_grace.py::test_finish_line_grace
+PASSED tests/test_track.py::test_wrap_position
+PASSED tests/test_track.py::test_distance
+PASSED tests/test_track.py::test_load_named_track
+PASSED tests/test_track.py::test_friction_factor_puddle_offroad
+PASSED tests/test_trackcurve.py::test_straight_curve
+PASSED tests/test_trackcurve.py::test_curve_in_track_on_road
+PASSED tests/test_traffic_collision.py::test_traffic_collision
+PASSED tests/test_traffic_pathing.py::test_traffic_ai_pathing
+PASSED tests/test_traffic_pathing.py::test_traffic_looping
+PASSED tests/test_ui.py::test_available
+PASSED tests/ui/test_hud.py::test_digits_checksum
+SKIPPED [1] tests/test_2600_mode.py:5: nondeterministic currently
+SKIPPED [1] tests/test_ai_integration.py:19: slow test
+SKIPPED [1] tests/test_ai_integration.py:25: slow test
+SKIPPED [1] tests/test_api_server.py:21: fastapi not installed
+SKIPPED [1] tests/test_cli_headless.py:17: slow test
+SKIPPED [1] tests/test_cli_smoke.py:7: slow test
+SKIPPED [1] tests/test_cli_stub.py:7: slow test
+SKIPPED [1] tests/test_golden_obs.py:7: golden baseline unstable
+SKIPPED [1] tests/test_obstacles.py:19: namco assets missing
+SKIPPED [1] tests/test_package_smoke.py:14: slow test
+SKIPPED [1] tests/test_track_namco.py:19: namco assets missing
+FAILED tests/test_arcade_parity.py::test_scanline_intensity_improved - assert...
+FAILED tests/test_audio_triggers.py::test_checkpoint_sound_loaded - assert No...
+FAILED tests/test_icy_patch.py::test_load_snow_track - assert []
+FAILED tests/test_track_info.py::test_load_track_info - FileNotFoundError: [E...
+4 failed, 99 passed, 11 skipped in 2.74s

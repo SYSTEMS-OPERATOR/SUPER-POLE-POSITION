@@ -1,0 +1,50 @@
+Processing ./dist/super_pole_position-1.0.0rc1-py3-none-any.whl
+Collecting gymnasium (from super-pole-position==1.0.0rc1)
+  Using cached gymnasium-1.1.1-py3-none-any.whl.metadata (9.4 kB)
+Collecting numpy (from super-pole-position==1.0.0rc1)
+  Using cached numpy-2.3.1-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (62 kB)
+Collecting pyyaml (from super-pole-position==1.0.0rc1)
+  Using cached PyYAML-6.0.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (2.1 kB)
+Collecting cloudpickle>=1.2.0 (from gymnasium->super-pole-position==1.0.0rc1)
+  Using cached cloudpickle-3.1.1-py3-none-any.whl.metadata (7.1 kB)
+Collecting typing-extensions>=4.3.0 (from gymnasium->super-pole-position==1.0.0rc1)
+  Using cached typing_extensions-4.14.0-py3-none-any.whl.metadata (3.0 kB)
+Collecting farama-notifications>=0.0.1 (from gymnasium->super-pole-position==1.0.0rc1)
+  Using cached Farama_Notifications-0.0.4-py3-none-any.whl.metadata (558 bytes)
+Using cached gymnasium-1.1.1-py3-none-any.whl (965 kB)
+Using cached cloudpickle-3.1.1-py3-none-any.whl (20 kB)
+Using cached Farama_Notifications-0.0.4-py3-none-any.whl (2.5 kB)
+Using cached numpy-2.3.1-cp312-cp312-manylinux_2_28_x86_64.whl (16.6 MB)
+Using cached typing_extensions-4.14.0-py3-none-any.whl (43 kB)
+Using cached PyYAML-6.0.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (767 kB)
+Installing collected packages: farama-notifications, typing-extensions, pyyaml, numpy, cloudpickle, gymnasium, super-pole-position
+  Attempting uninstall: farama-notifications
+    Found existing installation: Farama-Notifications 0.0.4
+    Uninstalling Farama-Notifications-0.0.4:
+      Successfully uninstalled Farama-Notifications-0.0.4
+  Attempting uninstall: typing-extensions
+    Found existing installation: typing_extensions 4.14.0
+    Uninstalling typing_extensions-4.14.0:
+      Successfully uninstalled typing_extensions-4.14.0
+  Attempting uninstall: pyyaml
+    Found existing installation: PyYAML 6.0.2
+    Uninstalling PyYAML-6.0.2:
+      Successfully uninstalled PyYAML-6.0.2
+  Attempting uninstall: numpy
+    Found existing installation: numpy 2.3.1
+    Uninstalling numpy-2.3.1:
+      Successfully uninstalled numpy-2.3.1
+  Attempting uninstall: cloudpickle
+    Found existing installation: cloudpickle 3.1.1
+    Uninstalling cloudpickle-3.1.1:
+      Successfully uninstalled cloudpickle-3.1.1
+  Attempting uninstall: gymnasium
+    Found existing installation: gymnasium 1.1.1
+    Uninstalling gymnasium-1.1.1:
+      Successfully uninstalled gymnasium-1.1.1
+  Attempting uninstall: super-pole-position
+    Found existing installation: super-pole-position 1.0.0rc1
+    Uninstalling super-pole-position-1.0.0rc1:
+      Successfully uninstalled super-pole-position-1.0.0rc1
+
+Successfully installed cloudpickle-3.1.1 farama-notifications-0.0.4 gymnasium-1.1.1 numpy-2.3.1 pyyaml-6.0.2 super-pole-position-1.0.0rc1 typing-extensions-4.14.0

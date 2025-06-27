@@ -1,0 +1,68 @@
+................ssss..F....F......s.....ss...................s......F... [ 63%]
+...........s..s..................Fs.......                               [100%]
+=================================== FAILURES ===================================
+_______________________ test_scanline_intensity_improved _______________________
+
+    def test_scanline_intensity_improved():
+        baseline = _read_baseline()
+        cfg = arcade._load_arcade_config()
+>       assert cfg["scanline_alpha"] <= baseline - 10
+E       assert 255 <= (255 - 10)
+
+tests/test_arcade_parity.py:61: AssertionError
+_________________________ test_checkpoint_sound_loaded _________________________
+
+    def test_checkpoint_sound_loaded():
+        env = PolePositionEnv(render_mode="human")
+>       assert env.checkpoint_wave is not None
+E       assert None is not None
+E        +  where None = <super_pole_position.envs.pole_position.PolePositionEnv object at 0x7fc4c0ee3bc0>.checkpoint_wave
+
+tests/test_audio_triggers.py:34: AssertionError
+_____________________________ test_load_snow_track _____________________________
+
+    def test_load_snow_track() -> None:
+        track = Track.load("snow_mountain")
+>       assert track.icy_patches
+E       assert []
+E        +  where [] = <super_pole_position.physics.track.Track object at 0x7fc4befedd30>.icy_patches
+
+tests/test_icy_patch.py:16: AssertionError
+_____________________________ test_load_track_info _____________________________
+
+    def test_load_track_info():
+>       info = load_track_info("fuji_namco")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_track_info.py:10: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/root/.pyenv/versions/3.12.10/lib/python3.12/site-packages/super_pole_position/physics/track_info.py:36: in load_track_info
+    data = json.loads(path.read_text())
+                      ^^^^^^^^^^^^^^^^
+/root/.pyenv/versions/3.12.10/lib/python3.12/pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = PosixPath('/root/.pyenv/versions/3.12.10/lib/python3.12/site-packages/assets/tracks/fuji_namco.json')
+mode = 'r', buffering = -1, encoding = 'locale', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: '/root/.pyenv/versions/3.12.10/lib/python3.12/site-packages/assets/tracks/fuji_namco.json'
+
+/root/.pyenv/versions/3.12.10/lib/python3.12/pathlib.py:1013: FileNotFoundError
+=========================== short test summary info ============================
+FAILED tests/test_arcade_parity.py::test_scanline_intensity_improved - assert...
+FAILED tests/test_audio_triggers.py::test_checkpoint_sound_loaded - assert No...
+FAILED tests/test_icy_patch.py::test_load_snow_track - assert []
+FAILED tests/test_track_info.py::test_load_track_info - FileNotFoundError: [E...
+4 failed, 99 passed, 11 skipped in 1.66s

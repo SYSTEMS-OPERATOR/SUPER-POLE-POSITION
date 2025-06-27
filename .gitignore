@@ -3,3 +3,7 @@ benchmarks/*
 !benchmarks/baseline_puddle.txt
 !benchmarks/baseline_engine_pitch.txt
 __pycache__/
+build/
+dist/
+*.egg-info/
+.coverage

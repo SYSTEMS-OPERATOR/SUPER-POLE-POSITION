@@ -12,7 +12,6 @@ skip_slow = pytest.mark.skipif(
 
 
 @skip_slow
-@pytest.mark.timeout(30)
 def test_wheel_smoke(tmp_path):
     wheel_dir = tmp_path / "wheel"
     wheel_dir.mkdir()

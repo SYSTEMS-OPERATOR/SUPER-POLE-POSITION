@@ -4,6 +4,7 @@
 
 - [x] Pseudo-3D track with a vanishing-point horizon that sways on curves
 - [x] Raster display emulating the 256×224 resolution and broad color palette
+- [x] Internal 256×224 canvas scaled up for crisp pixels
 - [x] Scrolling playfield built from scanline-aligned segments
 - [x] Sprite scaling so cars and signboards grow smoothly when approaching
 - [x] Full-color scenery and billboards that shrink toward the horizon

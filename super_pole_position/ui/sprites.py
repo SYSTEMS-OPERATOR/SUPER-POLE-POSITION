@@ -89,7 +89,10 @@ def load_sprite(name: str, ascii_art: list[str] | None = None) -> "pygame.Surfac
     """
 
     if not pygame:
-        return ascii_surface(ascii_art or [])
+        surf = ascii_surface(ascii_art or [])
+        if surf and (surf.get_width() < 32 or surf.get_height() < 32):
+            surf = pygame.transform.scale(surf, (32, 32))
+        return surf
     base = os.getenv("SPRITE_DIR")
     if base:
         path = Path(base) / f"{name}.png"
@@ -108,11 +111,12 @@ def load_sprite(name: str, ascii_art: list[str] | None = None) -> "pygame.Surfac
                 except Exception:
                     pass
 
+    surf = None
     if path.exists() and path.stat().st_size > 0:
         try:
-            return pygame.image.load(str(path))
+            surf = pygame.image.load(str(path))
         except Exception:
-            return ascii_surface(ascii_art or [])
+            surf = None
     else:
         # attempt to generate placeholder sprite on the fly
         gen = path.parent / "generate_placeholders.py"
@@ -133,7 +137,12 @@ def load_sprite(name: str, ascii_art: list[str] | None = None) -> "pygame.Surfac
                 pass
             if path.exists() and path.stat().st_size > 0:
                 try:
-                    return pygame.image.load(str(path))
+                    surf = pygame.image.load(str(path))
                 except Exception:
-                    pass
-    return ascii_surface(ascii_art or [])
+                    surf = None
+
+    if surf is None:
+        surf = ascii_surface(ascii_art or [])
+    if surf and (surf.get_width() < 32 or surf.get_height() < 32):
+        surf = pygame.transform.scale(surf, (32, 32))
+    return surf

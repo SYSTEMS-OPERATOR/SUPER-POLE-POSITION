@@ -74,6 +74,13 @@ class KeyboardAgent(BaseLLMAgent):
         self._last_up = shift_up
         self._last_down = shift_down
 
+        try:
+            speed = float(observation[2])  # type: ignore[index]
+        except Exception:
+            speed = 0.0
+        if speed > 48.0 and gear == 0:
+            gear = 1
+
         return {
             "throttle": throttle,
             "brake": brake,

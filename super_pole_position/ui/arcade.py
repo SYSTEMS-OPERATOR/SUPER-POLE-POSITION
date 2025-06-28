@@ -281,17 +281,12 @@ class Pseudo3DRenderer:
         self.screen = screen
         if pygame and not pygame.font.get_init():
             pygame.font.init()
-        self.render_scale = 2
+        self.internal_res = (256, 224)
         if pygame:
-            self.offscreen = pygame.Surface(
-                (
-                    screen.get_width() * self.render_scale,
-                    screen.get_height() * self.render_scale,
-                )
-            )
+            self.canvas = pygame.Surface(self.internal_res, pygame.SRCALPHA)
         else:
-            self.offscreen = None
-        self.horizon_base = int(screen.get_height() * 0.4)
+            self.canvas = screen
+        self.horizon_base = int(self.internal_res[1] * 0.4)
         self.horizon = self.horizon_base
         # Sky gradient colors roughly matching the arcade palette
         self.sky_top = Palette.sky_blue
@@ -335,11 +330,9 @@ class Pseudo3DRenderer:
             self._scanline_row = pygame.Surface((1, 1), pygame.SRCALPHA)
             self._scanline_row.fill((0, 0, 0, self.scanline_alpha))
             self.start_font = pygame.font.SysFont(None, 48)
-            self.canvas = self.offscreen
         else:
             self._scanline_row = None
             self.start_font = None
-            self.canvas = screen
         self.dash_offset = 0.0
 
     def draw_explosion(self, env, pos) -> int:
@@ -379,7 +372,6 @@ class Pseudo3DRenderer:
         """Return trapezoid points for the road given ``offset``."""
 
         surface = self.canvas
-        scale = self.render_scale if self.offscreen else 1
         width = surface.get_width()
         height = surface.get_height()
         road_w = width * 0.6
@@ -390,7 +382,7 @@ class Pseudo3DRenderer:
             (width / 2 + offset + road_top / 2, self.horizon),
             (width / 2 + offset - road_top / 2, self.horizon),
         ]
-        return [(x / scale, y / scale) for x, y in points]
+        return points
 
     def draw_road_polygon(self, env) -> list[tuple[float, float]]:
         """Draw the road trapezoid and return its points."""
@@ -403,16 +395,10 @@ class Pseudo3DRenderer:
         angle = env.track.angle_at(dist)
         curvature = max(-1.0, min(angle / (math.pi / 4), 1.0))
         offset = curvature * (self.canvas.get_width() / 4)
+        offset += getattr(env, "last_steer", 0.0) * 0.12 * self.canvas.get_width()
         points = self.road_polygon(offset)
         if pygame:
-            scaled = [
-                (
-                    x * (self.render_scale if self.offscreen else 1),
-                    y * (self.render_scale if self.offscreen else 1),
-                )
-                for x, y in points
-            ]
-            pygame.draw.polygon(self.canvas, (60, 60, 60), scaled)
+            pygame.draw.polygon(self.canvas, (60, 60, 60), points)
         return points
 
     def _draw_sky(self, surface: "pygame.Surface") -> None:
@@ -692,11 +678,8 @@ class Pseudo3DRenderer:
 
         # Scale to display and apply scanlines
         target = self.screen
-        if self.offscreen:
-            scaled = pygame.transform.smoothscale(self.offscreen, target.get_size())
-            target.blit(scaled, (0, 0))
-        else:
-            target = surface
+        scaled = pygame.transform.scale(self.canvas, target.get_size())
+        target.blit(scaled, (0, 0))
 
         if self._scanline_row:
             row = pygame.transform.scale(self._scanline_row, (target.get_width(), 1))

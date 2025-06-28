@@ -84,6 +84,7 @@ Press **Enter** to begin or **Esc** to quit.
 🖼️ **Retro ASCII sprites** for cars, billboards and explosions.
 🎨 **Placeholder PNGs** stored in `assets/sprites` for arcade-faithful builds.
 These are zero-byte stubs included only so the file paths exist.
+🖼️ **Crisp pixels** via a 256×224 internal canvas scaled to your window.
 🚀 **Hyper Mode** for uncapped speed and obstacle chaos.
 🕹️ **Arcade-accurate mechanics**: slipstream boost, off-road slowdown, crash penalties
 🛞 **Two-speed gearbox with torque kick**

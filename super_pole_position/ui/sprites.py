@@ -108,13 +108,13 @@ def load_sprite(name: str, ascii_art: list[str] | None = None) -> "pygame.Surfac
                 except Exception:
                     pass
 
+    surf: "pygame.Surface | None" = None
     if path.exists() and path.stat().st_size > 0:
         try:
-            return pygame.image.load(str(path))
+            surf = pygame.image.load(str(path)).convert_alpha()
         except Exception:
-            return ascii_surface(ascii_art or [])
+            surf = None
     else:
-        # attempt to generate placeholder sprite on the fly
         gen = path.parent / "generate_placeholders.py"
         if gen.exists() and not pygame.display.get_init():
             try:
@@ -133,7 +133,16 @@ def load_sprite(name: str, ascii_art: list[str] | None = None) -> "pygame.Surfac
                 pass
             if path.exists() and path.stat().st_size > 0:
                 try:
-                    return pygame.image.load(str(path))
+                    surf = pygame.image.load(str(path)).convert_alpha()
                 except Exception:
-                    pass
-    return ascii_surface(ascii_art or [])
+                    surf = None
+    if surf is None:
+        surf = ascii_surface(ascii_art or [])
+        if surf is None:
+            return None
+    w, h = surf.get_size()
+    if w < 32 or h < 32:
+        padded = pygame.Surface((32, 32), pygame.SRCALPHA)
+        padded.blit(surf, ((32 - w) // 2, (32 - h) // 2))
+        surf = padded
+    return surf

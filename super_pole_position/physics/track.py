@@ -14,6 +14,7 @@ import json
 import hashlib
 from pathlib import Path
 from dataclasses import dataclass
+from importlib import resources
 
 from ..config import load_parity_config
 from .track_curve import TrackCurve
@@ -105,6 +106,23 @@ class Track:
         self._hash = self._compute_hash()
 
     # ------------------------------------------------------------------
+    @staticmethod
+    def _read_track_data(name: str) -> dict | None:
+        """Return JSON data for ``name`` from package resources or assets."""
+
+        try:
+            text = resources.files("super_pole_position.assets.tracks").joinpath(f"{name}.json").read_text()
+            return json.loads(text)
+        except Exception:
+            path = Path(__file__).resolve().parents[2] / "assets" / "tracks" / f"{name}.json"
+            if path.exists():
+                try:
+                    return json.loads(path.read_text())
+                except Exception:
+                    return None
+        return None
+
+    # ------------------------------------------------------------------
     def _compute_hash(self) -> str:
         data = {
             "width": self.width,
@@ -179,6 +197,23 @@ class Track:
         dx = p1[0] - p0[0]
         return math.atan2(dy, dx)
 
+    def curvature_at(self, x: float) -> float:
+        """Return approximate curvature at ``x``."""
+
+        if self.curve:
+            idx = min(int(x % self.curve.total_length), len(self.curve.segments) - 1)
+            return self.curve.segments[idx].curvature
+        if not self.segments:
+            return 0.0
+        prev_angle = self.angle_at(x - 1e-3)
+        next_angle = self.angle_at(x + 1e-3)
+        dtheta = next_angle - prev_angle
+        while dtheta > math.pi:
+            dtheta -= 2 * math.pi
+        while dtheta < -math.pi:
+            dtheta += 2 * math.pi
+        return dtheta / 2e-3
+
     def is_on_road(self, x: float, y: float) -> bool:
         """Return ``True`` if coordinates are within the paved bounds."""
 
@@ -201,17 +236,8 @@ class Track:
 
     @classmethod
     def load(cls, name: str) -> "Track":
-        path = (
-            Path(__file__).resolve().parents[2]
-            / "assets"
-            / "tracks"
-            / f"{name}.json"
-        )
-        if path.exists():
-            try:
-                data = json.loads(path.read_text())
-            except Exception:
-                return cls()
+        data = cls._read_track_data(name)
+        if data:
             seg = data.get("segments", [])
             obstacles = [Obstacle(**o) for o in data.get("obstacles", [])]
             puddles = [Puddle(**p) for p in data.get("puddles", [])]
@@ -315,18 +341,8 @@ class Track:
     @classmethod
     def load_namco(cls, name: str) -> "Track":
         """Load one of the original Namco tracks by name."""
-
-        path = (
-            Path(__file__).resolve().parents[2]
-            / "assets"
-            / "tracks"
-            / f"{name}.json"
-        )
-        if path.exists():
-            try:
-                data = json.loads(path.read_text())
-            except Exception:
-                return cls()
+        data = cls._read_track_data(name)
+        if data:
             seg = data.get("segments", [])
             obstacles = [Obstacle(**o) for o in data.get("obstacles", [])]
             puddles = [Puddle(**p) for p in data.get("puddles", [])]

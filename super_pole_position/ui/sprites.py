@@ -98,7 +98,7 @@ def load_sprite(name: str, ascii_art: list[str] | None = None) -> "pygame.Surfac
 
     if not path.exists() or path.stat().st_size == 0:
         gen_path = Path(__file__).resolve().parents[2] / "assets" / "sprites" / "generate_placeholders.py"
-        if gen_path.exists():
+        if gen_path.exists() and not pygame.display.get_init():
             spec = importlib.util.spec_from_file_location("generate_placeholders", gen_path)
             if spec and spec.loader:
                 mod = importlib.util.module_from_spec(spec)
@@ -116,7 +116,7 @@ def load_sprite(name: str, ascii_art: list[str] | None = None) -> "pygame.Surfac
     else:
         # attempt to generate placeholder sprite on the fly
         gen = path.parent / "generate_placeholders.py"
-        if gen.exists():
+        if gen.exists() and not pygame.display.get_init():
             try:
                 spec = importlib.util.spec_from_file_location("placeholder_gen", gen)
                 if spec and spec.loader:

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import json
 import math
-from pathlib import Path
+from importlib import resources
 from typing import List, Tuple
 
 
@@ -32,8 +32,12 @@ def load_track_info(name: str = "fuji_namco") -> TrackInfo:
         Parsed track data with cumulative length and curvature.
     """
 
-    path = Path(__file__).resolve().parents[2] / "assets" / "tracks" / f"{name}.json"
-    data = json.loads(path.read_text())
+    try:
+        text = resources.files("super_pole_position.assets.tracks").joinpath(f"{name}.json").read_text()
+    except Exception:
+        path = resources.files("super_pole_position.assets.tracks").joinpath(f"{name}.json")
+        text = path.read_text()
+    data = json.loads(text)
     pts = [tuple(p) for p in data.get("segments", [])]
     if len(pts) < 2:
         raise ValueError("track requires at least two points")

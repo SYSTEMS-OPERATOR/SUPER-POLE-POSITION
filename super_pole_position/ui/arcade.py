@@ -99,7 +99,7 @@ def _load_sprite(name: str) -> "pygame.Surface | None":
 def _load_arcade_config() -> Dict[str, float]:
     """Return scanline configuration from ``config.arcade_parity.yaml``."""
 
-    cfg: Dict[str, float] = {"scanline_step": 2, "scanline_alpha": 255, "horizon_sway": 0.1}
+    cfg: Dict[str, float] = {"scanline_step": 2, "scanline_alpha": 60, "horizon_sway": 0.1}
     path = Path(__file__).resolve().parents[2] / "config.arcade_parity.yaml"
     try:
         with open(path, "r", encoding="utf-8") as fh:

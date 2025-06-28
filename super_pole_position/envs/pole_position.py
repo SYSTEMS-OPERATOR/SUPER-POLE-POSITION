@@ -317,6 +317,13 @@ class PolePositionEnv(gym.Env):
                     return snd
                 except Exception:
                     return None
+            if pg_mixer is not None:
+                try:
+                    snd = pg_mixer.Sound(buffer=b"\x00\x00")
+                    snd.set_volume(volume)
+                    return snd
+                except Exception:
+                    pass
             return None
 
         if pg_mixer is not None:

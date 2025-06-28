@@ -22,6 +22,7 @@ import json
 import platform
 import subprocess
 import sys
+import types
 
 try:
     import pygame  # optional dependency for graphics
@@ -297,7 +298,7 @@ class PolePositionEnv(gym.Env):
                         pass
         def _load_audio(name: str, func_name: str | None, volume: float) -> "pg_mixer.Sound | None":
             if pg_mixer is None:
-                return None
+                return types.SimpleNamespace(play=lambda *a, **k: None, set_volume=lambda *a, **k: None)
             path = base / name
             if path.exists() and path.stat().st_size > 0:
                 try:
@@ -306,23 +307,26 @@ class PolePositionEnv(gym.Env):
                     return snd
                 except Exception:
                     pass
-            if gen_mod and func_name and hasattr(gen_mod, func_name):
+            if gen_mod and func_name and hasattr(gen_mod, func_name) and pg_mixer and pg_mixer.get_init():
                 try:
-                    if not pg_mixer.get_init():
-                        pg_mixer.init(frequency=gen_mod.SAMPLE_RATE)
                     data = getattr(gen_mod, func_name)()
                     arr = np.ascontiguousarray(data * 32767, dtype=np.int16)
                     snd = pygame.sndarray.make_sound(arr)
                     snd.set_volume(volume)
                     return snd
                 except Exception:
-                    return None
-            return None
+                    return types.SimpleNamespace(play=lambda *a, **k: None, set_volume=lambda *a, **k: None)
+            if pg_mixer and pg_mixer.get_init():
+                try:
+                    snd = pg_mixer.Sound(buffer=b"\x00\x00")
+                    snd.set_volume(volume)
+                    return snd
+                except Exception:
+                    pass
+            return types.SimpleNamespace(play=lambda *a, **k: None, set_volume=lambda *a, **k: None)
 
-        if pg_mixer is not None:
+        if pg_mixer is not None and pg_mixer.get_init():
             try:
-                if not pg_mixer.get_init():
-                    pg_mixer.init()
                 pg_mixer.music.set_volume(self.audio_volume)
             except Exception:
                 pass

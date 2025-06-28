@@ -51,7 +51,7 @@ def main() -> None:
     parser.add_argument("--upload", action="store_true")
     sub = parser.add_subparsers(dest="cmd")
     q = sub.add_parser("qualify")
-    q.add_argument("--agent", choices=list(AGENT_MAP.keys()), default="null")
+    q.add_argument("--agent", choices=list(AGENT_MAP.keys()), default="keyboard")
     q.add_argument("--track", default="fuji")
     q.add_argument("--track-file", dest="track_file")
     q.add_argument("--render", action="store_true")
@@ -80,7 +80,7 @@ def main() -> None:
     )
 
     r = sub.add_parser("race")
-    r.add_argument("--agent", choices=list(AGENT_MAP.keys()), default="null")
+    r.add_argument("--agent", choices=list(AGENT_MAP.keys()), default="keyboard")
     r.add_argument("--track", default="fuji")
     r.add_argument("--track-file", dest="track_file")
     r.add_argument("--render", action="store_true")

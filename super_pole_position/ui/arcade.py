@@ -99,7 +99,11 @@ def _load_sprite(name: str) -> "pygame.Surface | None":
 def _load_arcade_config() -> Dict[str, float]:
     """Return scanline configuration from ``config.arcade_parity.yaml``."""
 
-    cfg: Dict[str, float] = {"scanline_step": 2, "scanline_alpha": 255, "horizon_sway": 0.1}
+    cfg: Dict[str, float] = {
+        "scanline_step": 2,
+        "scanline_alpha": 60,
+        "horizon_sway": 0.1,
+    }
     path = Path(__file__).resolve().parents[2] / "config.arcade_parity.yaml"
     try:
         with open(path, "r", encoding="utf-8") as fh:
@@ -279,6 +283,8 @@ class Pseudo3DRenderer:
         """
 
         self.screen = screen
+        if pygame and not pygame.display.get_init():
+            pygame.display.init()
         if pygame and not pygame.font.get_init():
             pygame.font.init()
         self.render_scale = 2
@@ -291,6 +297,7 @@ class Pseudo3DRenderer:
             )
         else:
             self.offscreen = None
+        self.sprites: dict[str, pygame.Surface | None] = {}
         self.horizon_base = int(screen.get_height() * 0.4)
         self.horizon = self.horizon_base
         # Sky gradient colors roughly matching the arcade palette
@@ -299,23 +306,39 @@ class Pseudo3DRenderer:
         self.sky_color = Palette.sky_blue
         self.ground_color = Palette.green
         self.car_color = Palette.red
-        self.player_car_sprite = _load_sprite("player_car.png") or ascii_surface(
-            CAR_ART
+        from . import sprites
+
+        self.player_car_sprite = sprites.load_sprite(
+            "player_car", ascii_art=sprites.CAR_ART
         )
-        self.player_car_left = _load_sprite("player_car_bankL.png")
-        self.player_car_right = _load_sprite("player_car_bankR.png")
-        self.cpu_front_sprite = _load_sprite("cpu_car.png") or ascii_surface(CAR_ART)
+        self.sprites["player_car"] = self.player_car_sprite
+        self.player_car_left = sprites.load_sprite(
+            "player_car_bankL", ascii_art=sprites.CAR_ART
+        )
+        self.sprites["player_car_bankL"] = self.player_car_left
+        self.player_car_right = sprites.load_sprite(
+            "player_car_bankR", ascii_art=sprites.CAR_ART
+        )
+        self.sprites["player_car_bankR"] = self.player_car_right
+        self.cpu_front_sprite = sprites.load_sprite(
+            "cpu_car", ascii_art=sprites.CAR_ART
+        )
+        self.sprites["cpu_car"] = self.cpu_front_sprite
         self.billboard_sprites = []
         for i in range(1, 9):
-            spr = _load_sprite(f"billboard_{i}.png")
+            spr = sprites.load_sprite(f"billboard_{i}")
             if spr:
                 self.billboard_sprites.append(spr)
+                self.sprites[f"billboard_{i}"] = spr
         if not self.billboard_sprites:
             self.billboard_sprites = [ascii_surface(BILLBOARD_ART)]
-        self.mt_fuji = _load_sprite("mt_fuji.png")
-        self.clouds = _load_sprite("clouds.png")
+        self.mt_fuji = sprites.load_sprite("mt_fuji")
+        self.sprites["mt_fuji"] = self.mt_fuji
+        self.clouds = sprites.load_sprite("clouds")
+        self.sprites["clouds"] = self.clouds
         self.cloud_offset = 0.0
-        sheet = _load_sprite("explosion_16f.png")
+        sheet = sprites.load_sprite("explosion_16f")
+        self.sprites["explosion_16f"] = sheet
         if sheet:
             frame_w = sheet.get_width() // 16
             self.explosion_frames = [
@@ -334,6 +357,8 @@ class Pseudo3DRenderer:
         if pygame:
             self._scanline_row = pygame.Surface((1, 1), pygame.SRCALPHA)
             self._scanline_row.fill((0, 0, 0, self.scanline_alpha))
+            if not pygame.font.get_init():
+                pygame.font.init()
             self.start_font = pygame.font.SysFont(None, 48)
             self.canvas = self.offscreen
         else:
@@ -469,7 +494,8 @@ class Pseudo3DRenderer:
             dist = player.x
         angle = env.track.angle_at(dist)
         curvature = max(-1.0, min(angle / (math.pi / 4), 1.0))
-        offset = curvature * (width / 4)
+        steer_shift = getattr(env, "last_steer", 0.0) * (width / 4)
+        offset = curvature * (width / 4) + steer_shift * self.horizon_sway
         self.horizon = int(self.horizon_base + offset * self.horizon_sway)
 
         slices = 64

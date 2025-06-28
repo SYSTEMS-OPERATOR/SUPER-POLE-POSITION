@@ -32,8 +32,16 @@ def load_track_info(name: str = "fuji_namco") -> TrackInfo:
         Parsed track data with cumulative length and curvature.
     """
 
-    path = Path(__file__).resolve().parents[2] / "assets" / "tracks" / f"{name}.json"
-    data = json.loads(path.read_text())
+    from importlib import resources
+
+    try:
+        data_text = resources.files("super_pole_position.assets.tracks").joinpath(
+            f"{name}.json"
+        ).read_text()
+        data = json.loads(data_text)
+    except Exception:
+        path = Path(__file__).resolve().parents[2] / "assets" / "tracks" / f"{name}.json"
+        data = json.loads(path.read_text())
     pts = [tuple(p) for p in data.get("segments", [])]
     if len(pts) < 2:
         raise ValueError("track requires at least two points")

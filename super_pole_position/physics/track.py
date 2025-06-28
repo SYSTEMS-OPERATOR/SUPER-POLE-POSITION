@@ -179,6 +179,28 @@ class Track:
         dx = p1[0] - p0[0]
         return math.atan2(dy, dx)
 
+    def curvature_at(self, x: float) -> float:
+        """Approximate curvature at position ``x``."""
+
+        if self.curve:
+            if not self._curve_lengths:
+                return 0.0
+            idx = 0
+            pos = x % self.curve.total_length
+            for i, d in enumerate(self._curve_lengths):
+                if pos <= d:
+                    idx = i
+                    break
+            return self.curve.segments[idx].curvature
+        prev = self.angle_at(x - 1e-3)
+        nex = self.angle_at(x + 1e-3)
+        dtheta = nex - prev
+        while dtheta > math.pi:
+            dtheta -= 2 * math.pi
+        while dtheta < -math.pi:
+            dtheta += 2 * math.pi
+        return dtheta / 2e-3
+
     def is_on_road(self, x: float, y: float) -> bool:
         """Return ``True`` if coordinates are within the paved bounds."""
 
@@ -201,13 +223,22 @@ class Track:
 
     @classmethod
     def load(cls, name: str) -> "Track":
-        path = (
-            Path(__file__).resolve().parents[2]
-            / "assets"
-            / "tracks"
-            / f"{name}.json"
-        )
-        if path.exists():
+        from importlib import resources
+
+        try:
+            data_text = resources.files(
+                "super_pole_position.assets.tracks"
+            ).joinpath(f"{name}.json").read_text()
+            data = json.loads(data_text)
+        except Exception:
+            path = (
+                Path(__file__).resolve().parents[2]
+                / "assets"
+                / "tracks"
+                / f"{name}.json"
+            )
+            if not path.exists():
+                return cls()
             try:
                 data = json.loads(path.read_text())
             except Exception:

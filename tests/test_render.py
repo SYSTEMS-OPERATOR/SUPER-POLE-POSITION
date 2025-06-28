@@ -14,7 +14,7 @@ def test_draw_road_polygon_offset():
         track=types.SimpleNamespace(angle_at=lambda x: math.pi / 8),
     )
     poly = renderer.draw_road_polygon(env)
-    width = screen.get_width()
+    width = renderer.canvas.get_width()
     road_top = width * 0.6 * 0.2
     expected = 0.5 * (width / 4)
     assert poly[2][0] == pytest.approx(width / 2 + expected + road_top / 2)

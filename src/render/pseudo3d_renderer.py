@@ -42,6 +42,23 @@ class Renderer:
         self.scanline.fill((0, 0, 0, 38))
         self.horizon = 90
         self.sprites: dict[str, pygame.Surface] = {}
+        try:
+            from super_pole_position.ui import sprites as _sprites
+
+            self.sprites["player_car"] = _sprites.load_sprite(
+                "player_car", ascii_art=_sprites.CAR_ART
+            )
+            self.sprites["player_car_bankL"] = _sprites.load_sprite(
+                "player_car_bankL", ascii_art=_sprites.CAR_ART
+            )
+            self.sprites["player_car_bankR"] = _sprites.load_sprite(
+                "player_car_bankR", ascii_art=_sprites.CAR_ART
+            )
+            self.sprites["cpu_car"] = _sprites.load_sprite(
+                "cpu_car", ascii_art=_sprites.CAR_ART
+            )
+        except Exception:
+            pass
         self.enable_fade = enable_fade
         self.enable_bloom = enable_bloom
         self.frame_no = 0

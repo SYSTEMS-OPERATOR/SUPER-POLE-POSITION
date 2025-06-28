@@ -38,6 +38,7 @@ exclude = ["assets*"]
 
 [tool.setuptools.package-data]
 "super_pole_position" = ["config.arcade_parity.yaml"]
+"super_pole_position.assets.tracks" = ["*.json"]
 
 [tool.ruff]
 line-length = 88

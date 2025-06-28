@@ -15,6 +15,7 @@ except Exception:  # pragma: no cover - optional dependency
     pygame = None
 
 from .base_llm_agent import BaseLLMAgent
+from ..physics.car import Car
 
 
 class KeyboardAgent(BaseLLMAgent):
@@ -73,6 +74,14 @@ class KeyboardAgent(BaseLLMAgent):
             gear = -1
         self._last_up = shift_up
         self._last_down = shift_down
+
+        # automatic upshift when speed nears limit
+        try:
+            speed = float(observation[2])
+        except Exception:
+            speed = 0.0
+        if gear == 0 and speed > Car.gear_max[0] * 0.9:
+            gear = 1
 
         return {
             "throttle": throttle,

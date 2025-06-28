@@ -10,7 +10,6 @@ Description: Module for Super Pole Position.
 
 import os
 from pathlib import Path
-import importlib.util
 
 # Hide pygame's greeting for cleaner logs
 os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
@@ -96,44 +95,20 @@ def load_sprite(name: str, ascii_art: list[str] | None = None) -> "pygame.Surfac
     else:
         path = Path(__file__).resolve().parents[2] / "assets" / "sprites" / f"{name}.png"
 
-    if not path.exists() or path.stat().st_size == 0:
-        gen_path = Path(__file__).resolve().parents[2] / "assets" / "sprites" / "generate_placeholders.py"
-        if gen_path.exists() and not pygame.display.get_init():
-            spec = importlib.util.spec_from_file_location("generate_placeholders", gen_path)
-            if spec and spec.loader:
-                mod = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(mod)
-                try:
-                    mod.generate_sprite(name, path)
-                except Exception:
-                    pass
-
     if path.exists() and path.stat().st_size > 0:
         try:
-            return pygame.image.load(str(path))
+            surf = pygame.image.load(str(path))
+            return surf.convert_alpha()
         except Exception:
-            return ascii_surface(ascii_art or [])
+            pass
+
+    surf = pygame.Surface((32, 32), pygame.SRCALPHA)
+    if ascii_art:
+        ascii_img = ascii_surface(ascii_art, scale=4)
+        if ascii_img:
+            surf.blit(ascii_img, (0, 0))
     else:
-        # attempt to generate placeholder sprite on the fly
-        gen = path.parent / "generate_placeholders.py"
-        if gen.exists() and not pygame.display.get_init():
-            try:
-                spec = importlib.util.spec_from_file_location("placeholder_gen", gen)
-                if spec and spec.loader:
-                    mod = importlib.util.module_from_spec(spec)
-                    spec.loader.exec_module(mod)
-                    if hasattr(mod, "generate_all"):
-                        mod.generate_all(path.parent)
-                    elif hasattr(mod, "generate_sprite"):
-                        size_map: dict[str, tuple[int, int]] = getattr(
-                            mod, "_parse_sprite_specs", lambda _: {}
-                        )(path.parent / "SPRITES.md")
-                        mod.generate_sprite(name, path, size_map)
-            except Exception:
-                pass
-            if path.exists() and path.stat().st_size > 0:
-                try:
-                    return pygame.image.load(str(path))
-                except Exception:
-                    pass
-    return ascii_surface(ascii_art or [])
+        pygame.draw.rect(surf, (255, 0, 0), pygame.Rect(4, 8, 24, 16))
+        pygame.draw.rect(surf, (20, 20, 20), pygame.Rect(6, 24, 8, 8))
+        pygame.draw.rect(surf, (20, 20, 20), pygame.Rect(18, 24, 8, 8))
+    return surf

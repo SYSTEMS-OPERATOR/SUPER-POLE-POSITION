@@ -6,7 +6,7 @@ from super_pole_position.envs.pole_position import PolePositionEnv
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--agent", default="null")
+    parser.add_argument("--agent", default="keyboard")
     parser.add_argument("--headless", action="store_true")
     parser.add_argument("--steps", type=int, default=3)
     parser.add_argument("--seed", type=int, default=0)

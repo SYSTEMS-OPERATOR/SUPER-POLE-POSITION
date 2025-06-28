@@ -140,6 +140,8 @@ class PolePositionEnv(gym.Env):
 
 
         self.render_mode = render_mode
+        if self.render_mode == "headless":
+            os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
         self.mode = mode
         self.hyper = hyper
         self.player_name = player_name
@@ -353,6 +355,11 @@ class PolePositionEnv(gym.Env):
         self.clock = None
         self._scale = 3  # pixels per track unit
         self.renderer = None
+        if self.render_mode == "headless" and pygame is not None:
+            pygame.init()
+            self.screen = pygame.Surface((256, 224))
+            self.clock = pygame.time.Clock()
+            self.renderer = Pseudo3DRenderer(self.screen)
 
     def configure_planner(self) -> None:
         """Prompt the player to load the GPT planner on demand."""
@@ -821,6 +828,9 @@ class PolePositionEnv(gym.Env):
         self.learning_agent.update_on_experience([experience])
         self.step_durations.append(time.perf_counter() - step_start)
         info = {"track_hash": self.track.track_hash}
+        if self.render_mode == "headless" and self.renderer is not None:
+            self.renderer.draw(self)
+            info["frame"] = self.renderer.canvas.copy()
         return obs, reward, done, False, info
 
     def render(self) -> None:

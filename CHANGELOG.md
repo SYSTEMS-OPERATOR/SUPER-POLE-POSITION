@@ -32,7 +32,9 @@
 - Difficulty setting added with expert mode shortening time limits.
 - Documented upcoming arcade-parity tasks in `PROGRESS_ARCADE_PARITY.md` and
   added roadmap items for qualify-to-race and high-score table.
+- Refactored CLI flow into typed helper functions and added 🧭 dev breadcrumbs
+  for mode dispatch, runtime flags, and episode persistence.
+- Added architecture companion docs: `MIND.md`, `BODY.md`, and `SOUL.md`.
 
 - Fixed duplicate menu tick sound load for gear shifts.
 📌 Keep racing for the next update! 🏁
-

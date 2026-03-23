@@ -15,4 +15,8 @@ Check `parity_run.json` for metrics:
 Use `--baseline <file>` to specify a golden baseline and `--strict` to fail when
 deltas exceed thresholds.
 
-*TODO: expand with SSIM and audio analysis in future iterations.*
+## 🔬 Extended analysis checklist
+- Add an SSIM pass over rendered frames and store aggregate drift values.
+- Add FFT-based spectral distance for audio clips to complement hash matching.
+- Track per-section drift windows (start grid, mid-lap, finish sequence) to
+  localize parity regressions quickly.

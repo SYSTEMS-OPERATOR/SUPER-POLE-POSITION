@@ -14,6 +14,8 @@ from __future__ import annotations
 import argparse
 import os
 from pathlib import Path
+from typing import Optional
+
 from .log_utils import init_playtest_logger
 
 from .agents.base_llm_agent import NullAgent
@@ -41,6 +43,141 @@ AGENT_MAP = {
 def run_episode(env: PolePositionEnv, agents) -> None:
     """Compatibility wrapper invoking arena.run_episode."""
     _run_episode(env, agents)
+
+
+def _installed_via_wheel() -> bool:
+    """Return ``True`` when this module is loaded from a wheel install."""
+
+    return "site-packages" in Path(__file__).resolve().parts
+
+
+def _configure_runtime_flags(args: argparse.Namespace) -> None:
+    """Configure environment flags based on CLI options."""
+
+    if not args.release and _installed_via_wheel():
+        args.release = True
+    if args.release or os.getenv("ENV") == "production":
+        os.environ["SPP_RELEASE"] = "1"
+        os.environ["PERF_HUD"] = "0"
+        os.environ["AUDIO"] = "1"
+        os.environ.setdefault("WINDOW_W", "1280")
+        os.environ.setdefault("WINDOW_H", "720")
+        os.environ.setdefault("VSYNC", "1")
+        init_playtest_logger()
+    if args.upload:
+        os.environ["SPP_UPLOAD"] = "1"
+
+    # 🧭 Dev Agent Breadcrumb: normalize menu/game toggles before dispatch.
+    os.environ["MUTE_BGM"] = "1" if getattr(args, "mute_bgm", False) else "0"
+    os.environ["VIRTUAL_JOYSTICK"] = (
+        "1" if getattr(args, "virtual_joystick", False) else "0"
+    )
+    os.environ["DISABLE_BRAKE"] = "1" if getattr(args, "no_brake", False) else "0"
+    os.environ["ATTRACT_MODE"] = "1" if getattr(args, "attract_mode", False) else "0"
+
+
+def _launch_menu_if_requested(args: argparse.Namespace) -> Optional[dict]:
+    """Open the in-game menu for rendered runs and return selected options."""
+
+    if not getattr(args, "render", False):
+        return None
+
+    if os.name != "nt" and "DISPLAY" not in os.environ:
+        os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
+    try:
+        import pygame
+        from .ui import menu
+    except Exception:  # noqa: E402 - optional dependency
+        print("pygame required for --render", flush=True)
+        raise SystemExit(1)
+
+    pygame.init()
+    screen = pygame.display.set_mode((256, 224))
+    try:
+        return menu.main_loop(screen)
+    except Exception:
+        return None
+    finally:
+        pygame.quit()
+
+
+def _apply_menu_config(args: argparse.Namespace, cfg: Optional[dict]) -> bool:
+    """Apply menu overrides to ``args``. Return ``False`` on canceled menu."""
+
+    if cfg is None:
+        return not getattr(args, "render", False)
+
+    args.track = cfg.get("track", args.track)
+    args.difficulty = cfg.get("difficulty", args.difficulty)
+    os.environ["AUDIO"] = "1" if cfg.get("audio", True) else "0"
+    return True
+
+
+def _run_game_mode(args: argparse.Namespace, mode: str) -> None:
+    """Run either ``qualify`` or ``race`` mode."""
+
+    cfg = _launch_menu_if_requested(args)
+    if not _apply_menu_config(args, cfg):
+        return
+
+    # 🧭 Dev Agent Breadcrumb: environment + agent setup.
+    env = PolePositionEnv(
+        render_mode="human",
+        mode=mode,
+        track_name=args.track,
+        track_file=args.track_file,
+        player_name=args.player,
+        difficulty=args.difficulty,
+        start_position=getattr(args, "start_pos", None),
+    )
+    agent_cls = AGENT_MAP.get(args.agent, NullAgent)
+    agent = agent_cls()
+
+    # 🧭 Dev Agent Breadcrumb: run episode, record leaderboard, persist score.
+    safe_run_episode(env, (agent, agent))
+    metrics = summary(env)
+    update_leaderboard(
+        Path(__file__).parent / "evaluation" / "leaderboard.json",
+        f"{args.agent}-{mode}",
+        metrics,
+    )
+    update_scores(
+        Path(__file__).parent / "evaluation" / "scores.json",
+        args.player,
+        int(env.score),
+    )
+    try:
+        show_race_outro(
+            getattr(env, "screen", None),
+            int(env.score),
+            duration=0 if FAST_TEST else 5.0,
+        )
+    except Exception:
+        pass
+    env.close()
+    print(metrics)
+
+
+def _handle_utility_commands(args: argparse.Namespace) -> bool:
+    """Handle non-racing CLI commands and return ``True`` if handled."""
+
+    if args.cmd == "hiscore":
+        score_file = Path(__file__).parent / "evaluation" / "scores.json"
+        scores = load_scores(score_file)
+        for index, score in enumerate(scores, 1):
+            print(f"{index:2d}. {score['name']} {score['score']}")
+        return True
+    if args.cmd == "reset-scores":
+        answer = input("Reset all scores? [y/N]: ")
+        if answer.lower().startswith("y"):
+            reset_scores(Path(__file__).parent / "evaluation" / "scores.json")
+        return True
+    if args.cmd == "scoreboard-sync":
+        from .server import sync
+
+        sync.start_service(args.host, args.port, args.interval)
+        return True
+    return False
 
 
 def main() -> None:
@@ -106,7 +243,7 @@ def main() -> None:
         "--start-pos",
         type=int,
         help="Grid position from qualifying",
-    )  
+    )
     r.add_argument(
         "--attract-mode",
         action="store_true",
@@ -119,169 +256,17 @@ def main() -> None:
     s.add_argument("--host", default="127.0.0.1")
     s.add_argument("--port", type=int, default=8000)
     s.add_argument("--interval", type=float, default=60.0)
-    def _installed_via_wheel() -> bool:
-        from pathlib import Path
-
-        return "site-packages" in Path(__file__).resolve().parts
 
     args = parser.parse_args()
-    if not args.release and _installed_via_wheel():
-        args.release = True
-    if args.release or os.getenv("ENV") == "production":
-        os.environ["SPP_RELEASE"] = "1"
-        os.environ["PERF_HUD"] = "0"
-        os.environ["AUDIO"] = "1"
-        os.environ.setdefault("WINDOW_W", "1280")
-        os.environ.setdefault("WINDOW_H", "720")
-        os.environ.setdefault("VSYNC", "1")
-        init_playtest_logger()
-    if args.upload:
-        os.environ["SPP_UPLOAD"] = "1"
-    if getattr(args, "mute_bgm", False):
-        os.environ["MUTE_BGM"] = "1"
-    else:
-        os.environ.setdefault("MUTE_BGM", "0")
-    if getattr(args, "virtual_joystick", False):
-        os.environ["VIRTUAL_JOYSTICK"] = "1"
-    else:
-        os.environ.setdefault("VIRTUAL_JOYSTICK", "0")
-    if getattr(args, "no_brake", False):
-        os.environ["DISABLE_BRAKE"] = "1"
-    else:
-        os.environ.setdefault("DISABLE_BRAKE", "0")
-    if getattr(args, "attract_mode", False):
-        os.environ["ATTRACT_MODE"] = "1"
-    else:
-        os.environ.setdefault("ATTRACT_MODE", "0")
-
-    if args.cmd == "hiscore":
-        file = Path(__file__).parent / "evaluation" / "scores.json"
-        scores = load_scores(file)
-        for i, s in enumerate(scores, 1):
-            print(f"{i:2d}. {s['name']} {s['score']}")
-        return
-    if args.cmd == "reset-scores":
-        answer = input("Reset all scores? [y/N]: ")
-        if answer.lower().startswith("y"):
-            reset_scores(Path(__file__).parent / "evaluation" / "scores.json")
-        return
-    if args.cmd == "scoreboard-sync":
-        from .server import sync
-
-        sync.start_service(args.host, args.port, args.interval)
+    _configure_runtime_flags(args)
+    if _handle_utility_commands(args):
         return
 
     if args.cmd == "qualify":
-        if args.render:
-            if os.name != "nt" and "DISPLAY" not in os.environ:
-                os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
-            try:
-                import pygame
-                from .ui import menu
-            except Exception:  # noqa: E402 - optional dependency
-                print("pygame required for --render", flush=True)
-                raise SystemExit(1)
+        _run_game_mode(args, "qualify")
+        return
 
-            pygame.init()
-            screen = pygame.display.set_mode((256, 224))
-            try:
-                cfg = menu.main_loop(screen)
-            except Exception:
-                cfg = None
-            pygame.quit()
-            if cfg is None:
-                return
-            args.track = cfg.get("track", args.track)
-            args.difficulty = cfg.get("difficulty", args.difficulty)
-            os.environ["AUDIO"] = "1" if cfg.get("audio", True) else "0"
-        env = PolePositionEnv(
-            render_mode="human",
-            mode="qualify",
-            track_name=args.track,
-            track_file=args.track_file,
-            player_name=args.player,
-            difficulty=args.difficulty,
-        )
-        agent_cls = AGENT_MAP.get(args.agent, NullAgent)
-        agent = agent_cls()
-        safe_run_episode(env, (agent, agent))
-        metrics = summary(env)
-        update_leaderboard(
-            Path(__file__).parent / "evaluation" / "leaderboard.json",
-            f"{args.agent}-qualify",
-            metrics,
-        )
-        update_scores(
-            Path(__file__).parent / "evaluation" / "scores.json",
-            args.player,
-            int(env.score),
-        )
-        try:
-            show_race_outro(
-                getattr(env, "screen", None),
-                int(env.score),
-                duration=0 if FAST_TEST else 5.0,
-            )
-        except Exception:
-            pass
-        env.close()
-        print(metrics)
-    else:
-        if args.render:
-            if os.name != "nt" and "DISPLAY" not in os.environ:
-                os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
-            try:
-                import pygame
-                from .ui import menu
-            except Exception:  # noqa: E402 - optional dependency
-                print("pygame required for --render", flush=True)
-                raise SystemExit(1)
-
-            pygame.init()
-            screen = pygame.display.set_mode((256, 224))
-            try:
-                cfg = menu.main_loop(screen)
-            except Exception:
-                cfg = None
-            pygame.quit()
-            if cfg is None:
-                return
-            args.track = cfg.get("track", args.track)
-            args.difficulty = cfg.get("difficulty", args.difficulty)
-            os.environ["AUDIO"] = "1" if cfg.get("audio", True) else "0"
-        env = PolePositionEnv(
-            render_mode="human",
-            mode="race",
-            track_name=args.track,
-            track_file=args.track_file,
-            player_name=args.player,
-            difficulty=args.difficulty,
-            start_position=args.start_pos,
-        )
-        agent_cls = AGENT_MAP.get(args.agent, NullAgent)
-        agent = agent_cls()
-        safe_run_episode(env, (agent, agent))
-        metrics = summary(env)
-        update_leaderboard(
-            Path(__file__).parent / "evaluation" / "leaderboard.json",
-            f"{args.agent}-race",
-            metrics,
-        )
-        update_scores(
-            Path(__file__).parent / "evaluation" / "scores.json",
-            args.player,
-            int(env.score),
-        )
-        try:
-            show_race_outro(
-                getattr(env, "screen", None),
-                int(env.score),
-                duration=0 if FAST_TEST else 5.0,
-            )
-        except Exception:
-            pass
-        env.close()
-        print(metrics)
+    _run_game_mode(args, "race")
 
 
 if __name__ == "__main__":
